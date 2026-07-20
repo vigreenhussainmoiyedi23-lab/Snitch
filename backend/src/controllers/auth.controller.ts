@@ -8,26 +8,20 @@ export const registerController: RequestHandler = async (req, res) => {
   if (isUserExist) {
     return res.status(400).json({ message: "User already exists" });
   }
-  const newUser = await userModel.create({
+  const otp = `` + Math.floor(100000 + Math.random() * 900000);
+  await userModel.create({
     username,
     email,
     password,
+    otp,
+    otpExpiresIn: new Date(Date.now() + 10 * 60 * 1000),
   });
-  const { refreshToken, accessToken } = await CreateTokensAndSession({
-    _id: newUser._id.toString(),
-    ip: req.ip ?? "unknown",
-    userAgent: req.headers["user-agent"] ?? "unknown",
-  });
-  res.cookie("refreshToken", refreshToken, {
-    httpOnly: true,
-    secure: true,
-    sameSite: "none",
-    maxAge: 24 * 60 * 60 * 1000,
-  });
+  const token=
   res
     .status(201)
-    .json({ message: "User created successfully", success: true, accessToken });
+    .json({ message: "Verifification OTP has been sent", success: true });
 };
+
 export const loginController: RequestHandler = async (req, res) => {};
 
 export const googleController: RequestHandler = async (req, res) => {
@@ -69,3 +63,4 @@ export const googleController: RequestHandler = async (req, res) => {
 export const meController: RequestHandler = async (req, res) => {};
 export const refreshTokenController: RequestHandler = async (req, res) => {};
 export const logoutController: RequestHandler = async (req, res) => {};
+export const verifyOtpController: RequestHandler = async (req, res) => {};

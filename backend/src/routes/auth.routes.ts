@@ -6,12 +6,14 @@ import {
   meController,
   refreshTokenController,
   logoutController,
+  verifyOtpController,
 } from "../controllers/auth.controller.js";
 import passport from "passport";
 const authRouter = Router();
 
 authRouter.post("/register", registerController);
 authRouter.post("/login", loginController);
+authRouter.post("/verifyOtp", verifyOtpController);
 
 authRouter.get(
   "/google",

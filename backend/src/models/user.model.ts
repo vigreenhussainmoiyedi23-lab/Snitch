@@ -16,7 +16,7 @@ const userSchema = new mongoose.Schema({
   password: { type: String, select: false },
   isVerified: { type: Boolean, default: false },
   otp: { type: String },
-  otpExpiresIn: { type: String },
+  otpExpiresIn: { type: Date, expires: 0, default: null },
   role: { type: String, enum: ["user", "admin"], default: "user" },
 });
 
@@ -25,6 +25,9 @@ userSchema.index({ email: 1 }, { unique: true });
 userSchema.pre("save", async function () {
   if (this.password && this.isModified("password")) {
     this.password = await bcrypt.hash(this.password, 10);
+  }
+  if (this.otp && this.isModified("otp")) {
+    this.otp = await bcrypt.hash(this.otp, 10);
   }
   if (!this.username || this.username.length < 3) {
     throw new Error("Username must be at least 3 characters long");
