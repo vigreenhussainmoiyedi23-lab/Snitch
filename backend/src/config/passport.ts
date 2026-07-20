@@ -7,7 +7,7 @@ passport.use(
     {
       clientID: config.GOOGLE_CLIENT_ID,
       clientSecret: config.GOOGLE_SECRET_KEY,
-      callbackURL: "/auth/google/callback",
+      callbackURL: "/api/auth/google/callback",
     },
     (_, __, profile, done) => {
       // Here, you would typically find or create a user in your database
@@ -17,4 +17,4 @@ passport.use(
   ),
 );
 
-export default passport;
+

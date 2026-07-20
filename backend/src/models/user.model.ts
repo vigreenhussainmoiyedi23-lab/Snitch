@@ -13,17 +13,17 @@ const userSchema = new mongoose.Schema({
       "Please enter a valid email address",
     ],
   },
-  password: { type: String, required: true, select: false },
+  password: { type: String, select: false },
+  isVerified: { type: Boolean, default: false },
+  otp: { type: String },
+  otpExpiresIn: { type: String },
   role: { type: String, enum: ["user", "admin"], default: "user" },
 });
 
 userSchema.index({ email: 1 }, { unique: true });
 // validating and hashing password
 userSchema.pre("save", async function () {
-  if (!this.password || this.password.length < 6) {
-    throw new Error("Password must be at least 6 characters long");
-  }
-  if (this.isModified("password")) {
+  if (this.password && this.isModified("password")) {
     this.password = await bcrypt.hash(this.password, 10);
   }
   if (!this.username || this.username.length < 3) {
