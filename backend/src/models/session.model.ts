@@ -13,7 +13,7 @@ const sessionSchema = new mongoose.Schema(
   },
   { timestamps: true },
 );
-
+sessionSchema.index({ user: 1, refreshToken: 1 });
 const sessionModel = mongoose.model("session", sessionSchema);
 
 export default sessionModel;

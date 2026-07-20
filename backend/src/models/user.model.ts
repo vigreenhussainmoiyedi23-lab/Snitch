@@ -1,8 +1,9 @@
 import bcrypt from "bcryptjs";
-import mongoose from "mongoose";
+import mongoose, { type InferSchemaType } from "mongoose";
 
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true },
+  // authentication
   email: {
     type: String,
     required: true,
@@ -17,8 +18,10 @@ const userSchema = new mongoose.Schema({
   isVerified: { type: Boolean, default: false },
   otp: { type: String },
   otpExpiresIn: { type: Date, expires: 0, default: null },
+  authMethod: { type: String, enum: ["email", "google"], default: "email" },
   role: { type: String, enum: ["user", "admin"], default: "user" },
 });
+export type userSchemaType = InferSchemaType<typeof userSchema>;
 
 userSchema.index({ email: 1 }, { unique: true });
 // validating and hashing password
@@ -36,6 +39,11 @@ userSchema.pre("save", async function () {
     throw new Error("Email must be at least 8 characters long");
   }
 });
+
+userSchema.methods.comparePassword = async function (password: string) {
+  return await bcrypt.compare(password, this.password);
+};
+
 const userModel = mongoose.model("user", userSchema);
 
 export default userModel;
