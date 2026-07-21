@@ -6,6 +6,8 @@ type CONFIG = {
   GOOGLE_SECRET_KEY: string;
   GOOGLE_CLIENT_ID: string;
   JWT_SECRET: string;
+  GOOGLE_REFRESH_TOKEN: string;
+  GOOGLE_USER: string;
 };
 export const config: CONFIG = {
   PORT:
@@ -16,4 +18,6 @@ export const config: CONFIG = {
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID || "",
   GOOGLE_SECRET_KEY: process.env.GOOGLE_SECRET_KEY || "",
   JWT_SECRET: process.env.JWT_SECRET || "",
+  GOOGLE_REFRESH_TOKEN: process.env.GOOGLE_REFRESH_TOKEN || "",
+  GOOGLE_USER: process.env.GOOGLE_USER || "",
 };

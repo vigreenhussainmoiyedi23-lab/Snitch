@@ -13,6 +13,7 @@ const userSchema = new mongoose.Schema({
       /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
       "Please enter a valid email address",
     ],
+    
   },
   password: { type: String, select: false },
   isVerified: { type: Boolean, default: false },
@@ -23,7 +24,6 @@ const userSchema = new mongoose.Schema({
 });
 export type userSchemaType = InferSchemaType<typeof userSchema>;
 
-userSchema.index({ email: 1 }, { unique: true });
 // validating and hashing password
 userSchema.pre("save", async function () {
   if (this.password && this.isModified("password")) {

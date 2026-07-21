@@ -10,12 +10,16 @@ import { createUser } from "../services/userCRUD.service.js";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import sessionModel from "../models/session.model.js";
+import SendEmail from "../utils/sendOtp.js";
 
 export const registerController: RequestHandler = async (req, res) => {
   const { username, email, password } = req.body;
   const isUserExist = await userModel.findOne({ email });
-  if (isUserExist) {
+  if (isUserExist && isUserExist.isVerified) {
     return res.status(400).json({ message: "User already exists" });
+  }
+  if (isUserExist && !isUserExist.isVerified) {
+    await userModel.deleteOne({ email });
   }
   const otp = `` + Math.floor(100000 + Math.random() * 900000);
   const newUser = await createUser({
@@ -26,6 +30,15 @@ export const registerController: RequestHandler = async (req, res) => {
     otpExpiresIn: new Date(Date.now() + 10 * 60 * 1000),
     authMethod: "email",
   });
+  const html = `
+  <h1 style="text-align: center;">Verification OTP</h1>
+  <h1 style="text-align: center;">${otp}</h1>
+  `;
+  await SendEmail({
+    to: email ,
+    subject: "Verification OTP",
+    html,
+  });
   const token = createTokenFromData({ _id: newUser._id }, "15min");
   sendSecureCookie(res, "tokenForOtp", token, 15 * 60 * 1000); // {res,name,value,maxAgeInMs}
   res
@@ -35,6 +48,8 @@ export const registerController: RequestHandler = async (req, res) => {
 export const loginController: RequestHandler = async (req, res) => {
   const { email, password } = req.body;
   const isUserExist = await userModel.findOne({ email }).select("+password");
+  console.log(isUserExist);
+  
   if (
     !isUserExist ||
     !isUserExist.isVerified ||
@@ -89,6 +104,7 @@ export const googleController: RequestHandler = async (req, res) => {
     accessToken,
   });
 };
+
 export const verifyOtpController: RequestHandler = async (req, res) => {
   const { otp } = req.body;
   let decoded: any = null;
@@ -115,6 +131,7 @@ export const verifyOtpController: RequestHandler = async (req, res) => {
 
   isUserExist.otp = null;
   isUserExist.otpExpiresIn = null;
+  isUserExist.isVerified = true;
   await isUserExist.save();
 
   const { accessToken, refreshToken } = await CreateTokensAndSession({
@@ -126,6 +143,7 @@ export const verifyOtpController: RequestHandler = async (req, res) => {
   sendSecureCookie(res, "refreshToken", refreshToken, 7 * 24 * 60 * 60 * 1000); // {res,name,value,maxAgeInMs}
   res.status(200).json({ message: "OTP verified successfully", accessToken });
 };
+
 export const meController: RequestHandler = async (req, res) => {
   try {
     const { accessToken } = req.body;
