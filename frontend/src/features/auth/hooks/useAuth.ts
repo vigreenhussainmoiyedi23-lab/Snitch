@@ -5,6 +5,7 @@ import {
   authStart,
   authSuccess,
   registerSuccess,
+  setAccessToken,
   setUser,
 } from "../authSlice";
 import {
@@ -86,6 +87,7 @@ export const useAuth = () => {
         isLoading: false,
         ...toastSettings,
       });
+      navigate("/");
     } catch (error: unknown) {
       if (isERROR(error)) {
         dispatch(authFailure(error!?.response!?.data.message!));
@@ -114,6 +116,7 @@ export const useAuth = () => {
         isLoading: false,
         ...toastSettings,
       });
+      navigate("/verifyOtp");
     } catch (error: unknown) {
       if (isERROR(error)) {
         dispatch(authFailure(error!?.response!?.data.message!));
@@ -154,19 +157,19 @@ export const useAuth = () => {
     dispatch(authStart());
     try {
       const response = await GetUserAPI();
-
       dispatch(setUser(response.user));
     } catch (error) {
+      await refreshTokenHand1er();
       dispatch(authFailure(""));
     }
   };
   const refreshTokenHand1er = async () => {
     dispatch(authStart());
     try {
+      console.log("roataing token");
       const response = await refreshTokenApi();
-      dispatch(
-        authSuccess({ user: response.user, accessToken: response.accessToken }),
-      );
+      dispatch(setAccessToken(response.accessToken));
+      await GetMeHandler();
     } catch (error) {
       dispatch(authFailure(""));
     }

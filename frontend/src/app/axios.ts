@@ -1,5 +1,4 @@
 import axios from "axios";
-import { useAppSelector } from "./redux/hook";
 import { store } from "./redux/store";
 
 const api = axios.create({

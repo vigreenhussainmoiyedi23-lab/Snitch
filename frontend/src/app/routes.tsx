@@ -3,14 +3,23 @@ import { Routes, Route } from "react-router-dom";
 import Login from "../features/auth/pages/Login";
 import Register from "../features/auth/pages/Register";
 import LandingPage from "../features/LandingPage/Pages/LandingPage";
+import VerifyOtp from "../features/auth/pages/VerifyOtp";
+import CommonLayout from "../features/Layouts/CommonLayout";
 
 export default function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<LandingPage />} />
+      <Route
+        path="/"
+        element={
+          <CommonLayout>
+            <LandingPage />
+          </CommonLayout>
+        }
+      />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      
+      <Route path="/verifyOtp" element={<VerifyOtp />} />
       <Route
         path="*"
         element={
