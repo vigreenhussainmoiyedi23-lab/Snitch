@@ -12,15 +12,17 @@ import crypto from "crypto";
 import sessionModel from "../models/session.model.js";
 import SendEmail from "../utils/sendOtp.js";
 import { hashToken } from "../utils/crypto.util.js";
+import asyncHandler from "../utils/AsyncHandler.js";
+import AppError from "../utils/AppError.js";
 
-export const registerController: RequestHandler = async (req, res) => {
+export const registerController = asyncHandler(async (req, res) => {
   const { username, email, password } = req.body;
   const isUserExist = await userModel.findOne({ email });
   if (isUserExist && isUserExist.isVerified) {
-    return res.status(400).json({ message: "User already exists" });
+    throw new AppError("User already exists", 400);
   }
   if (isUserExist && !isUserExist.isVerified) {
-    await userModel.deleteOne({ email });
+    userModel.deleteOne({ email }); // it gets deleted from database and doesnt slows user rs time
   }
   const otp = `` + Math.floor(100000 + Math.random() * 900000);
   const newUser = await createUser({
@@ -45,25 +47,25 @@ export const registerController: RequestHandler = async (req, res) => {
   res
     .status(201)
     .json({ message: "Verifification OTP has been sent", success: true });
-};
+});
 
-export const resendOtpHandler: RequestHandler = async (req, res) => {
+export const resendOtpHandler = asyncHandler(async (req, res) => {
   let decoded: any = null;
   const token = req.cookies.tokenForOtp;
   decoded = getTokenData(token);
   if (!decoded._id || !decoded) {
-    return res.status(400).json({ message: "Invalid token" });
+    throw new AppError("Invalid token", 400);
   }
   const isUserExist = await userModel.findById(decoded._id);
   if (!isUserExist) {
-    return res.status(400).json({ message: "User does not exist" });
+    throw new AppError("User does not exist", 400);
   }
   if (
-    !isUserExist.otp &&
-    isUserExist.otpExpiresIn &&
+    !isUserExist.otp ||
+    !isUserExist.otpExpiresIn ||
     isUserExist.otpExpiresIn.getTime() < Date.now()
   ) {
-    return res.status(400).json({ message: "OTP has been expired" });
+    throw new AppError("OTP has been expired", 400);
   }
   const otp = `` + Math.floor(100000 + Math.random() * 900000);
   isUserExist.otp = otp;
@@ -80,23 +82,23 @@ export const resendOtpHandler: RequestHandler = async (req, res) => {
   res
     .status(201)
     .json({ message: "Verifification OTP has been sent", success: true });
-};
-export const loginController: RequestHandler = async (req, res) => {
+});
+
+export const loginController = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   const isUserExist = await userModel.findOne({ email }).select("+password");
-  console.log(isUserExist);
 
   if (
     !isUserExist ||
     !isUserExist.isVerified ||
     isUserExist.authMethod === "google"
   ) {
-    return res.status(400).json({ message: "User does not exist" });
+    throw new AppError("Incorrect Credentials", 400);
   }
 
   const isPasswordMatch = await bcrypt.compare(password, isUserExist.password!);
   if (!isPasswordMatch) {
-    return res.status(400).json({ message: "Incorrect Password" });
+    throw new AppError("Incorrect Credentials", 400);
   }
 
   const { accessToken, refreshToken } = await CreateTokensAndSession({
@@ -106,8 +108,9 @@ export const loginController: RequestHandler = async (req, res) => {
   });
   sendSecureCookie(res, "refreshToken", refreshToken, 7 * 24 * 60 * 60 * 1000); // {res,name,value,maxAgeInMs}
   res.status(200).json({ message: "Login successful", accessToken });
-};
-export const googleController: RequestHandler = async (req, res) => {
+});
+
+export const googleController = asyncHandler(async (req, res) => {
   const {
     _json: { email, name },
   } = req.user as any;
@@ -139,30 +142,30 @@ export const googleController: RequestHandler = async (req, res) => {
     message: "Google Authentication Successfully",
     accessToken,
   });
-};
+});
 
-export const verifyOtpController: RequestHandler = async (req, res) => {
+export const verifyOtpController = asyncHandler(async (req, res) => {
   const { otp } = req.body;
   let decoded: any = null;
   const token = req.cookies.tokenForOtp;
   decoded = getTokenData(token);
   if (!decoded._id || !decoded) {
-    return res.status(400).json({ message: "Invalid token" });
+    throw new AppError("Invalid token", 400);
   }
   const isUserExist = await userModel.findById(decoded._id);
   if (!isUserExist) {
-    return res.status(400).json({ message: "User does not exist" });
+    throw new AppError("User does not exist", 400);
   }
   if (
-    !isUserExist.otp &&
-    isUserExist.otpExpiresIn &&
+    !isUserExist.otp ||
+    !isUserExist.otpExpiresIn ||
     isUserExist.otpExpiresIn.getTime() < Date.now()
   ) {
-    return res.status(400).json({ message: "OTP has been expired" });
+    throw new AppError("OTP has been expired", 400);
   }
   const isOTPCorrect = await bcrypt.compare(otp, isUserExist.otp!);
   if (!isOTPCorrect) {
-    return res.status(400).json({ message: "Incorrect OTP" });
+    throw new AppError("Incorrect OTP", 400);
   }
 
   isUserExist.otp = null;
@@ -178,31 +181,32 @@ export const verifyOtpController: RequestHandler = async (req, res) => {
 
   sendSecureCookie(res, "refreshToken", refreshToken, 7 * 24 * 60 * 60 * 1000); // {res,name,value,maxAgeInMs}
   res.status(200).json({ message: "OTP verified successfully", accessToken });
-};
+});
 
-export const meController: RequestHandler = async (req, res) => {
+export const meController = asyncHandler(async (req, res) => {
   let decoded;
   try {
     const accessToken = req.headers!.authorization!.split(" ")[1];
     if (!accessToken) return res.status(401).json({ message: "Unauthorized" });
     decoded = getTokenData(accessToken!);
     if (!decoded || typeof decoded !== "object" || !decoded._id) {
-      return res.status(400).json({ message: "Invalid token" });
+      throw new AppError("Invalid token", 400);
     }
   } catch (error) {
-    return res.status(400).json({ message: "Invalid Token" });
+    throw new AppError("Invalid token", 400);
   }
   try {
     const user = await userModel.findById(decoded._id);
     if (!user) {
-      return res.status(400).json({ message: "User does not exist" });
+      throw new AppError("User does not exist", 400);
     }
     res.status(200).json({ user });
   } catch (error) {
     res.status(500).json({ message: "Something went wrong" });
   }
-};
-export const refreshTokenController: RequestHandler = async (req, res) => {
+});
+
+export const refreshTokenController = asyncHandler(async (req, res) => {
   const token = req.cookies.refreshToken;
   const decoded = getTokenData(token);
   const hashedOldRefreshToken = hashToken(token);
@@ -211,14 +215,14 @@ export const refreshTokenController: RequestHandler = async (req, res) => {
     revoke: false,
   });
   if (!activeSession) {
-    return res.status(400).json({ message: "Invalid token" });
+    throw new AppError("Invalid token", 400);
   }
   if (typeof decoded !== "object" || !decoded || !decoded._id) {
-    return res.status(400).json({ message: "Invalid token" });
+    throw new AppError("Invalid token", 400);
   }
   const isUserExist = await userModel.findById(decoded._id);
   if (!isUserExist) {
-    return res.status(400).json({ message: "User does not exist" });
+    throw new AppError("User does not exist", 400);
   }
 
   const { accessToken, refreshToken } = await createTokensAndUpdateSession({
@@ -231,16 +235,17 @@ export const refreshTokenController: RequestHandler = async (req, res) => {
   res
     .status(200)
     .json({ message: "Token refreshed successfully", accessToken });
-};
-export const logoutController: RequestHandler = async (req, res) => {
+});
+
+export const logoutController = asyncHandler(async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
   const decoded = getTokenData(refreshToken);
   if (!decoded || typeof decoded !== "object" || !decoded._id) {
-    return res.status(400).json({ message: "Invalid token" });
+    throw new AppError("Invalid token", 400);
   }
   const isUserExist = await userModel.findById(decoded._id);
   if (!isUserExist) {
-    return res.status(400).json({ message: "User does not exist" });
+    throw new AppError("User does not exist", 400);
   }
   const hashedRefreshToken = crypto
     .createHash("sha256")
@@ -252,4 +257,4 @@ export const logoutController: RequestHandler = async (req, res) => {
   );
   clearSecureCookie(res, "refreshToken");
   res.status(200).json({ message: "Logout successfully" });
-};
+});

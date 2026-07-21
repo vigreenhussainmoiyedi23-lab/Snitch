@@ -6,6 +6,7 @@ import passport from "passport";
 import "./config/passport.js";
 import authRouter from "./routes/auth.routes.js";
 import { config } from "./config/config.js";
+import errorHandler from "./middlewares/error.middleware.js";
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -22,5 +23,5 @@ app.get("/", (req, res) => {
   res.send("hello");
 });
 app.use("/api/auth", authRouter);
-
+app.use(errorHandler)
 export default app;
