@@ -7,10 +7,10 @@ import {
   refreshTokenController,
   logoutController,
   verifyOtpController,
+  resendOtpHandler,
 } from "../controllers/auth.controller.js";
 import passport from "passport";
 const authRouter = Router();
-
 
 /**
  * @post Register
@@ -26,6 +26,14 @@ authRouter.post("/register", registerController);
  * @description login user
  */
 authRouter.post("/login", loginController);
+/**
+ * @post Resend Otp
+ * @body {email}
+ * @return {success,message}
+ * @description resend otp for verification
+ */
+authRouter.post("/resend-otp", resendOtpHandler);
+
 /**
  * @post Verify Otp
  * @body {otp}
@@ -66,7 +74,8 @@ authRouter.get("/me", meController);
  * @return {success,message}
  * @description rotate tokens access Token and Refresh Token and update session
  */
-authRouter.get("refresh-token", refreshTokenController);
+authRouter.get("/refresh-token", refreshTokenController);
+
 /**
  * @get logout
  * @return {success,message}

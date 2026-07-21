@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import sessionModel from "../models/session.model.js";
 import { createTokenFromData } from "../utils/jwt.util.js";
+import { hashToken } from "../utils/crypto.util.js";
 
 type TokenSessionParams = {
   _id: string;
@@ -15,10 +16,7 @@ export const CreateTokensAndSession = async ({
 }: TokenSessionParams) => {
   const refreshToken = createTokenFromData({ _id }, "7d");
   const accessToken = createTokenFromData({ _id }, "15min");
-  const hashedRefreshToken = crypto
-    .createHash("sha256")
-    .update(refreshToken)
-    .digest("hex");
+  const hashedRefreshToken = hashToken(refreshToken);
   const session = await sessionModel.create({
     user: _id,
     refreshToken: hashedRefreshToken,
@@ -38,14 +36,8 @@ export const createTokensAndUpdateSession = async ({
   const refreshToken = createTokenFromData({ _id }, "7d");
   const accessToken = createTokenFromData({ _id }, "15min");
 
-  const hashedRefreshToken = crypto
-    .createHash("sha256")
-    .update(refreshToken)
-    .digest("hex");
-  const hashedOldRefreshToken = crypto
-    .createHash("sha256")
-    .update(oldRefreshToken!)
-    .digest("hex");
+  const hashedRefreshToken = hashToken(refreshToken);
+  const hashedOldRefreshToken = hashToken(oldRefreshToken!);
 
   await sessionModel.findOneAndUpdate(
     { user: _id, refreshToken: hashedOldRefreshToken },

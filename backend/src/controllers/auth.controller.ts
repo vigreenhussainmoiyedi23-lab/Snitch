@@ -11,6 +11,7 @@ import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import sessionModel from "../models/session.model.js";
 import SendEmail from "../utils/sendOtp.js";
+import { hashToken } from "../utils/crypto.util.js";
 
 export const registerController: RequestHandler = async (req, res) => {
   const { username, email, password } = req.body;
@@ -35,7 +36,7 @@ export const registerController: RequestHandler = async (req, res) => {
   <h1 style="text-align: center;">${otp}</h1>
   `;
   await SendEmail({
-    to: email ,
+    to: email,
     subject: "Verification OTP",
     html,
   });
@@ -45,11 +46,46 @@ export const registerController: RequestHandler = async (req, res) => {
     .status(201)
     .json({ message: "Verifification OTP has been sent", success: true });
 };
+
+export const resendOtpHandler: RequestHandler = async (req, res) => {
+  let decoded: any = null;
+  const token = req.cookies.tokenForOtp;
+  decoded = getTokenData(token);
+  if (!decoded._id || !decoded) {
+    return res.status(400).json({ message: "Invalid token" });
+  }
+  const isUserExist = await userModel.findById(decoded._id);
+  if (!isUserExist) {
+    return res.status(400).json({ message: "User does not exist" });
+  }
+  if (
+    !isUserExist.otp &&
+    isUserExist.otpExpiresIn &&
+    isUserExist.otpExpiresIn.getTime() < Date.now()
+  ) {
+    return res.status(400).json({ message: "OTP has been expired" });
+  }
+  const otp = `` + Math.floor(100000 + Math.random() * 900000);
+  isUserExist.otp = otp;
+  await isUserExist.save();
+  const html = `
+  <h1 style="text-align: center;">New Verification OTP</h1>
+  <h1 style="text-align: center;">${otp}</h1>
+  `;
+  await SendEmail({
+    to: isUserExist.email,
+    subject: "Verification OTP",
+    html,
+  });
+  res
+    .status(201)
+    .json({ message: "Verifification OTP has been sent", success: true });
+};
 export const loginController: RequestHandler = async (req, res) => {
   const { email, password } = req.body;
   const isUserExist = await userModel.findOne({ email }).select("+password");
   console.log(isUserExist);
-  
+
   if (
     !isUserExist ||
     !isUserExist.isVerified ||
@@ -146,8 +182,9 @@ export const verifyOtpController: RequestHandler = async (req, res) => {
 
 export const meController: RequestHandler = async (req, res) => {
   try {
-    const { accessToken } = req.body;
-    const decoded = getTokenData(accessToken);
+    const accessToken = req.headers!.authorization!.split(" ")[1];
+    if (!accessToken) return res.status(401).json({ message: "Unauthorized" });
+    const decoded = getTokenData(accessToken!);
     if (!decoded || typeof decoded !== "object" || !decoded._id) {
       return res.status(400).json({ message: "Invalid token" });
     }
@@ -163,10 +200,7 @@ export const meController: RequestHandler = async (req, res) => {
 export const refreshTokenController: RequestHandler = async (req, res) => {
   const token = req.cookies.refreshToken;
   const decoded = getTokenData(token);
-  const hashedOldRefreshToken = crypto
-    .createHash("sha256")
-    .update(token!)
-    .digest("hex");
+  const hashedOldRefreshToken = hashToken(token);
   const activeSession = await sessionModel.findOne({
     refreshToken: hashedOldRefreshToken,
     revoke: false,
