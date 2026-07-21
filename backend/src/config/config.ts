@@ -8,6 +8,7 @@ type CONFIG = {
   JWT_SECRET: string;
   GOOGLE_REFRESH_TOKEN: string;
   GOOGLE_USER: string;
+  FRONTEND_URL: string;
 };
 export const config: CONFIG = {
   PORT:
@@ -20,4 +21,5 @@ export const config: CONFIG = {
   JWT_SECRET: process.env.JWT_SECRET || "",
   GOOGLE_REFRESH_TOKEN: process.env.GOOGLE_REFRESH_TOKEN || "",
   GOOGLE_USER: process.env.GOOGLE_USER || "",
+  FRONTEND_URL: process.env.FRONTEND_URL || "http://localhost:5173",
 };

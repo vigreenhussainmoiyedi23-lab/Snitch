@@ -1,11 +1,20 @@
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../../app/redux/hook";
-import { authFailure, authStart, authSuccess } from "../authSlice";
+import {
+  authFailure,
+  authStart,
+  authSuccess,
+  registerSuccess,
+  setUser,
+} from "../authSlice";
 import {
   LoginAPI,
   LogoutAPI,
   RegisterAPI,
   GetUserAPI,
+  verifyOtpApi,
+  refreshTokenApi,
+  resendOtpApi,
 } from "../service/api.service.js";
 import { toast } from "react-toastify";
 import { toastSettings } from "../../../utils/ToastSettings.js";
@@ -16,7 +25,6 @@ type ERROR = {
     };
   };
 };
-
 
 function isERROR(error: unknown): error is ERROR {
   return (
@@ -42,10 +50,38 @@ export const useAuth = () => {
     const id = toast.loading("Logging in...");
     try {
       const response = await LoginAPI(data);
-      dispatch(authSuccess(response.user));
-      navigate("/chat");
+      dispatch(
+        authSuccess({ user: response.user, accessToken: response.accessToken }),
+      );
       toast.update(id, {
         render: "Login Successful",
+        type: "success",
+        isLoading: false,
+        ...toastSettings,
+      });
+    } catch (error: unknown) {
+      if (isERROR(error)) {
+        dispatch(authFailure(error!?.response!?.data.message!));
+        toast.update(id, {
+          render: error!?.response!?.data.message!,
+          type: "error",
+          isLoading: false,
+          ...toastSettings,
+        });
+      }
+    }
+  };
+
+  const verifyOtpHandler = async (data: string) => {
+    dispatch(authStart());
+    const id = toast.loading("Verifying otp...");
+    try {
+      const response = await verifyOtpApi(data);
+      dispatch(
+        authSuccess({ user: response.user, accessToken: response.accessToken }),
+      );
+      toast.update(id, {
+        render: "registered Successful",
         type: "success",
         isLoading: false,
         ...toastSettings,
@@ -70,9 +106,8 @@ export const useAuth = () => {
     dispatch(authStart());
     const id = toast.loading("Registering...");
     try {
-      const response = await RegisterAPI(data);
-      dispatch(authSuccess(response.user));
-      navigate("/chat");
+      await RegisterAPI(data);
+      dispatch(registerSuccess());
       toast.update(id, {
         render: "Registration Successful",
         type: "success",
@@ -102,7 +137,7 @@ export const useAuth = () => {
         isLoading: false,
         ...toastSettings,
       });
-      navigate("/login")
+      navigate("/login");
     } catch (error: unknown) {
       if (isERROR(error)) {
         dispatch(authFailure(error!?.response!?.data.message!));
@@ -119,13 +154,38 @@ export const useAuth = () => {
     dispatch(authStart());
     try {
       const response = await GetUserAPI();
-      console.log(response);
-    } catch (error) {}
+
+      dispatch(setUser(response.user));
+    } catch (error) {
+      dispatch(authFailure(""));
+    }
+  };
+  const refreshTokenHand1er = async () => {
+    dispatch(authStart());
+    try {
+      const response = await refreshTokenApi();
+      dispatch(
+        authSuccess({ user: response.user, accessToken: response.accessToken }),
+      );
+    } catch (error) {
+      dispatch(authFailure(""));
+    }
+  };
+  const resendOtpHandler = async () => {
+    dispatch(authStart());
+    try {
+      await resendOtpApi();
+    } catch (error) {
+      dispatch(authFailure(""));
+    }
   };
   return {
     loginHandler,
     RegisterHandler,
     LogoutHandler,
     GetMeHandler,
+    verifyOtpHandler,
+    refreshTokenHand1er,
+    resendOtpHandler,
   };
 };

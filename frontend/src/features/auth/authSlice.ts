@@ -6,7 +6,10 @@ type User = {
   email: string;
   role: string;
 };
-
+interface AuthPayload {
+  user: User;
+  accessToken: string;
+}
 type AuthState = {
   user: User | null;
   isAuthenticated: boolean;
@@ -32,11 +35,12 @@ const authSlice = createSlice({
       state.error = null;
     },
 
-    authSuccess: (state, action: PayloadAction<User>) => {
-      state.user = action.payload;
+    authSuccess: (state, action: PayloadAction<AuthPayload>) => {
+      state.user = action.payload.user;
       state.isAuthenticated = true;
       state.isLoading = false;
       state.error = null;
+      state.accessToken = action.payload.accessToken;
     },
 
     authFailure: (state, action: PayloadAction<string>) => {
@@ -50,15 +54,20 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       state.isLoading = false;
       state.error = null;
+      state.accessToken = "";
     },
 
     setUser: (state, action: PayloadAction<User>) => {
       state.user = action.payload;
     },
+    registerSuccess: (state) => {
+      state.isLoading = false;
+      state.error = null;
+    },
   },
 });
 
-export const { authStart, authFailure, authSuccess, logout, setUser } =
+export const { authStart, authFailure, authSuccess, logout, setUser ,registerSuccess} =
   authSlice.actions;
 
 export default authSlice.reducer;

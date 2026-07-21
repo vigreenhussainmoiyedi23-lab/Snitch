@@ -181,13 +181,18 @@ export const verifyOtpController: RequestHandler = async (req, res) => {
 };
 
 export const meController: RequestHandler = async (req, res) => {
+  let decoded;
   try {
     const accessToken = req.headers!.authorization!.split(" ")[1];
     if (!accessToken) return res.status(401).json({ message: "Unauthorized" });
-    const decoded = getTokenData(accessToken!);
+    decoded = getTokenData(accessToken!);
     if (!decoded || typeof decoded !== "object" || !decoded._id) {
       return res.status(400).json({ message: "Invalid token" });
     }
+  } catch (error) {
+    return res.status(400).json({ message: "Invalid Token" });
+  }
+  try {
     const user = await userModel.findById(decoded._id);
     if (!user) {
       return res.status(400).json({ message: "User does not exist" });

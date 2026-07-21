@@ -6,6 +6,8 @@ const App = () => {
   const { GetMeHandler } = useAuth();
   // all the things which i want only once when the app starts
   useEffect(() => {
+    console.log("getting user");
+    
     GetMeHandler();
   }, []);
 

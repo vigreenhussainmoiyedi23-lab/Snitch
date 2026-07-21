@@ -32,7 +32,7 @@ authRouter.post("/login", loginController);
  * @return {success,message}
  * @description resend otp for verification
  */
-authRouter.post("/resend-otp", resendOtpHandler);
+authRouter.get("/resend-otp", resendOtpHandler);
 
 /**
  * @post Verify Otp
