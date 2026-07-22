@@ -207,34 +207,44 @@ export const meController = asyncHandler(async (req, res) => {
 });
 
 export const refreshTokenController = asyncHandler(async (req, res) => {
-  const token = req.cookies.refreshToken;
-  const decoded = getTokenData(token);
-  const hashedOldRefreshToken = hashToken(token);
-  const activeSession = await sessionModel.findOne({
-    refreshToken: hashedOldRefreshToken,
-    revoke: false,
-  });
-  if (!activeSession) {
-    throw new AppError("Invalid token", 400);
-  }
-  if (typeof decoded !== "object" || !decoded || !decoded._id) {
-    throw new AppError("Invalid token", 400);
-  }
-  const isUserExist = await userModel.findById(decoded._id);
-  if (!isUserExist) {
-    throw new AppError("User does not exist", 400);
-  }
+  try {
+    const token = req.cookies.refreshToken;
+    if (!token) throw new AppError("Invalid token", 400);
+    const decoded = getTokenData(token);
+    const hashedOldRefreshToken = hashToken(token);
+    const activeSession = await sessionModel.findOne({
+      refreshToken: hashedOldRefreshToken,
+      revoke: false,
+    });
+    if (!activeSession) {
+      throw new AppError("Invalid token", 400);
+    }
+    if (typeof decoded !== "object" || !decoded || !decoded._id) {
+      throw new AppError("Invalid token", 400);
+    }
+    const isUserExist = await userModel.findById(decoded._id);
+    if (!isUserExist) {
+      throw new AppError("User does not exist", 400);
+    }
 
-  const { accessToken, refreshToken } = await createTokensAndUpdateSession({
-    _id: isUserExist._id.toString(),
-    ip: req.ip ?? "unknown",
-    userAgent: req.headers["user-agent"] ?? "unknown",
-    oldRefreshToken: token,
-  });
-  sendSecureCookie(res, "refreshToken", refreshToken, 7 * 24 * 60 * 60 * 1000); // {res,name,value,maxAgeInMs}
-  res
-    .status(200)
-    .json({ message: "Token refreshed successfully", accessToken });
+    const { accessToken, refreshToken } = await createTokensAndUpdateSession({
+      _id: isUserExist._id.toString(),
+      ip: req.ip ?? "unknown",
+      userAgent: req.headers["user-agent"] ?? "unknown",
+      oldRefreshToken: token,
+    });
+    sendSecureCookie(
+      res,
+      "refreshToken",
+      refreshToken,
+      7 * 24 * 60 * 60 * 1000,
+    ); // {res,name,value,maxAgeInMs}
+    res
+      .status(200)
+      .json({ message: "Token refreshed successfully", accessToken });
+  } catch (error) {
+    throw new AppError("Invalid token", 400);
+  }
 });
 
 export const logoutController = asyncHandler(async (req, res) => {

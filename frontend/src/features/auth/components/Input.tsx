@@ -21,9 +21,9 @@ const Input = <T extends FieldValues>({
   const inputType = isPassword ? (show ? "text" : "password") : type;
   const isEmail = type === "email";
   return (
-    <div className="relative flex items-center">
+    <div className="relative flex items-center bg-text font-semibold text-background rounded">
       {icon && (
-        <span className="absolute left-3 text-[var(--text-muted)] pointer-events-none">
+        <span className="absolute left-3 text-gold-dark pointer-events-none">
           {icon}
         </span>
       )}
@@ -32,6 +32,7 @@ const Input = <T extends FieldValues>({
         type={inputType}
         placeholder={placeholder}
         minLength={isPassword ? 8 : isEmail ? 10 : 3}
+        required={true}
         className={`input-arena w-full h-12 rounded-lg px-4 text-sm ${icon ? "pl-10" : ""} ${isPassword ? "pr-12" : ""}`}
       />
       {isPassword && (
