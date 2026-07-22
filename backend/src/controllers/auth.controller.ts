@@ -275,6 +275,7 @@ export const logoutController = asyncHandler(async (req, res) => {
   clearSecureCookie(res, "refreshToken");
   res.status(200).json({ message: "Logout successfully" });
 });
+
 export const forgetPasswordController = asyncHandler(async (req, res) => {
   try {
     const { email } = req.body;
@@ -294,6 +295,7 @@ export const forgetPasswordController = asyncHandler(async (req, res) => {
     throw new AppError("Something Went Wrong", 400);
   }
 });
+
 export const resetPasswordController = asyncHandler(async (req, res) => {
   try {
     const { password } = req.body;
