@@ -10,6 +10,7 @@ import Form from "../components/Form";
 import FormHeading from "../components/FormHeading";
 import DividerOr from "../components/DividerOr";
 import Redirect from "../components/Redirect";
+import ContinueWithGoogle from "../components/ContinueWithGoogle";
 
 export interface LoginData {
   email: string;
@@ -46,6 +47,9 @@ export default function Login() {
         />
 
         <DividerOr />
+        <div className="flex items-center justify-center mb-3">
+          <ContinueWithGoogle />
+        </div>
         <Redirect
           title={"Sign Up"}
           to="/register"

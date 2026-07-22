@@ -5,6 +5,7 @@ import Register from "../features/auth/pages/Register";
 import LandingPage from "../features/LandingPage/Pages/LandingPage";
 import VerifyOtp from "../features/auth/pages/VerifyOtp";
 import CommonLayout from "../features/Layouts/CommonLayout";
+import GoogleSuccess from "../features/auth/pages/GoogleSuccess";
 
 export default function AppRoutes() {
   return (
@@ -20,6 +21,7 @@ export default function AppRoutes() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/verifyOtp" element={<VerifyOtp />} />
+      <Route path="/auth/google/success" element={<GoogleSuccess />} />
       <Route
         path="*"
         element={

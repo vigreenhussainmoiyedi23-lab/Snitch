@@ -33,7 +33,7 @@ const Input = <T extends FieldValues>({
         placeholder={placeholder}
         minLength={isPassword ? 8 : isEmail ? 10 : 3}
         required={true}
-        className={`input-arena w-full h-12 rounded-lg px-4 text-sm ${icon ? "pl-10" : ""} ${isPassword ? "pr-12" : ""}`}
+        className={`input-arena w-full outline-none h-12 rounded-lg px-4 text-sm ${icon ? "pl-10" : ""} ${isPassword ? "pr-12" : ""}`}
       />
       {isPassword && (
         <button

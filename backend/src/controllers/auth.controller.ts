@@ -14,6 +14,7 @@ import SendEmail from "../utils/sendOtp.js";
 import { hashToken } from "../utils/crypto.util.js";
 import asyncHandler from "../utils/AsyncHandler.js";
 import AppError from "../utils/AppError.js";
+import { config } from "../config/config.js";
 
 export const registerController = asyncHandler(async (req, res) => {
   const { username, email, password } = req.body;
@@ -137,11 +138,11 @@ export const googleController = asyncHandler(async (req, res) => {
     }));
   }
 
-  sendSecureCookie(res, "refreshToken", refreshToken, 24 * 60 * 60 * 1000); // {res,name,value,maxAgeInMs}
-  res.status(200).json({
-    message: "Google Authentication Successfully",
-    accessToken,
-  });
+  sendSecureCookie(res, "refreshToken", refreshToken, 24 * 60 * 60 * 1000);
+
+  res.redirect(
+    `${config.FRONTEND_URL}/auth/google/success?accessToken=${accessToken}`,
+  );
 });
 
 export const verifyOtpController = asyncHandler(async (req, res) => {

@@ -11,6 +11,7 @@ import FormHeading from "../components/FormHeading";
 import DividerOr from "../components/DividerOr";
 import Divider from "../components/Divider";
 import Redirect from "../components/Redirect";
+import ContinueWithGoogle from "../components/ContinueWithGoogle";
 
 interface RegisterData extends LoginData {
   username: string;
@@ -35,7 +36,6 @@ export default function Register() {
       >
         <BrandHeader />
         <Divider />
-     
 
         <FormHeading title={"Sign Up"} subtitle={"Create your account."} />
         <Form
@@ -46,7 +46,9 @@ export default function Register() {
         />
 
         <DividerOr />
-
+        <div className="flex items-center justify-center mb-3">
+          <ContinueWithGoogle />
+        </div>
         <Redirect
           title="Sign In"
           to="/login"
