@@ -10,6 +10,11 @@ import {
   resendOtpHandler,
 } from "../controllers/auth.controller.js";
 import passport from "passport";
+import { authLimiter, otpLimiter } from "../Limiters/auth.limiters.js";
+import {
+  loginValidator,
+  registerValidator,
+} from "../validators/auth.validator.js";
 const authRouter = Router();
 
 /**
@@ -18,21 +23,26 @@ const authRouter = Router();
  * @return {success,message}
  * @description register user and send otp for verification
  */
-authRouter.post("/register", registerController);
+authRouter.post(
+  "/register",
+  registerValidator,
+  authLimiter,
+  registerController,
+);
 /**
  * @post Login
  * @body {email ,password}
  * @return {success,message}
  * @description login user
  */
-authRouter.post("/login", loginController);
+authRouter.post("/login", loginValidator, authLimiter, loginController);
 /**
  * @post Resend Otp
  * @body {email}
  * @return {success,message}
  * @description resend otp for verification
  */
-authRouter.get("/resend-otp", resendOtpHandler);
+authRouter.get("/resend-otp", otpLimiter, resendOtpHandler);
 
 /**
  * @post Verify Otp
@@ -40,7 +50,7 @@ authRouter.get("/resend-otp", resendOtpHandler);
  * @return {success,message}
  * @description verify otp of the user whose id is in the token
  */
-authRouter.post("/verifyOtp", verifyOtpController);
+authRouter.post("/verifyOtp", otpLimiter, verifyOtpController);
 /**
  * @get google
  * @return {success,message}
@@ -61,6 +71,7 @@ authRouter.get(
     session: false,
     failureRedirect: "/login",
   }),
+  authLimiter,
   googleController,
 );
 /**
@@ -74,13 +85,13 @@ authRouter.get("/me", meController);
  * @return {success,message}
  * @description rotate tokens access Token and Refresh Token and update session
  */
-authRouter.get("/refresh-token", refreshTokenController);
+authRouter.get("/refresh-token", authLimiter, refreshTokenController);
 
 /**
  * @get logout
  * @return {success,message}
  * @description logout user and revoke session
  */
-authRouter.get("/logout", logoutController);
+authRouter.get("/logout", authLimiter, logoutController);
 
 export default authRouter;
