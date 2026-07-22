@@ -21,7 +21,7 @@ const Input = <T extends FieldValues>({
   const inputType = isPassword ? (show ? "text" : "password") : type;
   const isEmail = type === "email";
   return (
-    <div className="relative flex items-center bg-text font-semibold text-background rounded">
+    <div className="relative flex items-center bg-background font-semibold text-text rounded">
       {icon && (
         <span className="absolute left-3 text-gold-dark pointer-events-none">
           {icon}

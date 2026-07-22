@@ -25,10 +25,10 @@ export default function Login() {
   }
 
   return (
-    <main className="min-h-screen flex items-center bg-text justify-center px-4 relative overflow-hidden">
+    <main className="min-h-screen flex items-center bg-background justify-center px-4 relative overflow-hidden">
       {/* Login Card */}
       <div
-        className=" relative z-10 w-full max-w-110 bg-background rounded-2xl p-8 animate-fade-in"
+        className=" relative z-10 w-full max-w-110 bg-text rounded-2xl p-8 animate-fade-in"
         style={{
           boxShadow:
             "rgb(0 0 0 / 10%) 1px 20px 14px 0px, rgb(0 0 0 / 10%) -18px 20px 20px 4px",

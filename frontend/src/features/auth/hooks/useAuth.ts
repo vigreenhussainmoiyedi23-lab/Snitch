@@ -60,6 +60,7 @@ export const useAuth = () => {
         isLoading: false,
         ...toastSettings,
       });
+      navigate("/");
     } catch (error: unknown) {
       if (isERROR(error)) {
         dispatch(authFailure(error!?.response!?.data.message!));

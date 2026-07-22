@@ -4,16 +4,16 @@
 /* ─── Design System Tokens ─────────────────────────────── */
 :root {
   /* ========== Neutral ========== */
-  --color-background: #282420;
-  --color-surface: #332e29;
-  --color-surface-2: #403a35;
+  --color-text: #282420;
+  --color-text-mutes: #332e29;
+  --color-text-subtle: #403a35;
   --color-border: #4d4742;
 
   /* ========== Text ========== */
 
-  --color-text: #fbeede;
-  --color-text-muted: #d8ccbf;
-  --color-text-subtle: #bcae9d;
+  --color-background: #fbeede;
+  --color-background-light: #d8ccbf;
+  --color-background-subtle: #bcae9d;
 
   /* ========== Orange ========== */
 
@@ -63,7 +63,7 @@ body,
 }
 
 body {
-  background-color: var(--color-text);
+  background-color: var(--color-background);
   color: var(--text-primary);
   font-family: "Inter", system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -76,16 +76,16 @@ body {
 
 @theme {
   /* ========== Neutral ========== */
-  --color-background: #282420;
-  --color-surface: #332e29;
-  --color-surface-2: #403a35;
+  --color-text: #282420;
+  --color-text-mutes: #332e29;
+  --color-text-subtle: #403a35;
   --color-border: #4d4742;
 
   /* ========== Text ========== */
 
-  --color-text: #fbeede;
-  --color-text-muted: #d8ccbf;
-  --color-text-subtle: #bcae9d;
+  --color-background: #fbeede;
+  --color-background-light: #d8ccbf;
+  --color-background-subtle: #bcae9d;
 
   /* ========== Orange ========== */
 
@@ -224,14 +224,13 @@ body {
   animation: slideInRight 0.35s ease both;
 }
 
-
 /* Google Button */
 .gsi-material-button {
   -moz-user-select: none;
   -webkit-user-select: none;
   -ms-user-select: none;
   -webkit-appearance: none;
-  background-color: WHITE;
+  background-color: #f2f2f2;
   background-image: none;
   /* border: 1px solid #747775; */
   -webkit-border-radius: 20px;
@@ -240,7 +239,7 @@ body {
   box-sizing: border-box;
   color: #1f1f1f;
   cursor: pointer;
-  font-family: 'Roboto', arial, sans-serif;
+  font-family: "Roboto", arial, sans-serif;
   font-size: 14px;
   height: 40px;
   letter-spacing: 0.25px;
@@ -249,8 +248,14 @@ body {
   padding: 0px 10px;
   position: relative;
   text-align: center;
-  -webkit-transition: background-color .218s, border-color .218s, box-shadow .218s;
-  transition: background-color .218s, border-color .218s, box-shadow .218s;
+  -webkit-transition:
+    background-color 0.218s,
+    border-color 0.218s,
+    box-shadow 0.218s;
+  transition:
+    background-color 0.218s,
+    border-color 0.218s,
+    box-shadow 0.218s;
   vertical-align: middle;
   white-space: nowrap;
   width: 40px;
@@ -282,7 +287,7 @@ body {
 .gsi-material-button .gsi-material-button-contents {
   -webkit-flex-grow: 1;
   flex-grow: 1;
-  font-family: 'Roboto', arial, sans-serif;
+  font-family: "Roboto", arial, sans-serif;
   font-weight: 500;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -290,8 +295,8 @@ body {
 }
 
 .gsi-material-button .gsi-material-button-state {
-  -webkit-transition: opacity .218s;
-  transition: opacity .218s;
+  -webkit-transition: opacity 0.218s;
+  transition: opacity 0.218s;
   bottom: 0;
   left: 0;
   opacity: 0;
@@ -314,15 +319,19 @@ body {
   opacity: 38%;
 }
 
-.gsi-material-button:not(:disabled):active .gsi-material-button-state, 
+.gsi-material-button:not(:disabled):active .gsi-material-button-state,
 .gsi-material-button:not(:disabled):focus .gsi-material-button-state {
   background-color: #303030;
   opacity: 12%;
 }
 
 .gsi-material-button:not(:disabled):hover {
-  -webkit-box-shadow: 0 1px 2px 0 rgba(60, 64, 67, .30), 0 1px 3px 1px rgba(60, 64, 67, .15);
-  box-shadow: 0 1px 2px 0 rgba(60, 64, 67, .30), 0 1px 3px 1px rgba(60, 64, 67, .15);
+  -webkit-box-shadow:
+    0 1px 2px 0 rgba(60, 64, 67, 0.3),
+    0 1px 3px 1px rgba(60, 64, 67, 0.15);
+  box-shadow:
+    0 1px 2px 0 rgba(60, 64, 67, 0.3),
+    0 1px 3px 1px rgba(60, 64, 67, 0.15);
 }
 
 .gsi-material-button:not(:disabled):hover .gsi-material-button-state {

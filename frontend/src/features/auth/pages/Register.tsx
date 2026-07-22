@@ -25,10 +25,10 @@ export default function Register() {
   }
 
   return (
-    <main className="min-h-screen bg-text flex items-center justify-center px-4 relative overflow-hidden">
+    <main className="min-h-screen bg-background flex items-center justify-center px-4 relative overflow-hidden">
       {/* Card */}
       <div
-        className="bg-background relative z-10 w-full max-w-[440px] rounded-2xl p-8 animate-fade-in"
+        className="bg-text relative z-10 w-full max-w-[440px] rounded-2xl p-8 animate-fade-in"
         style={{
           boxShadow:
             "0 0 0 1px rgba(168,85,247,0.08), 0 24px 80px rgba(0,0,0,0.6), 0 0 40px rgba(168,85,247,0.05)",
