@@ -114,7 +114,7 @@ export const loginController = asyncHandler(async (req, res) => {
     userAgent: req.headers["user-agent"] ?? "unknown",
   });
   sendSecureCookie(res, "refreshToken", refreshToken, 7 * 24 * 60 * 60 * 1000); // {res,name,value,maxAgeInMs}
-  res.status(200).json({ message: "Login successful", accessToken ,user});
+  res.status(200).json({ message: "Login successful", accessToken, user });
 });
 
 export const googleController = asyncHandler(async (req, res) => {
@@ -281,7 +281,7 @@ export const forgetPasswordController = asyncHandler(async (req, res) => {
     const isUserExist = await userModel.exists({ email });
 
     if (!isUserExist) throw new AppError("User does not exist", 400);
-    const token = createTokenFromData({ email }, "15min");
+    const token = createTokenFromData({ email }, "5min");
     const html = `
     <h1 style="text-align: center;">Reset Password By Clicking The Button Below</h1>
     <a href=${config.FRONTEND_URL}/reset-password/${token} style="text-align: center;">Click Here<a/>
@@ -303,9 +303,15 @@ export const resetPasswordController = asyncHandler(async (req, res) => {
       throw new AppError("Invalid token", 400);
 
     const decoded = getTokenData(token);
-    if (!decoded || typeof decoded !== "object" || !decoded.email) {
+    if (
+      !decoded ||
+      typeof decoded !== "object" ||
+      !decoded.email 
+    ) {
       throw new AppError("Invalid token", 400);
     }
+    console.log("updating password");
+    
     const isUserExist = await userModel.findOne({ email: decoded.email });
     if (!isUserExist) {
       throw new AppError("User does not exist", 400);

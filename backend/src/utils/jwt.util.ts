@@ -15,7 +15,7 @@ export const createTokenFromData = (
 export const getTokenData = (token: string) => {
   try {
     if (!token) return null;
-    return jwt.decode(token);
+    return jwt.verify(token,config.JWT_SECRET);
   } catch (error) {
     return null;
   }
