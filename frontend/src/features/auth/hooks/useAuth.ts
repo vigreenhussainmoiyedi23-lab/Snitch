@@ -16,6 +16,8 @@ import {
   verifyOtpApi,
   refreshTokenApi,
   resendOtpApi,
+  forgotPasswordApi,
+  ResetPasswordApi,
 } from "../service/api.service.js";
 import { toast } from "react-toastify";
 import { toastSettings } from "../../../utils/ToastSettings.js";
@@ -183,6 +185,56 @@ export const useAuth = () => {
       dispatch(authFailure(""));
     }
   };
+  const forgotHandler = async (data: { email: string }) => {
+    dispatch(authStart());
+    const id = toast.loading("sending Reset Link To your Email...");
+    try {
+      await forgotPasswordApi(data);
+      toast.update(id, {
+        render: "Sent Successful",
+        type: "success",
+        isLoading: false,
+        ...toastSettings,
+      });
+    } catch (error: unknown) {
+      if (isERROR(error)) {
+        dispatch(authFailure(error!?.response!?.data.message!));
+        toast.update(id, {
+          render: error!?.response!?.data.message || "",
+          type: "error",
+          isLoading: false,
+          ...toastSettings,
+        });
+      }
+    }
+  };
+  const resetPasswordHandler = async (data: {
+    password: string;
+    token: string;
+  }) => {
+    dispatch(authStart());
+    const id = toast.loading("resetting your password...");
+    try {
+      const response = await ResetPasswordApi(data);
+      toast.update(id, {
+        render: "password Reset Successfully",
+        type: "success",
+        isLoading: false,
+        ...toastSettings,
+      });
+      return response;
+    } catch (error: unknown) {
+      if (isERROR(error)) {
+        dispatch(authFailure(error!?.response!?.data.message!));
+        toast.update(id, {
+          render: error!?.response!?.data.message || "",
+          type: "error",
+          isLoading: false,
+          ...toastSettings,
+        });
+      }
+    }
+  };
   return {
     loginHandler,
     RegisterHandler,
@@ -191,5 +243,7 @@ export const useAuth = () => {
     verifyOtpHandler,
     refreshTokenHand1er,
     resendOtpHandler,
+    forgotHandler,
+    resetPasswordHandler,
   };
 };

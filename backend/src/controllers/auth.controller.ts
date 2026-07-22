@@ -102,14 +102,19 @@ export const loginController = asyncHandler(async (req, res) => {
   if (!isPasswordMatch) {
     throw new AppError("Incorrect Credentials", 400);
   }
-
+  const user = {
+    _id: isUserExist._id.toString(),
+    email: isUserExist.email,
+    username: isUserExist.username,
+    role: isUserExist.role,
+  };
   const { accessToken, refreshToken } = await CreateTokensAndSession({
     _id: isUserExist._id.toString(),
     ip: req.ip ?? "unknown",
     userAgent: req.headers["user-agent"] ?? "unknown",
   });
   sendSecureCookie(res, "refreshToken", refreshToken, 7 * 24 * 60 * 60 * 1000); // {res,name,value,maxAgeInMs}
-  res.status(200).json({ message: "Login successful", accessToken });
+  res.status(200).json({ message: "Login successful", accessToken ,user});
 });
 
 export const googleController = asyncHandler(async (req, res) => {
@@ -271,16 +276,23 @@ export const logoutController = asyncHandler(async (req, res) => {
   res.status(200).json({ message: "Logout successfully" });
 });
 export const forgetPasswordController = asyncHandler(async (req, res) => {
-  const { email } = req.body;
-  const isUserExist = await userModel.exists({ email });
-  if (!isUserExist) throw new AppError("User does not exist", 400);
-  const token = createTokenFromData({ email }, "15min");
-  const html = `
-  <h1 style="text-align: center;">Reset Password By Clicking The Button Below</h1>
-  <a href=${config.FRONTEND_URL}/reset-password/${token} style="text-align: center;">Click Here<a/>
-  `;
-  await SendEmail({ to: email, html, subject: "Reset Password Link" }); // to,subject,text,html
-  res.status(200).json({ message: "OTP sent successfully" });
+  try {
+    const { email } = req.body;
+    const isUserExist = await userModel.exists({ email });
+
+    if (!isUserExist) throw new AppError("User does not exist", 400);
+    const token = createTokenFromData({ email }, "15min");
+    const html = `
+    <h1 style="text-align: center;">Reset Password By Clicking The Button Below</h1>
+    <a href=${config.FRONTEND_URL}/reset-password/${token} style="text-align: center;">Click Here<a/>
+    `;
+    await SendEmail({ to: email, html, subject: "Reset Password Link" }); // to,subject,text,html
+    res
+      .status(200)
+      .json({ message: "email sent successfully with reset password link" });
+  } catch (error) {
+    throw new AppError("Something Went Wrong", 400);
+  }
 });
 export const resetPasswordController = asyncHandler(async (req, res) => {
   try {

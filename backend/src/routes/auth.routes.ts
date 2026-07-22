@@ -16,6 +16,7 @@ import { authLimiter, otpLimiter } from "../Limiters/auth.limiters.js";
 import {
   loginValidator,
   registerValidator,
+  resetPasswordValidator,
 } from "../validators/auth.validator.js";
 const authRouter = Router();
 
@@ -101,12 +102,12 @@ authRouter.get("/logout", authLimiter, logoutController);
  * @return {success,message}
  * @description send email to reset password
  */
-authRouter.post("/forgetPassword", forgetPasswordController);
+authRouter.post("/forget-password", forgetPasswordController);
 /**
  * @post resetPassword
  * @body {password}
  * @return {success,message}
  * @description reset password
  */
-authRouter.post("/reset-password/:token", resetPasswordController);
+authRouter.post("/reset-password/:token",resetPasswordValidator, resetPasswordController);
 export default authRouter;

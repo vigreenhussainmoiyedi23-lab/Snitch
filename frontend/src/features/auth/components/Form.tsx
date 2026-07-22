@@ -1,6 +1,7 @@
 import ShowError from "./ShowError";
 import Input from "./Input";
 import { Lock, Mail, User } from "lucide-react";
+import { Link } from "react-router-dom";
 interface RegisterData extends LoginData {
   username: string;
 }
@@ -40,16 +41,15 @@ const Form = ({ register, handleSubmit, submitHandler, isRegister }: any) => {
       />
       <ShowError />
       {!isRegister && (
-        <div className="flex justify-end hover:text-text text-white">
-          <button type="button" className="text-xs transition-colors">
+        <div className="flex justify-end hover:text-background-light text-white">
+          <Link to={"/forgot-password"} className="text-xs transition-colors">
             Forgot password?
-          </button>
+          </Link>
         </div>
       )}
       <button
         type="submit"
         className="bg-background text-gold text-lg    font-bold mt-1 h-12 w-full rounded-lg "
-     
       >
         {isRegister ? "Sign Up" : "Sign In"}
       </button>

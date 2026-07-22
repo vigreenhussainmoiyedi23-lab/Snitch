@@ -38,3 +38,17 @@ export const refreshTokenApi = async () => {
   const response = await api.get("/api/auth/refresh-token");
   return response.data;
 };
+export const forgotPasswordApi = async (data: { email: string }) => {
+  const response = await api.post("/api/auth/forget-password", data);
+  return response.data;
+};
+export const ResetPasswordApi = async (data: {
+  password: string;
+  token: string;
+}) => {
+  const response = await api.post(
+    `/api/auth/reset-password/${data.token}`,
+    data,
+  );
+  return response.data;
+};
