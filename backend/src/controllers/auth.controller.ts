@@ -3,6 +3,7 @@ import { type RequestHandler } from "express";
 import {
   CreateTokensAndSession,
   createTokensAndUpdateSession,
+  generateOTP,
 } from "../services/auth.service.js";
 import { createTokenFromData, getTokenData } from "../utils/jwt.util.js";
 import { clearSecureCookie, sendSecureCookie } from "../utils/cookie.util.js";
@@ -268,4 +269,39 @@ export const logoutController = asyncHandler(async (req, res) => {
   );
   clearSecureCookie(res, "refreshToken");
   res.status(200).json({ message: "Logout successfully" });
+});
+export const forgetPasswordController = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+  const isUserExist = await userModel.exists({ email });
+  if (!isUserExist) throw new AppError("User does not exist", 400);
+  const token = createTokenFromData({ email }, "15min");
+  const html = `
+  <h1 style="text-align: center;">Reset Password By Clicking The Button Below</h1>
+  <a href=${config.FRONTEND_URL}/reset-password/${token} style="text-align: center;">Click Here<a/>
+  `;
+  await SendEmail({ to: email, html, subject: "Reset Password Link" }); // to,subject,text,html
+  res.status(200).json({ message: "OTP sent successfully" });
+});
+export const resetPasswordController = asyncHandler(async (req, res) => {
+  try {
+    const { password } = req.body;
+    const token = req.params.token;
+
+    if (!token || typeof token !== "string")
+      throw new AppError("Invalid token", 400);
+
+    const decoded = getTokenData(token);
+    if (!decoded || typeof decoded !== "object" || !decoded.email) {
+      throw new AppError("Invalid token", 400);
+    }
+    const isUserExist = await userModel.findOne({ email: decoded.email });
+    if (!isUserExist) {
+      throw new AppError("User does not exist", 400);
+    }
+    isUserExist.password = password;
+    await isUserExist.save();
+    res.status(200).json({ message: "Password reset successfully" });
+  } catch (error) {
+    throw new AppError("Invalid token", 400);
+  }
 });

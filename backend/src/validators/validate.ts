@@ -6,8 +6,7 @@ export const validate: RequestHandler = (req, res, next) => {
 
   if (!errors.isEmpty()) {
     res.status(400).json({
-      success: false,
-      errors: errors.array(),
+      message: errors!.array()[0]!.msg,
     });
     return;
   }

@@ -8,6 +8,8 @@ import {
   logoutController,
   verifyOtpController,
   resendOtpHandler,
+  forgetPasswordController,
+  resetPasswordController,
 } from "../controllers/auth.controller.js";
 import passport from "passport";
 import { authLimiter, otpLimiter } from "../Limiters/auth.limiters.js";
@@ -93,5 +95,18 @@ authRouter.get("/refresh-token", authLimiter, refreshTokenController);
  * @description logout user and revoke session
  */
 authRouter.get("/logout", authLimiter, logoutController);
-
+/**
+ * @post forgetPassword
+ * @body {email}
+ * @return {success,message}
+ * @description send email to reset password
+ */
+authRouter.post("/forgetPassword", forgetPasswordController);
+/**
+ * @post resetPassword
+ * @body {password}
+ * @return {success,message}
+ * @description reset password
+ */
+authRouter.post("/reset-password/:token", resetPasswordController);
 export default authRouter;
