@@ -1,6 +1,7 @@
 import type { RequestHandler } from "express";
 import { getTokenData } from "../utils/jwt.util.js";
 import { redis } from "../config/redis.js";
+import userModel from "../models/user.model.js";
 
 export const isUserVerified: RequestHandler = async (req, res, next) => {
   try {
@@ -19,8 +20,19 @@ export const isUserVerified: RequestHandler = async (req, res, next) => {
     if (!decoded || typeof decoded !== "object" || !decoded._id) {
       return res.status(400).json({ message: "Invalid token " });
     }
+    const cachedUser = await redis.get("user:" + decoded._id);
+    if (cachedUser) req.user = JSON.parse(cachedUser);
+    else {
+      const user = await userModel.findById(decoded._id);
+      if (!user) {
+        return res.status(400).json({ message: "User does not exist" });
+      }
+      req.user = user;
+      await redis.set("user:" + decoded._id, JSON.stringify(user), {
+        EX: 60,
+      });
+    }
 
-    req.user = decoded._id;
     next();
   } catch (error) {
     res.status(500).json({ message: "Something went wrong" });

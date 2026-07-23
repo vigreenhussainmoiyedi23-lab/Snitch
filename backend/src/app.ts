@@ -28,6 +28,7 @@ app.use(morgan("dev"));
 app.get("/", (req, res) => {
   res.send("hello");
 });
+
 app.use("/api/auth", authRouter);
 app.use(errorHandler);
 export default app;

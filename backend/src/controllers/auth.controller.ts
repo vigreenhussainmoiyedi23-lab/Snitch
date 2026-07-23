@@ -1,4 +1,4 @@
-import userModel from "../models/user.model.js";
+import userModel, { type userSchemaType } from "../models/user.model.js";
 import {
   CreateTokensAndSession,
   createTokensAndUpdateSession,
@@ -16,6 +16,7 @@ import asyncHandler from "../utils/AsyncHandler.js";
 import AppError from "../utils/AppError.js";
 import { config } from "../config/config.js";
 import { redis } from "../config/redis.js";
+
 
 export const registerController = asyncHandler(async (req, res) => {
   const { username, email, password } = req.body;
@@ -279,31 +280,43 @@ export const logoutController = asyncHandler(async (req, res) => {
     { revoke: true },
   );
   clearSecureCookie(res, "refreshToken");
+
   res.status(200).json({ message: "Logout successfully" });
 });
 export const logoutAllController = asyncHandler(async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
+  const accessToken = req.headers.authorization?.split(" ")[1];
   if (!refreshToken) throw new AppError("Invalid token", 400);
-  const decoded = getTokenData(refreshToken);
-  if (!decoded || typeof decoded !== "object" || !decoded._id || !decoded.exp) {
-    throw new AppError("Invalid token", 400);
+
+  const user = req.user;
+  if (accessToken) {
+    const accesDecoded = getTokenData(accessToken);
+    if (
+      !accesDecoded ||
+      typeof accesDecoded !== "object" ||
+      !accesDecoded._id ||
+      !accesDecoded.exp
+    ) {
+      throw new AppError("Invalid token", 400);
+    }
+    const now = Math.floor(Date.now() / 1000);
+    const ttl = accesDecoded.exp - now;
+    await redis.set(`blacklist:${accessToken}`, Date.now().toString(), {
+      EX: ttl,
+    });
   }
-  const isUserExist = await userModel.findById(decoded._id);
-  if (!isUserExist) {
+  if (!user || !user._id) {
     throw new AppError("User does not exist", 400);
   }
-  const hashedRefreshToken = crypto
-    .createHash("sha256")
-    .update(refreshToken!)
-    .digest("hex");
   await sessionModel.updateMany(
     {
-      user: isUserExist._id,
-      refreshToken: { $ne: hashedRefreshToken },
+      user: user!._id,
       revoke: false,
     },
-    { revoke: true, revokedAt: Date.now(), revokeReason: "logout" },
+    { revoke: true, revokedAt: new Date(), revokeReason: "logout" },
   );
+  clearSecureCookie(res, "refreshToken");
+
   res
     .status(200)
     .json({ message: "Logout of All Devices Successfully successfully" });
@@ -320,6 +333,7 @@ export const forgetPasswordController = asyncHandler(async (req, res) => {
     <a href=${config.FRONTEND_URL}/reset-password/${token} style="text-align: center;">Click Here<a/>
     `;
   await SendEmail({ to: email, html, subject: "Reset Password Link" }); // to,subject,text,html
+
   res
     .status(200)
     .json({ message: "email sent successfully with reset password link" });
