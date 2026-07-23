@@ -18,6 +18,7 @@ import {
   resendOtpApi,
   forgotPasswordApi,
   ResetPasswordApi,
+  changePasswordApi,
 } from "../service/api.service.js";
 import { toast } from "react-toastify";
 import { toastSettings } from "../../../utils/ToastSettings.js";
@@ -173,6 +174,20 @@ export const useAuth = () => {
       const response = await refreshTokenApi();
       dispatch(setAccessToken(response.accessToken));
       await GetMeHandler();
+      let refreshTimer: ReturnType<typeof setTimeout> | null = null;
+
+      const scheduleRefresh = () => {
+        if (refreshTimer) clearTimeout(refreshTimer);
+
+        refreshTimer = setTimeout(
+          () => {
+            refreshTokenHand1er();
+          },
+          15 * 60 * 1000,
+        );
+      };
+
+      scheduleRefresh();
     } catch (error) {
       dispatch(authFailure(""));
     }
@@ -235,6 +250,33 @@ export const useAuth = () => {
       }
     }
   };
+  const changePasswordHandler = async (data: {
+    newPassword: string;
+    oldPassword: string;
+  }) => {
+    dispatch(authStart());
+    const id = toast.loading("changing your password...");
+    try {
+      const response = await changePasswordApi(data);
+      toast.update(id, {
+        render: "password changed Successfully",
+        type: "success",
+        isLoading: false,
+        ...toastSettings,
+      });
+      return response;
+    } catch (error: unknown) {
+      if (isERROR(error)) {
+        dispatch(authFailure(error!?.response!?.data.message!));
+        toast.update(id, {
+          render: error!?.response!?.data.message || "",
+          type: "error",
+          isLoading: false,
+          ...toastSettings,
+        });
+      }
+    }
+  };
   return {
     loginHandler,
     RegisterHandler,
@@ -245,5 +287,6 @@ export const useAuth = () => {
     resendOtpHandler,
     forgotHandler,
     resetPasswordHandler,
+    changePasswordHandler,
   };
 };

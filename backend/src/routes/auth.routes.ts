@@ -10,6 +10,8 @@ import {
   resendOtpHandler,
   forgetPasswordController,
   resetPasswordController,
+  changePasswordController,
+  logoutAllController,
 } from "../controllers/auth.controller.js";
 import passport from "passport";
 import { authLimiter, otpLimiter } from "../Limiters/auth.limiters.js";
@@ -18,6 +20,7 @@ import {
   registerValidator,
   resetPasswordValidator,
 } from "../validators/auth.validator.js";
+import { isUserVerified } from "../middlewares/auth.middleware.js";
 const authRouter = Router();
 
 /**
@@ -53,7 +56,7 @@ authRouter.get("/resend-otp", otpLimiter, resendOtpHandler);
  * @return {success,message}
  * @description verify otp of the user whose id is in the token
  */
-authRouter.post("/verifyOtp", otpLimiter, verifyOtpController);
+authRouter.post("/verify-otp", otpLimiter, verifyOtpController);
 /**
  * @get google
  * @return {success,message}
@@ -97,6 +100,12 @@ authRouter.get("/refresh-token", authLimiter, refreshTokenController);
  */
 authRouter.get("/logout", authLimiter, logoutController);
 /**
+ * @get logout-all
+ * @return {success,message}
+ * @description logout out from other devices and revoke all sessions
+ */
+authRouter.get("/logout-all", isUserVerified, logoutAllController);
+/**
  * @post forgetPassword
  * @body {email}
  * @return {success,message}
@@ -109,5 +118,23 @@ authRouter.post("/forget-password", forgetPasswordController);
  * @return {success,message}
  * @description reset password
  */
-authRouter.post("/reset-password/:token",resetPasswordValidator, resetPasswordController);
+authRouter.post(
+  "/reset-password/:token",
+  resetPasswordValidator,
+  resetPasswordController,
+);
+/**
+ * @post changePassword
+ * @body {newPassword,oldPassword}
+ * @return {success,message}
+ * @description change password of the user logged in using req.user
+ */
+authRouter.post(
+  "/change-password",
+  authLimiter,
+  isUserVerified,
+  changePasswordController,
+);
+
+
 export default authRouter;

@@ -1,20 +1,15 @@
-import { Lock, Mail } from "lucide-react";
+import { Lock } from "lucide-react";
 import Input from "../components/Input";
 import { useForm } from "react-hook-form";
 import ShowError from "../components/ShowError";
 import { useAuth } from "../hooks/useAuth";
-import { useParams } from "react-router-dom";
 
-const ResetPassword = () => {
+const ChangePassword = () => {
   const { register, handleSubmit, reset } = useForm();
-  const { resetPasswordHandler } = useAuth();
-  const { token } = useParams();
+  const { changePasswordHandler } = useAuth();
   const submitHandler = async (data: any) => {
     try {
-      const response = await resetPasswordHandler({
-        ...data,
-        token: token || "",
-      });
+      const response = await changePasswordHandler(data);
       if (response?.success) reset();
     } catch (error) {}
   };
@@ -25,11 +20,18 @@ const ResetPassword = () => {
         onSubmit={handleSubmit(submitHandler)}
       >
         <h1 className="text-2xl font-bold text-white mb-1">
-          Enter Your Password
+          Change Your Password
         </h1>
         <Input
           register={register}
-          name="password"
+          name="oldPassword"
+          type="password"
+          placeholder="Enter your old password"
+          icon={<Lock width={16} />}
+        />
+        <Input
+          register={register}
+          name="newPassword"
           type="password"
           placeholder="Enter your new password"
           icon={<Lock width={16} />}
@@ -46,4 +48,4 @@ const ResetPassword = () => {
   );
 };
 
-export default ResetPassword;
+export default ChangePassword;

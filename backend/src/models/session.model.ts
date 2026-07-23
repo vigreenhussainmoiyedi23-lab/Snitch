@@ -10,6 +10,12 @@ const sessionSchema = new mongoose.Schema(
     ip: { type: String, required: true },
     userAgent: { type: String, required: true },
     revoke: { type: Boolean, default: false },
+    revokedAt: { type: Date, default: null },
+    revokeReason: {
+      type: String,
+      enum: ["logout", "admin", "password_change", "expired"],
+      default: "logout",
+    },
   },
   { timestamps: true },
 );

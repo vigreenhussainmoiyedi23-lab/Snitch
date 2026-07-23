@@ -25,7 +25,7 @@ export const GetUserAPI = async () => {
 };
 
 export const verifyOtpApi = async (otp: string) => {
-  const response = await api.post("/api/auth/verifyOtp", { otp });
+  const response = await api.post("/api/auth/verify-otp", { otp });
   return response.data;
 };
 
@@ -50,5 +50,12 @@ export const ResetPasswordApi = async (data: {
     `/api/auth/reset-password/${data.token}`,
     data,
   );
+  return response.data;
+};
+export const changePasswordApi = async (data: {
+  newPassword: string;
+  oldPassword: string;
+}) => {
+  const response = await api.post(`/api/auth/change-password`, data);
   return response.data;
 };

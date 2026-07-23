@@ -48,5 +48,5 @@ export const createTokensAndUpdateSession = async ({
 };
 
 export const generateOTP = () => {
-  return Math.floor(100000 + Math.random() * 900000);
+  return crypto.randomInt(100000, 1000000).toString();
 };

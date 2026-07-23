@@ -9,6 +9,8 @@ type CONFIG = {
   GOOGLE_REFRESH_TOKEN: string;
   GOOGLE_USER: string;
   FRONTEND_URL: string;
+
+  REDIS_URL: string;
 };
 export const config: CONFIG = {
   PORT:
@@ -22,4 +24,5 @@ export const config: CONFIG = {
   GOOGLE_REFRESH_TOKEN: process.env.GOOGLE_REFRESH_TOKEN || "",
   GOOGLE_USER: process.env.GOOGLE_USER || "",
   FRONTEND_URL: process.env.FRONTEND_URL || "http://localhost:5173",
+  REDIS_URL: process.env.REDIS_URL || "localhost",
 };
