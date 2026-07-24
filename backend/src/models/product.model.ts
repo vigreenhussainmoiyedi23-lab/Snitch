@@ -2,25 +2,14 @@ import mongoose from "mongoose";
 
 const productSchema = new mongoose.Schema(
   {
-    owner: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-      index: true,
-    },
-
-    store: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Store",
-      index: true,
-    },
-
     title: {
       type: String,
       required: true,
       trim: true,
       maxlength: 150,
     },
+    description: String,
+    shortDescription: String,
 
     slug: {
       type: String,
@@ -28,35 +17,31 @@ const productSchema = new mongoose.Schema(
       index: true,
     },
 
-    shortDescription: String,
-
-    description: String,
-
     category: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Category",
+      ref: "category",
       index: true,
     },
 
     subCategory: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Category",
+      ref: "category",
       index: true,
     },
 
     brand: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Brand",
+      ref: "brand",
     },
 
     sku: {
       type: String,
+      required: true,
       unique: true,
-      sparse: true,
+      immutable: true, // Cannot be changed after creation
+      index: true,
     },
-
     barcode: String,
-
     tags: [String],
 
     images: [
@@ -66,25 +51,27 @@ const productSchema = new mongoose.Schema(
         thumbnailUrl: String,
       },
     ],
-
-    variants: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "variant",
-    }],
+    variants: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "variant",
+      },
+    ],
 
     attributes: {
       type: Map,
       of: String,
       default: {},
     },
-
-    price: {
+    mrp: {
       type: Number,
       required: true,
-      min: 0,
     },
 
-    comparePrice: Number,
+    discount: {
+      type: Number,
+      default: 0, // percentage
+    },
 
     costPrice: Number,
 
@@ -97,11 +84,6 @@ const productSchema = new mongoose.Schema(
     lowStockThreshold: {
       type: Number,
       default: 5,
-    },
-
-    allowBackorder: {
-      type: Boolean,
-      default: false,
     },
 
     status: {
@@ -175,23 +157,10 @@ const productSchema = new mongoose.Schema(
       embeddingsUpdatedAt: Date,
     },
 
-    moderation: {
-      approved: {
-        type: Boolean,
-        default: true,
-      },
-
-      approvedBy: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-      },
-
-      rejectedReason: String,
-    },
-
-    publishedAt: Date,
-
-    deletedAt: Date,
+    // allowBackorder: {
+    //   type: Boolean,
+    //   default: false,
+    // },
   },
   {
     timestamps: true,
