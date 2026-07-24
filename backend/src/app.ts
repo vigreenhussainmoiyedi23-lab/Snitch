@@ -9,6 +9,7 @@ import { config } from "./config/config.js";
 import errorHandler from "./middlewares/error.middleware.js";
 import helmet from "helmet";
 import { apiLimiter } from "./Limiters/globalApi.limiter.js";
+import productRouter from "./routes/product.routes.js";
 
 const app = express();
 app.use(express.json());
@@ -30,5 +31,6 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/auth", authRouter);
+app.use("/api/products", productRouter);
 app.use(errorHandler);
 export default app;
