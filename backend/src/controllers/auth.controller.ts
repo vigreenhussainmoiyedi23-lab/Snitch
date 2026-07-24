@@ -17,10 +17,12 @@ import AppError from "../utils/AppError.js";
 import { config } from "../config/config.js";
 import { redis } from "../config/redis.js";
 
-
 export const registerController = asyncHandler(async (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, role } = req.body;
   const isUserExist = await userModel.findOne({ email });
+  if(role==="admin"){
+    throw new AppError("You can't register as admin", 400);
+  }
   if (isUserExist && isUserExist.isVerified) {
     throw new AppError("User already exists", 400);
   }
@@ -33,6 +35,7 @@ export const registerController = asyncHandler(async (req, res) => {
     email,
     password,
     otp,
+    role: role || "user",
     otpExpiresIn: new Date(Date.now() + 10 * 60 * 1000),
     authMethod: "email",
   });

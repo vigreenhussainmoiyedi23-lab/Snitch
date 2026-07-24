@@ -13,14 +13,13 @@ const userSchema = new mongoose.Schema({
       /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
       "Please enter a valid email address",
     ],
-    
   },
   password: { type: String, select: false },
   isVerified: { type: Boolean, default: false },
   otp: { type: String },
   otpExpiresIn: { type: Date, expires: 0, default: null },
   authMethod: { type: String, enum: ["email", "google"], default: "email" },
-  role: { type: String, enum: ["user", "admin"], default: "user" },
+  role: { type: String, enum: ["user", "admin", "seller"], default: "user" },
 });
 export type userSchemaType = InferSchemaType<typeof userSchema>;
 
