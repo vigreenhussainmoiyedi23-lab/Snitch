@@ -6,7 +6,7 @@ import subCategoryModel from "../models/productSubModels/subCategory.model.js";
 import { uploadImage } from "../services/product.service.js";
 import asyncHandler from "../utils/AsyncHandler.js";
 import slugify from "slugify";
-export const CreateProductHandler = asyncHandler(async (req, res) => {
+export const  CreateProductHandler = asyncHandler(async (req, res) => {
   const files = req.files as Express.Multer.File[];
   const {
     title,

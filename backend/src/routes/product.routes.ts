@@ -14,6 +14,7 @@ productRouter.post(
   createProductValidator,
   CreateProductHandler,
 );
+
 productRouter.put("/", (req, res) => {});
 productRouter.patch("/", (req, res) => {});
 productRouter.delete("/", (req, res) => {});

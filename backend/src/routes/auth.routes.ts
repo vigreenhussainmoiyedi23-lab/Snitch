@@ -44,7 +44,6 @@ authRouter.post(
 authRouter.post("/login", loginValidator, authLimiter, loginController);
 /**
  * @post Resend Otp
- * @body {email}
  * @return {success,message}
  * @description resend otp for verification
  */
