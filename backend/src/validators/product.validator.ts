@@ -1,4 +1,4 @@
-import { body } from "express-validator";
+import { body, query } from "express-validator";
 import { validate } from "./validate.js";
 
 export const createProductValidator = [
@@ -88,5 +88,48 @@ export const createProductValidator = [
     .withMessage("Discount must be a number")
     .isFloat({ min: 0, max: 100 })
     .withMessage("Discount must be between 0 and 100"),
+  validate,
+];
+import { z } from "zod";
+
+export const getProductsSchema = z.object({
+  cat: z.string().trim().optional(),
+  brand: z.string().trim().optional(),
+  search: z.string().trim().min(1).max(100).optional(),
+
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+
+  sort: z.enum(["price", "-price", "createdAt", "-createdAt"]).optional(),
+});
+
+export const getProductsValidator = [
+  query("cat")
+    .optional()
+    .isString()
+    .isMongoId()
+    .withMessage("Invalid category")
+    .trim()
+    .bail(),
+  query("brand")
+    .optional()
+    .isString()
+    .isMongoId()
+    .withMessage("Invalid brand")
+    .trim(),
+  query("search").optional().isLength({ min: 1, max: 100 }),
+  query("page").optional().isInt({ min: 1 }),
+  query("limit").optional().isInt({ min: 1, max: 100 }),
+  query("sort").optional().isIn(["price", "-price", "createdAt", "-createdAt"]),
+  query("Uprice")
+    .optional()
+    .isNumeric()
+    .notEmpty()
+    .withMessage("upper price is required"),
+  query("Lprice")
+    .optional()
+    .isNumeric()
+    .notEmpty()
+    .withMessage("lower price is required"),
   validate,
 ];

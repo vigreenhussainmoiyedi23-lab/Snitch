@@ -6,8 +6,12 @@ import subCategoryModel from "../models/productSubModels/subCategory.model.js";
 import { uploadImage } from "../services/product.service.js";
 import asyncHandler from "../utils/AsyncHandler.js";
 import slugify from "slugify";
-export const  CreateProductHandler = asyncHandler(async (req, res) => {
+
+export const CreateProductHandler = asyncHandler(async (req, res) => {
   const files = req.files as Express.Multer.File[];
+  const user = req.user;
+  if (user!.role !== "admin")
+    return res.status(401).json({ message: "Unauthorized" });
   const {
     title,
     description,
@@ -79,4 +83,54 @@ export const  CreateProductHandler = asyncHandler(async (req, res) => {
   });
   await sequence.save();
   res.status(201).json({ product, message: "Product created successfully" });
+});
+
+export const GetProductHandler = asyncHandler(async (req, res) => {
+  const page = Number(req.query.page) || 1;
+  const limit = Number(req.query.limit) || 20;
+
+  const query: any = {};
+
+  if (req.query.cat) {
+    query.category = req.query.cat;
+  }
+
+  if (req.query.brand) {
+    query.brand = req.query.brand;
+  }
+
+  if (req.query.search) {
+    query.$or = [
+      { title: { $regex: req.query.search, $options: "i" } },
+      { shortDescription: { $regex: req.query.search, $options: "i" } },
+      { description: { $regex: req.query.search, $options: "i" } },
+    ];
+  }
+  query.finalPrice = {
+    $gte: req.query.Uprice || 0,
+    $lte: req.query.Lprice || Number.MAX_SAFE_INTEGER,
+  };
+
+  const products = await productModel
+    .find(query)
+    .skip((page - 1) * limit)
+    .limit(limit);
+
+  const total = await productModel.countDocuments(query);
+
+  res.status(200).json({
+    products,
+    page,
+    limit,
+    total,
+    totalPages: Math.ceil(total / limit),
+  });
+});
+
+export const GetProductThroughSlugHandler = asyncHandler(async (req, res) => {
+  if (!req.params.slug) throw new Error("Slug is required");
+  const products = await productModel.findOne({ slug: req.params.slug }).lean();
+  res.status(200).json({
+    products,
+  });
 });

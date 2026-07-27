@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-
+import slugify from "slugify";
 const productSchema = new mongoose.Schema(
   {
     title: {
@@ -63,9 +63,13 @@ const productSchema = new mongoose.Schema(
       of: String,
       default: {},
     },
+
     mrp: {
       type: Number,
       required: true,
+    },
+    finalPrice: {
+      type: Number,
     },
 
     discount: {
@@ -166,5 +170,15 @@ const productSchema = new mongoose.Schema(
     timestamps: true,
   },
 );
+productSchema.pre("save", function () {
+  if (this.isModified("title")) {
+    this.slug = slugify(this.title) + "-" + Date.now().toString().slice(-5);
+  }
+  if (this.isModified("mrp") || this.isModified("discount")) {
+    this.finalPrice = this.mrp * (1 - this.discount / 100);
+  }
+});
 const productModel = mongoose.model("Product", productSchema);
+productSchema.set("toJSON", { virtuals: true });
+productSchema.set("toObject", { virtuals: true });
 export default productModel;
