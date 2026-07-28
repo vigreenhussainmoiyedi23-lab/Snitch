@@ -28,7 +28,7 @@ productRouter.get("/", getProductsValidator, GetProductHandler);
 productRouter.get("/:slug", getProductsValidator, GetProductThroughSlugHandler);
 /**
  * @post /api/products/
- * @body {title,description,shortDescription,category,subCategory,brand,mrp,stock,sku,barcode,tags,status,visibility,isFeatured,discount,images}
+ * @body {title,description,shortDescription,category,subCategory,brand,mrp,stock,barcode,tags,status,visibility,isFeatured,discount,images}
  * @description create a product
  * @return {success,message}
  */
@@ -41,7 +41,7 @@ productRouter.post(
 );
 /**
  * @put /api/products
- * @body {title,description,shortDescription,category,subCategory,brand,mrp,stock,sku,barcode,tags,status,visibility,isFeatured,discount,images}
+ * @body {title,description,shortDescription,category,subCategory,brand,mrp,stock,barcode,tags,status,visibility,isFeatured,discount,images}
  */
 productRouter.put("/", (req, res) => {});
 /**

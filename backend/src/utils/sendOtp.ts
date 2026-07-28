@@ -5,15 +5,19 @@ async function SendEmail(data: {
   subject: string;
   text?: string;
   html: string;
+  retries?: number;
 }) {
-  let retries = 0;
+  let retries = data.retries || 0;
   try {
+    console.log("Email sent successfully");
     return await transporter.sendMail(data);
   } catch (error) {
     if (retries < 5) {
       await new Promise((resolve) => setTimeout(resolve, 5000));
       retries++;
-      SendEmail(data);
+      SendEmail({ ...data, retries });
+    }else{
+      throw error
     }
   }
 }

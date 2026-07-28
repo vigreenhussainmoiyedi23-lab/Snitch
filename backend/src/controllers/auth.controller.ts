@@ -20,7 +20,7 @@ import { redis } from "../config/redis.js";
 export const registerController = asyncHandler(async (req, res) => {
   const { username, email, password, role } = req.body;
   const isUserExist = await userModel.findOne({ email });
-  if(role==="admin"){
+  if (role === "admin") {
     throw new AppError("You can't register as admin", 400);
   }
   if (isUserExist && isUserExist.isVerified) {
@@ -39,6 +39,12 @@ export const registerController = asyncHandler(async (req, res) => {
     otpExpiresIn: new Date(Date.now() + 10 * 60 * 1000),
     authMethod: "email",
   });
+
+  const token = createTokenFromData({ _id: newUser._id }, "15min");
+  sendSecureCookie(res, "tokenForOtp", token, 15 * 60 * 1000); // {res,name,value,maxAgeInMs}
+  res
+    .status(201)
+    .json({ message: "Verifification OTP has been sent", success: true });
   const html = `
   <h1 style="text-align: center;">Verification OTP</h1>
   <h1 style="text-align: center;">${otp}</h1>
@@ -48,11 +54,6 @@ export const registerController = asyncHandler(async (req, res) => {
     subject: "Verification OTP",
     html,
   });
-  const token = createTokenFromData({ _id: newUser._id }, "15min");
-  sendSecureCookie(res, "tokenForOtp", token, 15 * 60 * 1000); // {res,name,value,maxAgeInMs}
-  res
-    .status(201)
-    .json({ message: "Verifification OTP has been sent", success: true });
 });
 
 export const resendOtpHandler = asyncHandler(async (req, res) => {

@@ -94,7 +94,7 @@ const productSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: ["Draft", "Published", "Archived"],
-      default: "Draft",
+      default: "Published",
       index: true,
     },
 
@@ -162,10 +162,12 @@ const productSchema = new mongoose.Schema(
       embeddingsUpdatedAt: Date,
     },
 
-    // allowBackorder: {
-    //   type: Boolean,
-    //   default: false,
-    // },
+    reviews: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "review",
+      },
+    ],
   },
   {
     timestamps: true,

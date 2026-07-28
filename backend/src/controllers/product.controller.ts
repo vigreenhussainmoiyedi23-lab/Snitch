@@ -68,15 +68,15 @@ export const CreateProductHandler = asyncHandler(async (req, res) => {
     stock,
     sku: `SKU-${(sequence.sequence_value!++).toString().padStart(6, "0")}`,
     barcode,
-    tags,
+    tags: tags.split(",") || [],
     status,
     visibility,
     isFeatured,
     discount: discount || 0,
     images: responses,
   });
-  await sequence.save();
   res.status(201).json({ product, message: "Product created successfully" });
+  await sequence.save();
 });
 
 export const GetProductHandler = asyncHandler(async (req, res) => {
