@@ -5,7 +5,6 @@ import counterModel from "../models/productSubModels/counter.model.js";
 import subCategoryModel from "../models/productSubModels/subCategory.model.js";
 import { uploadImage } from "../services/product.service.js";
 import asyncHandler from "../utils/AsyncHandler.js";
-import slugify from "slugify";
 
 export const CreateProductHandler = asyncHandler(async (req, res) => {
   const files = req.files as Express.Multer.File[];
@@ -58,18 +57,13 @@ export const CreateProductHandler = asyncHandler(async (req, res) => {
       sequence_value: 1,
     });
   }
-  let slug = slugify(title + " " + (Date.now() + ``).slice(-5), {
-    lower: true,
-    strict: true,
-  });
   const product = await productModel.create({
     title,
-    slug,
     description,
     shortDescription,
-    category: validCategory._id,
-    subCategory: validSubCategory._id,
-    brand: validBrand._id,
+    category: validCategory?.name || "other",
+    subCategory: validSubCategory?.name || "other",
+    brand: validBrand?.name || "other",
     mrp: price,
     stock,
     sku: `SKU-${(sequence.sequence_value!++).toString().padStart(6, "0")}`,
@@ -134,3 +128,6 @@ export const GetProductThroughSlugHandler = asyncHandler(async (req, res) => {
     products,
   });
 });
+
+export const UpdateProductsPutHandler = asyncHandler(async (req, res) => {});
+export const UpdateProductsPatchHandler = asyncHandler(async (req, res) => {});

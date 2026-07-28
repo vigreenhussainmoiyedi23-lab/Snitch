@@ -40,15 +40,18 @@ productRouter.post(
   CreateProductHandler,
 );
 /**
- * 
+ * @put /api/products
+ * @body {title,description,shortDescription,category,subCategory,brand,mrp,stock,sku,barcode,tags,status,visibility,isFeatured,discount,images}
  */
 productRouter.put("/", (req, res) => {});
 /**
- * 
+ * @patch /api/products
+ * @body {keep:[includes fileIds]}
+ * @files {images}:new images
  */
-productRouter.patch("/", (req, res) => {});
+productRouter.patch("/", upload.array("images", 5), (req, res) => {});
 /**
- * 
+ *
  */
 productRouter.delete("/", (req, res) => {});
 

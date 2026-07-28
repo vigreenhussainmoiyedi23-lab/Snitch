@@ -18,20 +18,21 @@ const productSchema = new mongoose.Schema(
     },
 
     category: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "category",
+      type: String,
       index: true,
+      required:true
     },
 
     subCategory: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "category",
+      type: String,
       index: true,
+      required:true
     },
 
     brand: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "brand",
+      type: String,
+      index:true,
+      required:true
     },
 
     sku: {
