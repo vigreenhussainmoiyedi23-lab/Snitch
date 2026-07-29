@@ -1,6 +1,7 @@
 import { buffer } from "node:stream/consumers";
 import { imagekit } from "../config/imagekit.js";
 import { toFile } from "@imagekit/nodejs";
+import AppError from "../utils/AppError.js";
 
 export const uploadImage = async (data: {
   buffer: Buffer;
@@ -14,4 +15,8 @@ export const uploadImage = async (data: {
   });
 
   return res;
+};
+export const isAdmin = (user: any) => {
+  if (user.role !== "admin")
+    throw new AppError("You are not authorized to perform this action", 401);
 };

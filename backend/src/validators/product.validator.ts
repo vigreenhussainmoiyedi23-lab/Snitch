@@ -60,13 +60,7 @@ export const createProductValidator = [
     .isLength({ min: 6, max: 50 })
     .withMessage("Barcode must be between 6 and 50 characters"),
 
-  body("tags").optional().isArray().withMessage("Tags must be an array"),
-
-  body("tags.*")
-    .optional()
-    .trim()
-    .isLength({ min: 1, max: 30 })
-    .withMessage("Each tag must be between 1 and 30 characters"),
+  body("tags").optional().isString().withMessage("Invalid tags"),
 
   body("status")
     .optional()
@@ -90,19 +84,6 @@ export const createProductValidator = [
     .withMessage("Discount must be between 0 and 100"),
   validate,
 ];
-import { z } from "zod";
-
-export const getProductsSchema = z.object({
-  cat: z.string().trim().optional(),
-  brand: z.string().trim().optional(),
-  search: z.string().trim().min(1).max(100).optional(),
-
-  page: z.coerce.number().int().min(1).default(1),
-  limit: z.coerce.number().int().min(1).max(100).default(20),
-
-  sort: z.enum(["price", "-price", "createdAt", "-createdAt"]).optional(),
-});
-
 export const getProductsValidator = [
   query("cat")
     .optional()
@@ -133,3 +114,5 @@ export const getProductsValidator = [
     .withMessage("lower price is required"),
   validate,
 ];
+
+export const createVariantValidator = [body("mrp")];

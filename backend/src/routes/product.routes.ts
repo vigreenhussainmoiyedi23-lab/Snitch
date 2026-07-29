@@ -2,8 +2,12 @@ import { Router } from "express";
 import upload from "../config/multer.js";
 import {
   CreateProductHandler,
+  createVariantHandler,
+  DeleteProductHandler,
   GetProductHandler,
   GetProductThroughSlugHandler,
+  UpdateProductsPatchHandler,
+  UpdateProductsPutHandler,
 } from "../controllers/product.controller.js";
 import {
   createProductValidator,
@@ -43,16 +47,38 @@ productRouter.post(
  * @put /api/products
  * @body {title,description,shortDescription,category,subCategory,brand,mrp,stock,barcode,tags,status,visibility,isFeatured,discount,images}
  */
-productRouter.put("/", (req, res) => {});
+productRouter.put(
+  "/:id",
+  createProductValidator,
+  isUserVerified,
+  UpdateProductsPutHandler,
+);
 /**
  * @patch /api/products
- * @body {keep:[includes fileIds]}
+ * @body {keep:[includes fileIds to keep]}
  * @files {images}:new images
  */
-productRouter.patch("/", upload.array("images", 5), (req, res) => {});
-/**
- *
- */
-productRouter.delete("/", (req, res) => {});
+productRouter.patch(
+  "/:id",
+  upload.array("images", 5),
+  isUserVerified,
+  UpdateProductsPatchHandler,
+);
 
+/**
+ * @delete /api/products/:id
+ * @description delete a product
+ * @return {success,message}
+ */
+productRouter.delete("/:id", isUserVerified, DeleteProductHandler);
+
+// <----- Variants Routes ----->
+
+productRouter.post(
+  "/:slug",
+  isUserVerified,
+  upload.array("images", 5),
+  createProductValidator,
+  createVariantHandler,
+);
 export default productRouter;

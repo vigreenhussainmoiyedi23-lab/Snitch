@@ -20,19 +20,19 @@ const productSchema = new mongoose.Schema(
     category: {
       type: String,
       index: true,
-      required:true
+      required: true,
     },
 
     subCategory: {
       type: String,
       index: true,
-      required:true
+      required: true,
     },
 
     brand: {
       type: String,
-      index:true,
-      required:true
+      index: true,
+      required: true,
     },
 
     sku: {
@@ -44,7 +44,7 @@ const productSchema = new mongoose.Schema(
     },
     barcode: String,
     tags: [String],
-
+    currency: { type: String, default: "INR" },
     images: [
       {
         fileId: String,

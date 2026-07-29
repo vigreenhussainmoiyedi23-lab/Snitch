@@ -8,8 +8,9 @@ const variantSchema = new mongoose.Schema(
       immutable: true, // Cannot be changed after creation
       index: true,
     },
-    price: Number,
-    comparePrice: Number,
+    mrp: { type: Number, default: 0, required: true },
+    discount: { type: Number, default: 0 },
+    finalPrice: Number,
     stock: Number,
     barcode: String,
 
@@ -29,5 +30,10 @@ const variantSchema = new mongoose.Schema(
   },
   { _id: false },
 );
+variantSchema.pre("save", function () {
+  if (this.isModified("mrp") || this.isModified("discount")) {
+    this.finalPrice = (this.mrp || 0) * (1 - (this.discount || 0) / 100);
+  }
+});
 const variantModel = mongoose.model("variant", variantSchema);
 export default variantModel;

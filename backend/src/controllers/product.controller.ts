@@ -3,14 +3,13 @@ import brandModel from "../models/productSubModels/brands.model.js";
 import categoryModel from "../models/productSubModels/category.model.js";
 import counterModel from "../models/productSubModels/counter.model.js";
 import subCategoryModel from "../models/productSubModels/subCategory.model.js";
-import { uploadImage } from "../services/product.service.js";
+import { isAdmin, uploadImage } from "../services/product.service.js";
+import AppError from "../utils/AppError.js";
 import asyncHandler from "../utils/AsyncHandler.js";
-
 export const CreateProductHandler = asyncHandler(async (req, res) => {
   const files = req.files as Express.Multer.File[];
   const user = req.user;
-  if (user!.role !== "admin")
-    return res.status(401).json({ message: "Unauthorized" });
+  isAdmin(user);
   const {
     title,
     description,
@@ -26,10 +25,11 @@ export const CreateProductHandler = asyncHandler(async (req, res) => {
     visibility,
     isFeatured,
     discount,
+    attributes,
   } = req.body;
 
   if (!files || files.length === 0)
-    return res.status(400).json({ message: "No image uploaded" });
+    throw new AppError("No files uploaded", 400);
   const responses = await Promise.all(
     files.map((file) =>
       uploadImage({
@@ -74,6 +74,7 @@ export const CreateProductHandler = asyncHandler(async (req, res) => {
     isFeatured,
     discount: discount || 0,
     images: responses,
+    attributes: JSON.parse(attributes || `{}`),
   });
   res.status(201).json({ product, message: "Product created successfully" });
   await sequence.save();
@@ -122,12 +123,72 @@ export const GetProductHandler = asyncHandler(async (req, res) => {
 });
 
 export const GetProductThroughSlugHandler = asyncHandler(async (req, res) => {
-  if (!req.params.slug) throw new Error("Slug is required");
+  if (!req.params.slug) throw new AppError("Slug is required", 400);
   const products = await productModel.findOne({ slug: req.params.slug }).lean();
   res.status(200).json({
     products,
   });
 });
+export const DeleteProductHandler = asyncHandler(async (req, res) => {
+  const user = req.user;
+  isAdmin(user);
+  const { id } = req.params;
+  const product = await productModel.findByIdAndDelete(id);
+  if (!product) throw new AppError("Product not found", 404);
+  res.status(200).json({ message: "Product deleted successfully" });
+});
 
-export const UpdateProductsPutHandler = asyncHandler(async (req, res) => {});
-export const UpdateProductsPatchHandler = asyncHandler(async (req, res) => {});
+export const UpdateProductsPutHandler = asyncHandler(async (req, res) => {
+  const user = req.user;
+  isAdmin(user);
+  const { id } = req.params;
+  const product = await productModel.findByIdAndUpdate(id, req.body, {
+    new: true,
+  });
+  if (!product) throw new AppError("Product not found", 404);
+  res.status(200).json({
+    product,
+    message: "Product updated successfully",
+  });
+});
+
+export const UpdateProductsPatchHandler = asyncHandler(async (req, res) => {
+  isAdmin(req.user);
+  const { id } = req.params;
+  const files = req.files as Express.Multer.File[];
+
+  let newFilesResponses;
+  if (files) {
+    newFilesResponses = await Promise.all(
+      files.map((file) =>
+        uploadImage({
+          buffer: file.buffer,
+          fileName: file.originalname,
+          folder: "products",
+        }),
+      ),
+    );
+  }
+  const keep = JSON.parse(req.body.keep) || [];
+  if (!Array.isArray(keep))
+    throw new AppError("Keep is required", 400);
+  
+  const product = await productModel.findById(id);
+  if (!product) throw new AppError("Product not found", 404);
+
+  product.images = product.images.filter((image) =>
+    keep.includes(image._id.toString()),
+  ) as any;
+  if (newFilesResponses) {
+    product.images.push(...newFilesResponses);
+  }
+  await product.save();
+  res.status(200).json({
+    product,
+    message: "Product updated successfully",
+  });
+});
+
+export const createVariantHandler = asyncHandler(async (req, res) => {});
+export const updateVariantHandler = asyncHandler(async (req, res) => {});
+export const deleteVariantHandler = asyncHandler(async (req, res) => {});
