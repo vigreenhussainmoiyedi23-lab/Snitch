@@ -10,6 +10,7 @@ import ForgotPassword from "../features/auth/pages/ForgotPassword";
 import ResetPassword from "../features/auth/pages/ResetPassword";
 import ProtectedLayout from "../Layouts/ProtectedLayout";
 import ChangePassword from "../features/auth/pages/ChangePassword";
+import CreateProduct from "../features/products/pages/CreateProduct";
 
 export default function AppRoutes() {
   return (
@@ -28,10 +29,25 @@ export default function AppRoutes() {
       <Route path="/verifyOtp" element={<VerifyOtp />} />
       <Route path="/auth/google/success" element={<GoogleSuccess />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/change-password" element={<ProtectedLayout >
-        <ChangePassword/>
-      </ProtectedLayout>} />
+      <Route
+        path="/change-password"
+        element={
+          <ProtectedLayout>
+            <ChangePassword />
+          </ProtectedLayout>
+        }
+      />
       <Route path="/reset-password/:token" element={<ResetPassword />} />
+
+      {/* Products Routes */}
+      <Route
+        path="/products/create"
+        element={
+          <ProtectedLayout>
+            <CreateProduct />
+          </ProtectedLayout>
+        }
+      />
 
       <Route
         path="*"

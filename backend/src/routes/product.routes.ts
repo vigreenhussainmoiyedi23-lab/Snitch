@@ -14,7 +14,6 @@ import {
   updateProductValidator,
 } from "../validators/product.validator.js";
 import { isUserVerified } from "../middlewares/auth.middleware.js";
-import { variantValidator } from "../validators/variant.vallidator.js";
 
 const productRouter = Router();
 /**

@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Eczar:wght@400..800&family=Mate:ital@0;1&family=Teko:wght@300..700&display=swap');
 
 /* ─── Design System Tokens ─────────────────────────────── */
 :root {
@@ -126,6 +127,25 @@ body {
   --radius-lg: 20px;
   --radius-xl: 28px;
 }
+/* === Fonts ==== */
+/* eczar-heading */
+.eczar { 
+  font-family: "Eczar", serif;
+  font-optical-sizing: auto;
+  font-style: normal;
+}
+/*  mate - paragraph */
+.mate {
+  font-family: "Mate", serif;
+  font-style: normal;
+}
+/* teko - subheading or CTA */
+.teko {
+  font-family: "Teko", sans-serif;
+  font-optical-sizing: auto;
+  font-style: normal;
+}
+
 ─── Scrollbar ─────────────────────────────────────────── ::-webkit-scrollbar {
   width: 6px;
 }

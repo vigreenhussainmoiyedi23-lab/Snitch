@@ -1,28 +1,28 @@
 import type { FieldValues, Path, UseFormRegister } from "react-hook-form";
-import { type ReactNode } from "react";
+import {  type ReactNode } from "react";
 
 type InputProps<T extends FieldValues> = {
   register: UseFormRegister<T>;
   name: Path<T>;
+  type: string;
   placeholder?: string;
   icon?: ReactNode;
   minLength?: number;
-  isRequired?: boolean;
 };
 
-const TextArea = <T extends FieldValues>({
+const Select = <T extends FieldValues>({
   register,
   name,
+  type,
   placeholder,
   icon,
   minLength,
-  isRequired
 }: InputProps<T>) => {
   return (
     <>
-      <div className="relative flex flex-col items-center font-semibold text-text rounded">
+      <div className="relative mate mb-2 md:mb-5 flex flex-col items-center font-semibold text-text rounded">
         <label
-          className="text-background-light w-full   text-xs font-serif tracking-[3px] text-start "
+          className="text-background-light w-full capitalize text-[10px] md:text-xs font-serif tracking-[3px] text-start "
           htmlFor={name}
         >
           {name}
@@ -33,12 +33,13 @@ const TextArea = <T extends FieldValues>({
               {icon}
             </span>
           )}
-          <textarea
+          <input
             {...register(name)}
+            type={type}
             placeholder={placeholder}
-            minLength={minLength || 10}
-            required={!!isRequired}
-            className={`input-arena w-full outline-none h-12 rounded-lg px-4 text-sm ${icon ? "pl-10" : ""} `}
+            minLength={minLength || 3}
+            required={true}
+            className={`input-arena  w-full outline-none h-10 md:h-12 rounded-lg px-4 text-sm ${icon ? "pl-10" : ""} `}
           />
         </div>
       </div>
@@ -46,4 +47,4 @@ const TextArea = <T extends FieldValues>({
   );
 };
 
-export default TextArea;
+export default Select;
