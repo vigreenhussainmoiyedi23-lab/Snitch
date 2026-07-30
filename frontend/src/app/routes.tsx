@@ -4,11 +4,11 @@ import Login from "../features/auth/pages/Login";
 import Register from "../features/auth/pages/Register";
 import LandingPage from "../features/LandingPage/Pages/LandingPage";
 import VerifyOtp from "../features/auth/pages/VerifyOtp";
-import CommonLayout from "../features/Layouts/CommonLayout";
+import CommonLayout from "../Layouts/CommonLayout";
 import GoogleSuccess from "../features/auth/pages/GoogleSuccess";
 import ForgotPassword from "../features/auth/pages/ForgotPassword";
 import ResetPassword from "../features/auth/pages/ResetPassword";
-import ProtectedLayout from "../features/Layouts/ProtectedLayout";
+import ProtectedLayout from "../Layouts/ProtectedLayout";
 import ChangePassword from "../features/auth/pages/ChangePassword";
 
 export default function AppRoutes() {

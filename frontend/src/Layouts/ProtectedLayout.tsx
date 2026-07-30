@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useAppSelector } from "../../app/redux/hook";
+import { useAppSelector } from "../app/redux/hook";
 import { Lock } from "lucide-react";
 
 const ProtectedLayout = ({ children }: { children: React.ReactNode }) => {
