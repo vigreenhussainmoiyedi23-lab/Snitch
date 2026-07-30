@@ -2,7 +2,6 @@ import { Router } from "express";
 import upload from "../config/multer.js";
 import {
   CreateProductHandler,
-  createVariantHandler,
   DeleteProductHandler,
   GetProductHandler,
   GetProductThroughSlugHandler,
@@ -14,6 +13,7 @@ import {
   getProductsValidator,
 } from "../validators/product.validator.js";
 import { isUserVerified } from "../middlewares/auth.middleware.js";
+import { variantValidator } from "../validators/variant.vallidator.js";
 
 const productRouter = Router();
 /**
@@ -51,6 +51,7 @@ productRouter.put(
   "/:id",
   createProductValidator,
   isUserVerified,
+  variantValidator,
   UpdateProductsPutHandler,
 );
 /**
@@ -72,13 +73,4 @@ productRouter.patch(
  */
 productRouter.delete("/:id", isUserVerified, DeleteProductHandler);
 
-// <----- Variants Routes ----->
-
-productRouter.post(
-  "/:slug",
-  isUserVerified,
-  upload.array("images", 5),
-  createProductValidator,
-  createVariantHandler,
-);
 export default productRouter;

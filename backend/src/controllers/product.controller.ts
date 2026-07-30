@@ -3,7 +3,11 @@ import brandModel from "../models/productSubModels/brands.model.js";
 import categoryModel from "../models/productSubModels/category.model.js";
 import counterModel from "../models/productSubModels/counter.model.js";
 import subCategoryModel from "../models/productSubModels/subCategory.model.js";
-import { isAdmin, uploadImage } from "../services/product.service.js";
+import {
+  isAdmin,
+  uploadImage,
+  validSequenceBrandSubCatAndCategory,
+} from "../services/product.service.js";
 import AppError from "../utils/AppError.js";
 import asyncHandler from "../utils/AsyncHandler.js";
 export const CreateProductHandler = asyncHandler(async (req, res) => {
@@ -39,24 +43,12 @@ export const CreateProductHandler = asyncHandler(async (req, res) => {
       }),
     ),
   );
-  let [validBrand, validCategory, validSubCategory, sequence] =
-    await Promise.all([
-      brandModel.findOne({ name: brand }),
-      categoryModel.findOne({ name: category }),
-      subCategoryModel.findOne({ name: subCategory }),
-      counterModel.findOne({ name: "product" }),
-    ]);
-  if (!validBrand) validBrand = await brandModel.create({ name: brand });
-  if (!validCategory)
-    validCategory = await categoryModel.create({ name: category });
-  if (!validSubCategory)
-    validSubCategory = await subCategoryModel.create({ name: subCategory });
-  if (!sequence) {
-    sequence = await counterModel.create({
-      name: "product",
-      sequence_value: 1,
-    });
-  }
+
+  let [validBrand, validCategory, validSubCategory, sequence]: any =
+    await validSequenceBrandSubCatAndCategory({ category, subCategory, brand });
+
+  const sku = `SKU-${(sequence!.sequence_value!++).toString().padStart(6, "0")}`;
+
   const product = await productModel.create({
     title,
     description,
@@ -66,7 +58,7 @@ export const CreateProductHandler = asyncHandler(async (req, res) => {
     brand: validBrand?.name || "other",
     mrp: price,
     stock,
-    sku: `SKU-${(sequence.sequence_value!++).toString().padStart(6, "0")}`,
+    sku,
     barcode,
     tags: tags.split(",") || [],
     status,
@@ -77,7 +69,7 @@ export const CreateProductHandler = asyncHandler(async (req, res) => {
     attributes: JSON.parse(attributes || `{}`),
   });
   res.status(201).json({ product, message: "Product created successfully" });
-  await sequence.save();
+  await sequence!.save();
 });
 
 export const GetProductHandler = asyncHandler(async (req, res) => {
@@ -129,6 +121,7 @@ export const GetProductThroughSlugHandler = asyncHandler(async (req, res) => {
     products,
   });
 });
+
 export const DeleteProductHandler = asyncHandler(async (req, res) => {
   const user = req.user;
   isAdmin(user);
@@ -142,6 +135,11 @@ export const UpdateProductsPutHandler = asyncHandler(async (req, res) => {
   const user = req.user;
   isAdmin(user);
   const { id } = req.params;
+  if(!req.body) throw new AppError("Body is required", 400);
+  if(req.body.images)throw new AppError("Images cannot be updated through this endpoint", 400);
+  if(req.body.slug)throw new AppError("Slug cannot be updated through this endpoint", 400);
+  if(req.body.SKU)throw new AppError("SKU cannot be updated through this endpoint", 400);
+  
   const product = await productModel.findByIdAndUpdate(id, req.body, {
     new: true,
   });
@@ -170,9 +168,8 @@ export const UpdateProductsPatchHandler = asyncHandler(async (req, res) => {
     );
   }
   const keep = JSON.parse(req.body.keep) || [];
-  if (!Array.isArray(keep))
-    throw new AppError("Keep is required", 400);
-  
+  if (!Array.isArray(keep)) throw new AppError("Keep is required", 400);
+
   const product = await productModel.findById(id);
   if (!product) throw new AppError("Product not found", 404);
 
@@ -188,7 +185,3 @@ export const UpdateProductsPatchHandler = asyncHandler(async (req, res) => {
     message: "Product updated successfully",
   });
 });
-
-export const createVariantHandler = asyncHandler(async (req, res) => {});
-export const updateVariantHandler = asyncHandler(async (req, res) => {});
-export const deleteVariantHandler = asyncHandler(async (req, res) => {});
