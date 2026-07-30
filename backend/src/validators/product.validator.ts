@@ -174,6 +174,7 @@ export const updateProductValidator = [
     .withMessage("Discount must be a number")
     .isFloat({ min: 0, max: 100 })
     .withMessage("Discount must be between 0 and 100"),
+  body("attributes").optional().isObject().withMessage("Invalid attributes"),
   checkExact([], { message: "Unknown fields are not allowed" }), // Checks for extra properties
   validate,
 ];
@@ -208,4 +209,3 @@ export const getProductsValidator = [
     .withMessage("lower price is required"),
   validate,
 ];
-

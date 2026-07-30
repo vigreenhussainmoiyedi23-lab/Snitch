@@ -25,9 +25,9 @@ export const isAdmin = (user: any) => {
     throw new AppError("You are not authorized to perform this action", 401);
 };
 export const validSequenceBrandSubCatAndCategory = async (data: {
-  category: string;
-  subCategory: string;
-  brand: string;
+  category: string ;
+  subCategory: string ;
+  brand: string ;
 }) => {
   let [validBrand, validCategory, validSubCategory, sequence] =
     await Promise.all([
@@ -36,11 +36,14 @@ export const validSequenceBrandSubCatAndCategory = async (data: {
       subCategoryModel.findOne({ name: data.subCategory }),
       counterModel.findOne({ name: "product" }),
     ]);
-  if (!validBrand) validBrand = await brandModel.create({ name: data.brand });
-  if (!validCategory)
+  if (!validBrand && data.brand)
+    validBrand = await brandModel.create({ name: data.brand });
+  if (!validCategory && data.category)
     validCategory = await categoryModel.create({ name: data.category });
-  if (!validSubCategory)
-    validSubCategory = await subCategoryModel.create({ name: data.subCategory });
+  if (!validSubCategory && data.subCategory)
+    validSubCategory = await subCategoryModel.create({
+      name: data.subCategory,
+    });
   if (!sequence || !sequence.sequence_value) {
     sequence = await counterModel.create({
       name: "product",
@@ -49,4 +52,8 @@ export const validSequenceBrandSubCatAndCategory = async (data: {
   }
 
   return [validBrand, validCategory, validSubCategory, sequence];
+};
+export const deleteImageFromFileId = async (fileId: string) => {
+  const res = await imagekit.files.delete(fileId);
+  return res;
 };

@@ -4,6 +4,7 @@ import categoryModel from "../models/productSubModels/category.model.js";
 import counterModel from "../models/productSubModels/counter.model.js";
 import subCategoryModel from "../models/productSubModels/subCategory.model.js";
 import {
+  deleteImageFromFileId,
   isAdmin,
   uploadImage,
   validSequenceBrandSubCatAndCategory,
@@ -129,17 +130,27 @@ export const DeleteProductHandler = asyncHandler(async (req, res) => {
   const product = await productModel.findByIdAndDelete(id);
   if (!product) throw new AppError("Product not found", 404);
   res.status(200).json({ message: "Product deleted successfully" });
+  product.images.map((image) => deleteImageFromFileId(image.fileId!));
 });
 
 export const UpdateProductsPutHandler = asyncHandler(async (req, res) => {
   const user = req.user;
   isAdmin(user);
   const { id } = req.params;
-  if(!req.body) throw new AppError("Body is required", 400);
-  if(req.body.images)throw new AppError("Images cannot be updated through this endpoint", 400);
-  if(req.body.slug)throw new AppError("Slug cannot be updated through this endpoint", 400);
-  if(req.body.SKU)throw new AppError("SKU cannot be updated through this endpoint", 400);
-  
+  let validBrand, validCategory, validSubCategory;
+
+  if (req.body.brand || req.body.category || req.body.subCategory) {
+    [validBrand, validCategory, validSubCategory] =
+      await validSequenceBrandSubCatAndCategory(req.body);
+    if (req.body.category) req.body.category = validCategory?.name || "other";
+    if (req.body.brand) {
+      req.body.brand = validBrand?.name || "other";
+    }
+    if (req.body.subCategory) {
+      req.body.subCategory = validSubCategory?.name || "other";
+    }
+  }
+
   const product = await productModel.findByIdAndUpdate(id, req.body, {
     new: true,
   });
@@ -154,7 +165,9 @@ export const UpdateProductsPatchHandler = asyncHandler(async (req, res) => {
   isAdmin(req.user);
   const { id } = req.params;
   const files = req.files as Express.Multer.File[];
+  const keep = JSON.parse(req.body?.keep || "[]") || [];
 
+  if (!keep) throw new AppError("Keep is required", 400);
   let newFilesResponses;
   if (files) {
     newFilesResponses = await Promise.all(
@@ -167,18 +180,22 @@ export const UpdateProductsPatchHandler = asyncHandler(async (req, res) => {
       ),
     );
   }
-  const keep = JSON.parse(req.body.keep) || [];
-  if (!Array.isArray(keep)) throw new AppError("Keep is required", 400);
 
   const product = await productModel.findById(id);
   if (!product) throw new AppError("Product not found", 404);
 
-  product.images = product.images.filter((image) =>
-    keep.includes(image._id.toString()),
-  ) as any;
+  product!.images = product!.images.filter((image) => {
+    console.log(
+      image.fileId!.toString(),
+      keep.includes(image.fileId!.toString()),
+    );
+    return keep.includes(image.fileId!.toString());
+  }) as any;
   if (newFilesResponses) {
-    product.images.push(...newFilesResponses);
+    product!.images.push(...newFilesResponses);
   }
+  if (product.images.length === 0)
+    throw new AppError("At least one image is required", 400);
   await product.save();
   res.status(200).json({
     product,

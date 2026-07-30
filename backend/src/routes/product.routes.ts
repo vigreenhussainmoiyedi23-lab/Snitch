@@ -11,6 +11,7 @@ import {
 import {
   createProductValidator,
   getProductsValidator,
+  updateProductValidator,
 } from "../validators/product.validator.js";
 import { isUserVerified } from "../middlewares/auth.middleware.js";
 import { variantValidator } from "../validators/variant.vallidator.js";
@@ -49,9 +50,8 @@ productRouter.post(
  */
 productRouter.put(
   "/:id",
-  createProductValidator,
   isUserVerified,
-  variantValidator,
+  updateProductValidator,
   UpdateProductsPutHandler,
 );
 /**
