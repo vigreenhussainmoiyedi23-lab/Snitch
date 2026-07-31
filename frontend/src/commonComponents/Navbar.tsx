@@ -64,24 +64,48 @@ const Navbar = () => {
         {/* CTA */}
         <div className="flex items-center gap-3">
           {user ? (
-            <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.96 }}
-              onClick={() => navigate("/chat")}
-              className="
-            rounded-md
-            bg-primary
-            px-5
-            py-2.5
-            font-semibold
-            text-background
-            shadow-soft
-            transition-all
-            hover:bg-primary-light
-          "
-            >
-              Start Shopping
-            </motion.button>
+            <>
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.96 }}
+                onClick={() => navigate("/chat")}
+                className="
+              rounded-md
+              bg-primary
+              px-5
+              py-2.5
+              font-semibold
+              text-background
+              shadow-soft
+              transition-all
+                  hover:bg-background
+              hover:text-primary
+              "
+              >
+                Start Shopping
+              </motion.button>
+              {user.role === "admin" && (
+                <motion.button
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.96 }}
+                  onClick={() => navigate("/admin")}
+                  className="
+              rounded-md
+              bg-background
+              px-5
+              py-2.5
+              font-semibold
+              text-primary
+              shadow-soft
+              transition-all
+              hover:bg-primary-light
+              hover:text-background
+              "
+                >
+                  Admin DashBoard
+                </motion.button>
+              )}
+            </>
           ) : (
             <>
               <motion.button

@@ -1,9 +1,5 @@
-import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import Input from "../components/Input";
 import { useAuth } from "../hooks/useAuth";
-import ShowError from "../components/ShowError";
-import { Lock, Mail } from "lucide-react";
 import BrandHeader from "../components/BrandHeader";
 import Divider from "../components/Divider";
 import Form from "../components/Form";
@@ -26,7 +22,7 @@ export default function Login() {
   }
 
   return (
-    <main className="min-h-screen relative flex items-center bg-background justify-center px-4 relative overflow-hidden">
+    <main className="min-h-screen  flex items-center bg-background justify-center px-4 relative overflow-hidden">
       <Bg/>
       {/* Login Card */}
       <div

@@ -4,8 +4,8 @@ const ContinueWithGoogle = () => {
   };
 
   return (
-    <button onClick={login}>
-      <button className="gsi-material-button w-3">
+    <button onClick={login} className="w-full">
+      <button className="gsi-material-button ">
         <div className="gsi-material-button-state"></div>
         <div className="gsi-material-button-content-wrapper">
           <div className="gsi-material-button-icon">

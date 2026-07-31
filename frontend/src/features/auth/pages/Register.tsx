@@ -22,7 +22,7 @@ export default function Register() {
   }
 
   return (
-    <main className="min-h-screen relative bg-background flex   items-center justify-center   px-2 md:px-20 relative overflow-hidden">
+    <main className="min-h-screen  bg-background flex   items-center justify-center   px-2 md:px-20 relative overflow-hidden">
       <Bg/>
       {/* Card */}
       <div
