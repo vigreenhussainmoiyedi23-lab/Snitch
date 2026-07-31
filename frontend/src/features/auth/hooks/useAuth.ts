@@ -48,7 +48,19 @@ function isERROR(error: unknown): error is ERROR {
 export const useAuth = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const initializeAuth = async () => {
+    try {
+      const refresh = await refreshTokenApi();
 
+      dispatch(setAccessToken(refresh.accessToken));
+
+      const me = await GetUserAPI();
+
+      dispatch(setUser(me.user));
+    } catch {
+      dispatch(authFailure(""));
+    }
+  };
   const loginHandler = async (data: { email: string; password: string }) => {
     dispatch(authStart());
     const id = toast.loading("Logging in...");
@@ -163,10 +175,10 @@ export const useAuth = () => {
       const response = await GetUserAPI();
       dispatch(setUser(response.user));
     } catch (error) {
-      await refreshTokenHand1er();
       dispatch(authFailure(""));
     }
   };
+
   const refreshTokenHand1er = async () => {
     dispatch(authStart());
     try {
@@ -288,5 +300,6 @@ export const useAuth = () => {
     forgotHandler,
     resetPasswordHandler,
     changePasswordHandler,
+    initializeAuth
   };
 };

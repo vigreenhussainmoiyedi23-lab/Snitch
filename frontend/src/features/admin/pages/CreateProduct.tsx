@@ -3,13 +3,32 @@ import Input from "../components/Form/Input";
 import TextArea from "../components/Form/TextArea";
 import { useState } from "react";
 import { X } from "lucide-react";
+import { useProduct } from "../../products/hook/useProduct";
+import ShowError from "../../../commonComponents/ShowError";
+import { useAppSelector } from "../../../app/redux/hook";
 const CreateProduct = () => {
+  const { createProductHandler } = useProduct();
   const [images, setImages] = useState<File[]>([]);
   const { register, handleSubmit, reset } = useForm();
   const SubmitHandler = async (data: any) => {
-    console.log(data, images);
-    reset();
+    const formData = new FormData();
+
+    // Append all form fields
+    Object.entries(data).forEach(([key, value]) => {
+      formData.append(key, String(value));
+    });
+
+    // Append images
+    images.forEach((image) => {
+      formData.append("images", image);
+    });
+    try {
+      createProductHandler(formData);
+      reset();
+      setImages([]);
+    } catch (error) {}
   };
+  const error = useAppSelector((state) => state.product.error);
   return (
     <div className=" w-full h-full flex items-center justify-center">
       <form
@@ -20,34 +39,51 @@ const CreateProduct = () => {
           <h1 className="text-xl md:text-3xl ezcar tracking-wider font-bold text-primary-light my-6 ">
             Create Product
           </h1>
-          <div className="bg-text p-4 rounded-xl mt-5">
-            <h2 className="text-background   text-sm font-serif  mb-4 ">Product Images</h2>
-            <div className=" py-2 flex gap-5">
-              {images &&
-                images.map((image, idx) => (
-                  <div className="relative ">
-                    <X
-                      onClick={() => {
-                        setImages((prev) => prev.filter((_, i) => i !== idx));
-                      }}
-                      className="absolute top-2 right-2 bg-red-500 text-white cursor-pointer rounded-full"
-                    />
-                    <img
-                      key={image.name}
-                      src={URL.createObjectURL(image)}
-                      alt={image.name}
-                      className="w-20 h-20 bg-center bg-cover"
-                    />
-                  </div>
-                ))}
-            </div>
-            <label
-              htmlFor="images"
-              className="border-2 border-dashed border-border rounded-xl h-40 flex items-center justify-center cursor-pointer hover:border-primary transition"
-            >
-              <span className="text-background">Click or Drag Images Here</span>
-            </label>
 
+          <div className="bg-text p-4 rounded-xl mt-5">
+            <h2 className="text-background   text-sm font-serif  mb-4 ">
+              Product Images
+            </h2>
+            <div className="flex items-center justify-between ">
+              {images.length > 0 && (
+                <div
+                  className={
+                    "w-1/2 flex-wrap py-2 flex gap-5 " +
+                    (images.length === 5 ? "w-full" : "")
+                  }
+                >
+                  {images &&
+                    images.map((image, idx) => (
+                      <div className="relative ">
+                        <X
+                          onClick={() => {
+                            setImages((prev) =>
+                              prev.filter((_, i) => i !== idx),
+                            );
+                          }}
+                          className="absolute top-2 right-2 bg-red-500 text-white cursor-pointer rounded-full"
+                        />
+                        <img
+                          key={image.name}
+                          src={URL.createObjectURL(image)}
+                          alt={image.name}
+                          className="w-20 h-20 bg-center bg-cover"
+                        />
+                      </div>
+                    ))}
+                </div>
+              )}
+              {images.length < 5 && (
+                <label
+                  htmlFor="images"
+                  className="border-2 w-full border-dashed border-border rounded-xl h-40 flex items-center justify-center cursor-pointer hover:border-primary transition"
+                >
+                  <span className="text-background">
+                    Click or Drag Images Here
+                  </span>
+                </label>
+              )}
+            </div>
             <input
               id="images"
               type="file"
@@ -58,7 +94,8 @@ const CreateProduct = () => {
                 if (!e.target.files) return;
 
                 const files = Array.from(e.target.files);
-
+                if (files.length + images.length > 5)
+                  return alert("You can only upload 5 images");
                 setImages((prev) => [...prev, ...files]);
 
                 // Allows selecting same file again
@@ -66,6 +103,7 @@ const CreateProduct = () => {
               }}
             />
           </div>
+
           <Input
             placeholder="Enter Product Title"
             register={register}
@@ -131,6 +169,7 @@ const CreateProduct = () => {
             </label>
             <input {...register("isFeatured")} type="checkbox" />
           </div>
+          <ShowError error={error || ""} />
           <button
             type="submit"
             className="bg-primary items-center justify-center tracking-[0.2rem] text-xl flex text-center teko text-white px-10 py-2 rounded-full mt-5 w-full"

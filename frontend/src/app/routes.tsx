@@ -42,7 +42,7 @@ export default function AppRoutes() {
 
       {/* ADMIN Routes */}
       <Route
-        path="/admin/product-create"
+        path="/admin/create-product"
         element={
           <AdminLayout>
             <CreateProduct />

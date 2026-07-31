@@ -1,4 +1,5 @@
-import ShowError from "./ShowError";
+import { useAppSelector } from "../../../app/redux/hook";
+import ShowError from "../../../commonComponents/ShowError";
 import Input from "./Input";
 import { Lock, Mail, User } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -10,6 +11,7 @@ export interface LoginData {
   password: string;
 }
 const Form = ({ register, handleSubmit, submitHandler, isRegister }: any) => {
+  const error=useAppSelector(state=>state.auth.error)
   return (
     <form
       onSubmit={handleSubmit(submitHandler)}
@@ -39,7 +41,7 @@ const Form = ({ register, handleSubmit, submitHandler, isRegister }: any) => {
         placeholder="Enter your password"
         icon={<Lock width={16} />}
       />
-      <ShowError />
+      <ShowError error={error || ""}/>
       {!isRegister && (
         <div className="flex justify-end hover:text-background-light text-white">
           <Link to={"/forgot-password"} className="text-xs transition-colors">

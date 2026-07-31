@@ -1,8 +1,9 @@
 import { Mail } from "lucide-react";
 import Input from "../components/Input";
 import { useForm } from "react-hook-form";
-import ShowError from "../components/ShowError";
 import { useAuth } from "../hooks/useAuth";
+import { useAppSelector } from "../../../app/redux/hook";
+import ShowError from "../../../commonComponents/ShowError";
 
 const ForgotPassword = () => {
   const { register, handleSubmit, reset } = useForm();
@@ -10,11 +11,10 @@ const ForgotPassword = () => {
   const submitHandler = async (data: any) => {
     try {
       await forgotHandler(data);
-    } catch (error) {
-      
-    }
+    } catch (error) {}
     reset();
   };
+  const error = useAppSelector((state) => state.auth.error);
   return (
     <div className="min-h-screen flex items-center bg-background justify-center px-4 relative overflow-hidden">
       <form
@@ -35,7 +35,7 @@ const ForgotPassword = () => {
         >
           Submit
         </button>
-        <ShowError />
+        <ShowError error={error || ""} />
       </form>
     </div>
   );

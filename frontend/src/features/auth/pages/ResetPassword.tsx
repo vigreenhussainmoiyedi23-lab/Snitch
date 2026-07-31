@@ -1,9 +1,10 @@
-import { Lock, Mail } from "lucide-react";
+import { Lock } from "lucide-react";
 import Input from "../components/Input";
 import { useForm } from "react-hook-form";
-import ShowError from "../components/ShowError";
 import { useAuth } from "../hooks/useAuth";
 import { useParams } from "react-router-dom";
+import ShowError from "../../../commonComponents/ShowError";
+import { useAppSelector } from "../../../app/redux/hook";
 
 const ResetPassword = () => {
   const { register, handleSubmit, reset } = useForm();
@@ -18,6 +19,7 @@ const ResetPassword = () => {
       if (response?.success) reset();
     } catch (error) {}
   };
+  const error = useAppSelector((state) => state.auth.error);
   return (
     <div className="min-h-screen flex items-center bg-background justify-center px-4 relative overflow-hidden">
       <form
@@ -40,7 +42,7 @@ const ResetPassword = () => {
         >
           Submit
         </button>
-        <ShowError />
+        <ShowError error={error || ""}/>
       </form>
     </div>
   );

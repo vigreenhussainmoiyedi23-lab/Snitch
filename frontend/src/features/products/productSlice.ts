@@ -1,13 +1,23 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-
-const initialState = {};
+type InitialState = {
+  error: string | null;
+  products: any[];
+}
+const initialState:InitialState = {
+  error: null,
+  products: [],
+};
 
 const productSlice = createSlice({
   name: "product",
   initialState,
-  reducers: {},
+  reducers: {
+    setError: (state, action: PayloadAction<string>) => {
+      state.error = action.payload;
+    },
+  },
 });
 
-export const {} = productSlice.actions;
+export const {setError} = productSlice.actions;
 
 export default productSlice.reducer;
