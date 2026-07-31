@@ -22,7 +22,7 @@ const TextArea = <T extends FieldValues>({
     <>
       <div className="relative mb-5 flex flex-col items-center font-semibold text-text rounded">
         <label
-          className="text-background-light w-full   text-xs font-serif tracking-[3px] text-start "
+          className="text-primary-lighter w-full   text-xs font-serif tracking-[3px] text-start "
           htmlFor={name}
         >
           {name}
@@ -38,7 +38,7 @@ const TextArea = <T extends FieldValues>({
             placeholder={placeholder}
             minLength={minLength || 10}
             required={!!isRequired}
-            className={`input-arena w-full outline-none h-12 rounded-lg px-4 text-sm ${icon ? "pl-10" : ""} `}
+            className={`input-arena h-32 w-full py-2 outline-none  rounded-lg px-4 text-sm ${icon ? "pl-10" : ""} `}
           />
         </div>
       </div>

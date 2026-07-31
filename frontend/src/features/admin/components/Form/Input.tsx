@@ -1,5 +1,5 @@
 import type { FieldValues, Path, UseFormRegister } from "react-hook-form";
-import {  type ReactNode } from "react";
+import { type ReactNode } from "react";
 
 type InputProps<T extends FieldValues> = {
   register: UseFormRegister<T>;
@@ -8,6 +8,11 @@ type InputProps<T extends FieldValues> = {
   placeholder?: string;
   icon?: ReactNode;
   minLength?: number;
+  maxLength?: number;
+  isRequired?: boolean;
+  min?: number;
+  max?: number;
+  defaultValue?: any;
 };
 
 const Input = <T extends FieldValues>({
@@ -17,12 +22,17 @@ const Input = <T extends FieldValues>({
   placeholder,
   icon,
   minLength,
+  maxLength,
+  isRequired,
+  min,
+  max,
+  defaultValue,
 }: InputProps<T>) => {
   return (
     <>
       <div className="relative w-full mate mb-2 md:mb-5 flex flex-col items-center font-semibold text-text rounded">
         <label
-          className="text-background-light w-full capitalize text-[10px] md:text-xs font-serif tracking-[3px] text-start "
+          className="text-primary-lighter w-full capitalize text-[10px] md:text-xs font-serif tracking-[3px] text-start "
           htmlFor={name}
         >
           {name}
@@ -36,9 +46,13 @@ const Input = <T extends FieldValues>({
           <input
             {...register(name)}
             type={type}
+            min={min}
+            max={max}
             placeholder={placeholder}
             minLength={minLength || 3}
-            required={true}
+            maxLength={maxLength || 200}
+            required={isRequired ?? true}
+            defaultValue={defaultValue}
             className={`input-arena  w-full outline-none h-10 md:h-12 rounded-lg px-4 text-sm ${icon ? "pl-10" : ""} `}
           />
         </div>
