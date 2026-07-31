@@ -20,7 +20,7 @@ const productRouter = Router();
  * @get /api/products/
  * @query {page,limit,cat,brand,search,Uprice,Lprice}
  * @description get all products
- * @return {success,message}
+ * @return { products,page,limit,total,totalPages}
  */
 productRouter.get("/", getProductsValidator, GetProductHandler);
 /**

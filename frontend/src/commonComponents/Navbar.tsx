@@ -32,7 +32,7 @@ const Navbar = () => {
 
         {/* Navigation */}
         <div className="hidden items-center gap-8 md:flex">
-          {["Toys", "Bags"].map((link) => (
+          {["Products", "Orders"].map((link) => (
             <a
               key={link}
               href={`/${link.toLowerCase().replace(/ /g, "-")}`}
