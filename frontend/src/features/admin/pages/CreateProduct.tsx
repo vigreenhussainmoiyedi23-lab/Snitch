@@ -1,143 +1,272 @@
-import { useForm } from "react-hook-form";
-import Input from "../components/product/Form/Input";
-import TextArea from "../components/product/Form/TextArea";
 import { useState } from "react";
-import { X } from "lucide-react";
+import { FormProvider, useForm } from "react-hook-form";
+import { Loader2 } from "lucide-react";
+
+// ── Business logic (preserved) ──────────────────────────────
 import { useProduct } from "../../products/hook/useProduct";
-import ShowError from "../../../commonComponents/ShowError";
 import { useAppSelector } from "../../../app/redux/hook";
-import UploadImages from "../components/product/UploadImages";
+import ShowError from "../../../commonComponents/ShowError";
+
+// ── Section components ──────────────────────────────────────
+import SectionCard from "../components/CreateProduct/SectionCard";
+import ImageUploader from "../components/CreateProduct/ImageUploader";
+import BasicInformation from "../components/CreateProduct/BasicInformation";
+import PricingSection from "../components/CreateProduct/PricingSection";
+import InventorySection from "../components/CreateProduct/InventorySection";
+import ClassificationSection from "../components/CreateProduct/ClassificationSection";
+import ShippingSection from "../components/CreateProduct/ShippingSection";
+import SEOSection from "../components/CreateProduct/SEOSection";
+import PublishingSection from "../components/CreateProduct/PublishingSection";
+import SummaryCard from "../components/CreateProduct/SummaryCard";
+import type { ProductFormValues } from "../components/CreateProduct/types";
+
+// ── Submit button ─────────────────────────────────────────────
+
+type SubmitBtnProps = {
+  isSubmitting: boolean;
+  size?: "sm" | "lg";
+  form?: string;
+};
+
+const SubmitButton = ({ isSubmitting, size = "lg", form }: SubmitBtnProps) => (
+  <button
+    type="submit"
+    form={form}
+    disabled={isSubmitting}
+    aria-disabled={isSubmitting}
+    className={`teko tracking-wider text-white rounded-full flex items-center justify-center gap-2 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed ${size === "sm"
+      ? "text-base px-7 py-2"
+      : "text-xl px-14 py-3 w-full sm:w-auto"
+      }`}
+    style={{
+      background:
+        "linear-gradient(135deg, var(--color-primary-light), var(--color-primary-dark))",
+      boxShadow: "0 6px 20px rgba(247, 136, 13, 0.35)",
+    }}
+  >
+    {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
+    {isSubmitting ? "Creating…" : "Create Product"}
+  </button>
+);
+
+// ── Root component ────────────────────────────────────────────
+
+/**
+ * CreateProduct — composition root.
+ *
+ * Responsibilities:
+ *  • useForm / FormProvider setup
+ *  • images state
+ *  • SubmitHandler (FormData build + API call)
+ *  • Layout composition
+ *
+ * All UI is delegated to focused child components.
+ * All original field names, API calls, and Redux logic are preserved.
+ */
 const CreateProduct = () => {
+  // ── Business logic (unchanged) ──────────────────────────
   const { createProductHandler } = useProduct();
   const [images, setImages] = useState<File[]>([]);
-  const { register, handleSubmit, reset } = useForm();
-  const SubmitHandler = async (data: any) => {
+  const error = useAppSelector((state) => state.product.error);
+
+  const methods = useForm<ProductFormValues>({
+    defaultValues: {
+      discount: 0,
+      currency: "INR",
+      status: "published",
+      visibility: "public",
+      isFeatured: false,
+      attributes: [],
+    },
+  });
+
+  const {
+    handleSubmit,
+    reset,
+    formState: { isSubmitting },
+  } = methods;
+
+  const SubmitHandler = async (data: ProductFormValues) => {
     const formData = new FormData();
 
-    // Append all form fields
-    Object.entries(data).forEach(([key, value]) => {
-      formData.append(key, String(value));
+    // Separate the attributes array from scalar fields
+    const { attributes, ...scalarFields } = data;
+    console.log(data);
+
+    // Append all scalar fields (skip empty optionals to avoid polluting the backend)
+    Object.entries(scalarFields).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== "") {
+        formData.append(key, String(value));
+      }
     });
 
-    // Append images
+    // Serialize valid attribute pairs as JSON
+    if (attributes?.length > 0) {
+      const validAttrs = attributes.filter((a) => a.key.trim() !== "");
+      if (validAttrs.length > 0) {
+        const object = validAttrs.reduce((acc, item) => {
+          acc[item.key] = item.value;
+          return acc;
+        }, {} as Record<string, string>)
+        formData.append("attributes", JSON.stringify(object));
+      }
+    }
+
+    // Append images (original logic preserved)
     images.forEach((image) => {
       formData.append("images", image);
     });
+
     try {
-      createProductHandler(formData);
+      await createProductHandler(formData);
       reset();
       setImages([]);
-    } catch (error) {}
+    } catch (_) {
+      // Error already handled + dispatched inside createProductHandler
+    }
   };
-  const error = useAppSelector((state) => state.product.error);
+
+  const handleCancel = () => {
+    reset();
+    setImages([]);
+  };
+
+  // ── Render ──────────────────────────────────────────────
   return (
-    <div className=" w-full h-full flex items-center justify-center">
-      <form
-        className="w-full min-h-screen relative flex gap-4  justify-between  px-10 py-5 overflow-y-auto max-h-200"
-        onSubmit={handleSubmit(SubmitHandler)}
+    <div className="min-h-screen bg-background">
+      {/* ── Sticky Page Header ── */}
+      <header
+        className="bg-white border-b border-background-light sticky top-0 z-20"
+        style={{ boxShadow: "var(--shadow-soft)" }}
       >
-        {/* Main Section */}
-        <div className="w-2/3 h-full bg-text px-5 py-3">
-          <h1 className="text-xl md:text-3xl ezcar tracking-wider font-bold text-primary-light my-6 ">
-            Create Product
-          </h1>
-
-          <UploadImages images={images} setImages={setImages} />
-
-          <Input
-            placeholder="Enter Product Title"
-            register={register}
-            name="title"
-            type="text"
-          />
-          <Input
-            placeholder="Enter Product's short Description"
-            register={register}
-            name="shortDescription"
-            type="text"
-            minLength={10}
-          />
-          <TextArea
-            placeholder="Enter Product Description"
-            register={register}
-            name="description"
-            isRequired={true}
-            minLength={20}
-          />
-
-          <div className="grid grid-cols-2 gap-x-5 mt-5 ">
-            <Input
-              placeholder="Enter Product Price"
-              register={register}
-              name="price"
-              type="number"
-            />
-            <Input
-              placeholder="Enter Product Stock"
-              register={register}
-              name="stock"
-              type="number"
-            />
-            <Input
-              placeholder="Enter Product Brand"
-              register={register}
-              name="brand"
-              type="text"
-            />
-            <Input
-              placeholder="Enter Product Category"
-              register={register}
-              name="category"
-              type="text"
-            />
-            <Input
-              placeholder="Enter Product Sub Category"
-              register={register}
-              name="subCategory"
-              type="text"
-            />
+        <div className="max-w-7xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between gap-4">
+          <div>
+            <h1 className="eczar text-xl md:text-2xl font-bold text-text leading-tight">
+              Create Product
+            </h1>
+            <p className="mate text-xs text-text-subtle mt-0.5 hidden sm:block">
+              Add a new product to your store
+            </p>
           </div>
-          
-        </div>
-        {/* Optional Section */}
-
-        <div className="w-1/3 sticky top-0 left-0 bg-text p-4 ">
-          <h3 className="text-background text-sm font-serif  mb-4 ">
-            Optional Fields
-          </h3>
-          <Input
-            placeholder="Enter Product Discount"
-            register={register}
-            name="discount"
-            isRequired={false}
-            type="number"
-            min={0}
-            max={100}
-            defaultValue={0}
-          />
-          <Input
-            placeholder="Enter Product Tags seperated by ' , ' example:- tag1,tag2,tag3"
-            register={register}
-            name="tags"
-            isRequired={false}
-            type="text"
-            defaultValue={""}
-          />
-          <div className="flex  gap-3 items-center justify-center">
-            <label className="text-background mate" htmlFor="isFeatured">
-              Product is Featured :{" "}
-            </label>
-            <input {...register("isFeatured")} type="checkbox" />
+          <div className="flex items-center gap-3 flex-shrink-0">
+            <button
+              type="button"
+              onClick={handleCancel}
+              className="teko text-base tracking-wider px-5 py-2 rounded-full border border-border text-text-subtle hover:border-primary hover:text-primary transition-colors duration-150 hidden sm:block"
+            >
+              Cancel
+            </button>
+            <SubmitButton isSubmitting={isSubmitting} size="sm" form="create-product-form" />
           </div>
-          <ShowError error={error || ""} />
-          <button
-            type="submit"
-            className="bg-primary items-center justify-center tracking-[0.2rem] text-xl flex text-center teko text-white px-10 py-2 rounded-full mt-5 w-full"
-          >
-            Create Product
-          </button>
         </div>
-      </form>
+      </header>
+
+      {/* ── Form ── */}
+      <FormProvider {...methods}>
+        <form
+          id="create-product-form"
+          onSubmit={handleSubmit(SubmitHandler)}
+          noValidate
+        >
+          <div className="max-w-7xl mx-auto px-4 md:px-6 py-8">
+            {/* ── Two-column responsive grid ── */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+              {/* ── Left column (2/3) ── */}
+              <div className="lg:col-span-2 space-y-6">
+                <SectionCard
+                  number={1}
+                  title="Product Images"
+                  subtitle="Upload up to 5 images. The first image will be the cover."
+                >
+                  <ImageUploader images={images} setImages={setImages} />
+                </SectionCard>
+
+                <SectionCard
+                  number={2}
+                  title="Basic Information"
+                  subtitle="Product name, short pitch and full description."
+                >
+                  <BasicInformation />
+                </SectionCard>
+
+                <SectionCard
+                  number={3}
+                  title="Classification"
+                  subtitle="Brand, category, tags and custom attributes."
+                >
+                  <ClassificationSection />
+                </SectionCard>
+              </div>
+
+              {/* ── Right column (1/3) ── */}
+              <div className="lg:col-span-1 space-y-6">
+                <SectionCard
+                  number={4}
+                  title="Pricing"
+                  subtitle="Set MRP, discount percentage and currency."
+                >
+                  <PricingSection />
+                </SectionCard>
+
+                <SectionCard
+                  number={5}
+                  title="Inventory"
+                  subtitle="Stock level, barcode and low-stock alert."
+                >
+                  <InventorySection />
+                </SectionCard>
+
+                <SectionCard
+                  number={6}
+                  title="Shipping"
+                  subtitle="Physical dimensions used for shipping rates."
+                >
+                  <ShippingSection />
+                </SectionCard>
+
+                <SectionCard
+                  number={7}
+                  title="SEO"
+                  subtitle="Boost discoverability in search engines."
+                >
+                  <SEOSection />
+                </SectionCard>
+
+                <SectionCard
+                  number={8}
+                  title="Publishing"
+                  subtitle="Status, visibility and featured flag."
+                >
+                  <PublishingSection />
+                </SectionCard>
+
+                {/* Visual-only live summary */}
+                <SummaryCard imageCount={images.length} />
+              </div>
+            </div>
+
+            {/* ── Error display ── */}
+            {error && (
+              <div className="mt-6">
+                <ShowError error={error} />
+              </div>
+            )}
+
+            {/* ── Bottom action bar ── */}
+            <div className="mt-10 pt-6 border-t border-background-light flex flex-col sm:flex-row items-center justify-end gap-4">
+              <button
+                type="button"
+                onClick={handleCancel}
+                className="teko text-lg tracking-wider w-full sm:w-auto px-10 py-3 rounded-full border border-border text-text-subtle hover:border-primary hover:text-primary transition-colors duration-200"
+              >
+                Cancel
+              </button>
+              <SubmitButton isSubmitting={isSubmitting} size="lg" />
+            </div>
+          </div>
+        </form>
+      </FormProvider>
     </div>
   );
 };

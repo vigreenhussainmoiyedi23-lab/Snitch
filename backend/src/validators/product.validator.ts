@@ -64,12 +64,12 @@ export const createProductValidator = [
 
   body("status")
     .optional()
-    .isIn(["Draft", "Published", "Archived"])
+    .isIn(["draft", "published", "archived"])
     .withMessage("Invalid product status"),
 
   body("visibility")
     .optional()
-    .isIn(["Public", "Private"])
+    .isIn(["public", "private"])
     .withMessage("Invalid visibility"),
 
   body("isFeatured")

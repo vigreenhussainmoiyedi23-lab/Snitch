@@ -93,15 +93,15 @@ const productSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["Draft", "Published", "Archived"],
-      default: "Published",
+      enum: ["draft", "published", "archived"],
+      default: "published",
       index: true,
     },
 
     visibility: {
       type: String,
-      enum: ["Public", "Private"],
-      default: "Public",
+      enum: ["public", "private"],
+      default: "public",
     },
 
     isFeatured: {
