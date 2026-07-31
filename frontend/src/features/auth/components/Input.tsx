@@ -23,9 +23,9 @@ const Input = <T extends FieldValues>({
 
   return (
     <>
-      <div className="relative flex flex-col items-center font-semibold text-text rounded">
+      <div className="relative teko flex flex-col items-center font-semibold text-text rounded">
         <label
-          className="text-background-light w-full   text-xs font-serif tracking-[3px] text-start "
+          className="text-background-light w-full font-serif  text-xs  tracking-[3px] text-start "
           htmlFor={name}
         >
           {name}
@@ -42,7 +42,7 @@ const Input = <T extends FieldValues>({
             placeholder={placeholder}
             minLength={isPassword ? 8 : isEmail ? 10 : 3}
             required={true}
-            className={`input-arena w-full outline-none h-12 rounded-lg px-4 text-sm ${icon ? "pl-10" : ""} ${isPassword ? "pr-12" : ""}`}
+            className={`input-arena  w-full outline-none h-12 rounded-lg px-4 text-sm ${icon ? "pl-10" : ""} ${isPassword ? "pr-12" : ""}`}
           />
           {isPassword && (
             <button

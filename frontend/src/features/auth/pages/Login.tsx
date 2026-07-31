@@ -11,6 +11,7 @@ import FormHeading from "../components/FormHeading";
 import DividerOr from "../components/DividerOr";
 import Redirect from "../components/Redirect";
 import ContinueWithGoogle from "../components/ContinueWithGoogle";
+import Bg from "../components/Bg";
 
 export interface LoginData {
   email: string;
@@ -25,7 +26,8 @@ export default function Login() {
   }
 
   return (
-    <main className="min-h-screen flex items-center bg-background justify-center px-4 relative overflow-hidden">
+    <main className="min-h-screen relative flex items-center bg-background justify-center px-4 relative overflow-hidden">
+      <Bg/>
       {/* Login Card */}
       <div
         className=" relative z-10 w-full max-w-110 bg-text rounded-2xl p-8 animate-fade-in"

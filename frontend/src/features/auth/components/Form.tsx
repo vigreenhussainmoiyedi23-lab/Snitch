@@ -49,7 +49,7 @@ const Form = ({ register, handleSubmit, submitHandler, isRegister }: any) => {
       )}
       <button
         type="submit"
-        className="bg-background text-gold text-lg    font-bold mt-1 h-12 w-full rounded-lg "
+        className="bg-primary text-white teko tracking-[0.1rem] text-lg    font-bold mt-1 h-12 w-full rounded-lg "
       >
         {isRegister ? "Sign Up" : "Sign In"}
       </button>
