@@ -27,14 +27,14 @@ productRouter.get("/", getProductsValidator, GetProductHandler);
  * @get /api/products/:slug
  * @query {slug}
  * @description get product through slug
- * @return {success,message}
+ * @return {success,message,product}
  */
 productRouter.get("/:slug", getProductsValidator, GetProductThroughSlugHandler);
 /**
  * @post /api/products/
  * @body {title,description,shortDescription,category,subCategory,brand,mrp,stock,barcode,tags,status,visibility,isFeatured,discount,images}
  * @description create a product
- * @return {success,message}
+ * @return {success,message,product}
  */
 productRouter.post(
   "/",

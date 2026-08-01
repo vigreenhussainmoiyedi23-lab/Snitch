@@ -13,6 +13,7 @@ import ChangePassword from "../features/auth/pages/ChangePassword";
 import CreateProduct from "../features/admin/pages/CreateProduct";
 import AdminLayout from "../Layouts/AdminLayout";
 import Products from "../features/products/pages/Products";
+import ProductDetails from "../features/products/pages/ProductDetails";
 
 export default function AppRoutes() {
   return (
@@ -42,6 +43,7 @@ export default function AppRoutes() {
       <Route path="/reset-password/:token" element={<ResetPassword />} />
       {/* Product Routes */}
       <Route path="/products" element={<Products />} />
+      <Route path="/products/:slug" element={<ProductDetails />} />
       {/* ADMIN Routes */}
       <Route
         path="/admin/create-product"

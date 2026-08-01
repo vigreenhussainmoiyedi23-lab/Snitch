@@ -117,9 +117,12 @@ export const GetProductHandler = asyncHandler(async (req, res) => {
 
 export const GetProductThroughSlugHandler = asyncHandler(async (req, res) => {
   if (!req.params.slug) throw new AppError("Slug is required", 400);
-  const products = await productModel.findOne({ slug: req.params.slug }).lean();
+  const product = await productModel.findOne({ slug: req.params.slug }).lean();
+  if (!product) throw new AppError("Product not found", 404);
   res.status(200).json({
-    products,
+    product,
+    message: " Product found successfully",
+    success: true,
   });
 });
 
