@@ -6,9 +6,13 @@ export const CreateProductAPI = async (data: any) => {
 };
 export const GetProductsAPI = async (params: any) => {
   let urlParams = Object.keys(params)
-    .map((key) => `${key}=${params[key]}`)
+    .filter((key) => params[key])
+    .map((key) => {
+      return `${key}=${params[key]}`;
+    })
     .join("&");
-  const response = await api.get("/api/products" + urlParams);
+
+  const response = await api.get("/api/products?"+urlParams);
   return response.data;
 };
 export const GetSingleProductAPI = async (slug: string) => {

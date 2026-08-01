@@ -183,14 +183,12 @@ export const getProductsValidator = [
   query("cat")
     .optional()
     .isString()
-    .isMongoId()
     .withMessage("Invalid category")
     .trim()
     .bail(),
   query("brand")
     .optional()
     .isString()
-    .isMongoId()
     .withMessage("Invalid brand")
     .trim(),
   query("search").optional().isLength({ min: 1, max: 100 }),

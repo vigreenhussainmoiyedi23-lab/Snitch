@@ -75,7 +75,7 @@ export const CreateProductHandler = asyncHandler(async (req, res) => {
 
 export const GetProductHandler = asyncHandler(async (req, res) => {
   const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 20;
+  const limit = Number(req.query.limit) || 10;
 
   const query: any = {};
 
@@ -95,8 +95,8 @@ export const GetProductHandler = asyncHandler(async (req, res) => {
     ];
   }
   query.finalPrice = {
-    $gte: req.query.Uprice || 0,
-    $lte: req.query.Lprice || Number.MAX_SAFE_INTEGER,
+    $lte: req.query.Uprice || Number.MAX_SAFE_INTEGER,
+    $gte: req.query.Lprice || 0,
   };
 
   const products = await productModel
