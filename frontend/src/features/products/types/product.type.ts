@@ -5,16 +5,17 @@ export type product = {
   tags: string[];
   price: number;
   discountPercentage: number;
-  rating: number;
   stock: number;
   brand: string;
   category: string;
   thumbnail: string;
-  images: [{
-    fileId: string;
-    url: string;
-    thumbnailUrl: string;
-  }];
+  images: [
+    {
+      fileId: string;
+      url: string;
+      thumbnailUrl: string;
+    },
+  ];
   shortDescription: string;
   description: string;
   currency: string;
@@ -23,4 +24,10 @@ export type product = {
   mrp: number;
   createdAt: string;
   updatedAt: string;
+  attributes: {
+    [key: string]: string;
+  };
+  rating:{
+    average: number
+  }
 };

@@ -21,7 +21,7 @@ export const useProduct = () => {
   const dispatch = useAppDispatch();
   async function createProductHandler(data: any) {
     const toastId = toast.loading("Creating Product...");
-    setLoading(true);
+    dispatch(setLoading(true));
     try {
       await CreateProductAPI(data);
       toast.update(toastId, {
@@ -34,11 +34,11 @@ export const useProduct = () => {
       handleError(error, dispatch, setError, toastId);
       throw error;
     } finally {
-      setLoading(false);
+      dispatch(setLoading(false));
     }
   }
   async function GetAllProducts(params = {}) {
-    setLoading(true);
+    dispatch(setLoading(true));
     try {
       const response = await GetProductsAPI(params);
       dispatch(setProducts(response.products));
@@ -48,18 +48,18 @@ export const useProduct = () => {
     } catch (error) {
       handleError(error, dispatch, setError);
     } finally {
-      setLoading(false);
+      dispatch(setLoading(false));
     }
   }
   async function GetProductThroughSlug(slug: string) {
-    setLoading(true);
+    dispatch(setLoading(true));
     try {
       const response = await GetSingleProductAPI(slug);
       dispatch(setSlugProduct(response.product));
     } catch (error) {
       handleError(error, dispatch, setError);
     } finally {
-      setLoading(false);
+      dispatch(setLoading(false));
     }
   }
   return { createProductHandler, GetAllProducts, GetProductThroughSlug };

@@ -43,7 +43,7 @@ export default function AppRoutes() {
       <Route path="/reset-password/:token" element={<ResetPassword />} />
       {/* Product Routes */}
       <Route path="/products" element={<Products />} />
-      <Route path="/products/:slug" element={<ProductDetails />} />
+      <Route path="/product/:slug" element={<ProductDetails />} />
       {/* ADMIN Routes */}
       <Route
         path="/admin/create-product"
