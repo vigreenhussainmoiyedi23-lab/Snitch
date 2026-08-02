@@ -4,11 +4,6 @@ import { config } from "./config.js";
 export const redis = createClient({
  url:config.REDIS_URL
 });
-
-redis.on("error", (err) => {
-  console.error("Redis Client Error:", err);
-});
-
 export async function connectRedis(retries = 5): Promise<void> {
   try {
     if (redis.isOpen) return;

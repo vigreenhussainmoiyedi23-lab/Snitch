@@ -3,6 +3,7 @@ import upload from "../config/multer.js";
 import {
   CreateProductHandler,
   DeleteProductHandler,
+  GetAllEnumsHandler,
   GetProductHandler,
   GetProductThroughSlugHandler,
   UpdateProductsPatchHandler,
@@ -23,6 +24,12 @@ const productRouter = Router();
  * @return { products,page,limit,total,totalPages}
  */
 productRouter.get("/", getProductsValidator, GetProductHandler);
+/**
+ * @get /api/products/all/enums
+ * @description get all Enums (categories , subCategories , brands)
+ * @return { categories,subCategories,brands}
+ */
+productRouter.get("/all/enums",  GetAllEnumsHandler);
 /**
  * @get /api/products/:slug
  * @query {slug}

@@ -12,7 +12,7 @@ export const GetProductsAPI = async (params: any) => {
     })
     .join("&");
 
-  const response = await api.get("/api/products?"+urlParams);
+  const response = await api.get("/api/products?" + urlParams);
   return response.data;
 };
 export const GetSingleProductAPI = async (slug: string) => {
@@ -31,5 +31,10 @@ export const UpdateProductPatchApi = async (id: string, data: any) => {
 
 export const DeleteProductAPI = async (id: string) => {
   const response = await api.delete(`/api/products/${id}`);
+  return response.data;
+};
+
+export const GetAllEnumsApi = async () => {
+  const response = await api.get("/api/products/all/enums");
   return response.data;
 };

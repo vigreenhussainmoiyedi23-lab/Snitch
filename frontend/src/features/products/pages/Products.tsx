@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useProduct } from "../hook/useProduct";
 import { useAppSelector } from "../../../app/redux/hook";
-import {  Menu } from "lucide-react";
+import { Menu } from "lucide-react";
 import Pagination from "../components/Pagination";
 import type { Filters } from "../types/Filter.type";
 import FilterBar from "../components/FilterBar";
@@ -10,12 +10,13 @@ import ProductCard from "../components/ProductCard";
 const Products = () => {
   const { GetAllProducts } = useProduct();
   const productsResponse = useAppSelector((state) => state.product.products);
-
   const products = Array.isArray(productsResponse)
     ? productsResponse
     : (productsResponse as any)?.products || [];
   const totalPages = useAppSelector((state) => state.product.totalPages);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const enums=useAppSelector((state)=>state.product.enums)
+
   const [filters, setFilters] = useState<Filters>({
     page: 1,
     limit: 20,
@@ -32,6 +33,7 @@ const Products = () => {
 
     return () => clearTimeout(timeout);
   }, [filters]);
+
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;

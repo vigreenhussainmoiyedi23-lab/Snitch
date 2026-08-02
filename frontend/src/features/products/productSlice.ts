@@ -1,11 +1,17 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { product } from "./types/product.type";
+type Enums = {
+  categories: string[];
+  subCategories: string[];
+  brands: string[];
+};
 type InitialState = {
   error: string | null;
   products: any[];
   totalPages: number;
   slugProduct: product | null;
   loading: boolean;
+  enums: Enums;
 };
 const initialState: InitialState = {
   error: null,
@@ -13,6 +19,11 @@ const initialState: InitialState = {
   totalPages: 1,
   slugProduct: null,
   loading: false,
+  enums: {
+    categories: [],
+    subCategories: [],
+    brands: [],
+  },
 };
 
 const productSlice = createSlice({
@@ -31,9 +42,13 @@ const productSlice = createSlice({
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload;
     },
+    setEnums: (state, action: PayloadAction<Enums>) => {
+      state.enums = action.payload;
+    },
   },
 });
 
-export const { setError, setProducts, setSlugProduct,setLoading } = productSlice.actions;
+export const { setError, setProducts, setSlugProduct, setLoading,setEnums } =
+  productSlice.actions;
 
 export default productSlice.reducer;

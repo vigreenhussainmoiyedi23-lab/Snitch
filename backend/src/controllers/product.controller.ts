@@ -72,7 +72,19 @@ export const CreateProductHandler = asyncHandler(async (req, res) => {
   res.status(201).json({ product, message: "Product created successfully" });
   await sequence!.save();
 });
+export const GetAllEnumsHandler = asyncHandler(async (req, res) => {
+  const [categories, subCategories, brands] = await Promise.all([
+    categoryModel.find().select("name -_id").lean(),
+    subCategoryModel.find().select("name -_id").lean(),
+    brandModel.find().select("name -_id").lean(),
+  ]);
 
+  res.status(200).json({
+    categories: categories.map((c) => c.name),
+    subCategories: subCategories.map((s) => s.name),
+    brands: brands.map((b) => b.name),
+  });
+});
 export const GetProductHandler = asyncHandler(async (req, res) => {
   const page = Number(req.query.page) || 1;
   const limit = Number(req.query.limit) || 10;

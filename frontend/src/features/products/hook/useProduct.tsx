@@ -6,13 +6,13 @@ import {
   setProducts,
   setSlugProduct,
   setLoading,
+  setEnums,
 } from "../productSlice";
 import {
   CreateProductAPI,
+  GetAllEnumsApi,
   GetProductsAPI,
   GetSingleProductAPI,
-  UpdateProductPatchApi,
-  UpdateProductPutAPI,
 } from "../service/api.service";
 import { toastSettings } from "../../../utils/ToastSettings";
 
@@ -42,7 +42,6 @@ export const useProduct = () => {
     try {
       const response = await GetProductsAPI(params);
       dispatch(setProducts(response.products));
-      console.log(response);
 
       return response;
     } catch (error) {
@@ -62,5 +61,20 @@ export const useProduct = () => {
       dispatch(setLoading(false));
     }
   }
-  return { createProductHandler, GetAllProducts, GetProductThroughSlug };
+  async function GetAllEnumsHandler() {
+    dispatch(setLoading(true));
+    try {
+      const response = await GetAllEnumsApi();
+      dispatch(setEnums(response));
+    } catch (error) {
+    } finally {
+      dispatch(setLoading(false));
+    }
+  }
+  return {
+    createProductHandler,
+    GetAllProducts,
+    GetProductThroughSlug,
+    GetAllEnumsHandler,
+  };
 };
