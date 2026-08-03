@@ -1,7 +1,7 @@
 import productModel from "../models/product.model.js";
 import brandModel from "../models/productSubModels/brands.model.js";
 import categoryModel from "../models/productSubModels/category.model.js";
-import counterModel from "../models/productSubModels/counter.model.js";
+import { type SortOrder } from "mongoose";
 import subCategoryModel from "../models/productSubModels/subCategory.model.js";
 import {
   deleteImageFromFileId,
@@ -86,17 +86,38 @@ export const GetAllEnumsHandler = asyncHandler(async (req, res) => {
   });
 });
 export const GetProductHandler = asyncHandler(async (req, res) => {
+  
   const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 10;
-
+  const limit = Math.min(Number(req.query.limit) || 10, 20);
   const query: any = {};
+  const sort: Record<string, SortOrder> = {
+    createdAt: -1,
+  };
 
+  switch (req.query.sort) {
+    case "oldest":
+      sort.createdAt = 1;
+      break;
+
+    case "price:asc":
+      delete sort.createdAt;
+      sort.finalPrice = 1;
+      break;
+
+    case "price:dsc":
+      delete sort.createdAt;
+      sort.finalPrice = -1;
+      break;
+  }
   if (req.query.cat) {
     query.category = req.query.cat;
   }
 
   if (req.query.brand) {
     query.brand = req.query.brand;
+  }
+  if (req.query.subCategory) {
+    query.subCategory = req.query.subCategory;
   }
 
   if (req.query.search) {
@@ -107,16 +128,20 @@ export const GetProductHandler = asyncHandler(async (req, res) => {
     ];
   }
   query.finalPrice = {
-    $lte: req.query.Uprice || Number.MAX_SAFE_INTEGER,
-    $gte: req.query.Lprice || 0,
+    $lte: Number(req.query.Uprice) || Number.MAX_SAFE_INTEGER,
+    $gte: Number(req.query.Lprice) || 0,
   };
 
-  const products = await productModel
-    .find(query)
-    .skip((page - 1) * limit)
-    .limit(limit);
+  const [products, total] = await Promise.all([
+    productModel
+      .find(query)
+      .sort(sort)
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .lean(),
 
-  const total = await productModel.countDocuments(query);
+    productModel.countDocuments(query),
+  ]);
 
   res.status(200).json({
     products,

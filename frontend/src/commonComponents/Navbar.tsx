@@ -32,7 +32,7 @@ const Navbar = () => {
 
         {/* Navigation */}
         <div className="hidden items-center gap-8 md:flex">
-          {["Products", "Orders"].map((link) => (
+          {["About", "Contact", "Orders"].map((link) => (
             <a
               key={link}
               href={`/${link.toLowerCase().replace(/ /g, "-")}`}
@@ -68,7 +68,7 @@ const Navbar = () => {
               <motion.button
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.96 }}
-                onClick={() => navigate("/chat")}
+                onClick={() => navigate("/products")}
                 className="
               rounded-md
               bg-primary

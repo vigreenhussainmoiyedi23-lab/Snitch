@@ -1,9 +1,13 @@
 import { Search, X } from "lucide-react";
 import type { Filters } from "../types/Filter.type";
+import { useAppSelector } from "../../../app/redux/hook";
+import Select from "./Select";
 
 const FilterBar = (data: {
   filters: Filters;
-  handleFilterChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleFilterChange: (
+    e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>,
+  ) => void;
   toggleSidebar: () => void;
   sidebarOpen: boolean;
   handleApplyFilters: () => void;
@@ -15,20 +19,22 @@ const FilterBar = (data: {
     sidebarOpen,
     handleApplyFilters,
   } = data;
+  const enums = useAppSelector((state) => state.product.enums);
   return (
     <aside
       className={`fixed inset-0 z-60 bg-black/40 md:bg-transparent md:relative md:inset-auto md:z-0 ${sidebarOpen ? "block" : "hidden md:block"} transition-all`}
     >
-      <div className="h-full w-80 md:w-64 bg-background md:bg-transparent p-6 md:p-0 flex flex-col gap-8 overflow-y-auto rounded-r-2xl md:rounded-none shadow-2xl md:shadow-none">
+      <div className="h-full w-80 md:w-64 bg-background md:bg-transparent p-6 md:p-0 flex flex-col  gap-4 overflow-y-auto rounded-r-2xl md:rounded-none shadow-2xl md:shadow-none">
         <div className="flex justify-between items-center md:hidden">
           <h2 className="text-2xl font-semibold text-primary">Filters</h2>
           <button className="p-2" onClick={toggleSidebar}>
             <X className="w-6 h-6" />
           </button>
         </div>
-
+        <h2 className="text-2xl font-semibold text-primary hidden md:block">Filters</h2>
+        <hr />
         {/* Search */}
-        <div className="space-y-3">
+        <div className="space-y-3  block lg:hidden">
           <label className="text-xs font-semibold uppercase tracking-widest text-text-subtle">
             Search
           </label>
@@ -45,36 +51,33 @@ const FilterBar = (data: {
           </div>
         </div>
 
-        {/* Categories */}
-        <div className="space-y-4">
-          <label className="text-xs font-semibold uppercase tracking-widest text-text-subtle">
-            Category
-          </label>
-          <div className="flex flex-col gap-3">
-            {["crochet", "Frontend", "Lighting", "Furniture"].map((cat) => (
-              <label
-                key={cat}
-                className="flex items-center gap-3 cursor-pointer group"
-              >
-                <input
-                  type="checkbox"
-                  name="cat"
-                  value={cat}
-                  checked={filters.cat === cat}
-                  onChange={handleFilterChange}
-                  className="w-5 h-5 rounded border-border/30 accent-gold focus:ring-gold transition-all"
-                />
-                <span
-                  className={`text-sm transition-colors ${filters.cat === cat ? "text-primary font-semibold" : "group-hover:text-primary text-text-subtle"}`}
-                >
-                  {cat}
-                </span>
-              </label>
-            ))}
-          </div>
-        </div>
+        <div className="flex flex-col gap-2.5">
+          {/* Categories */}
+          <Select
+            label="Category"
+            array={enums.categories}
+            value={filters.cat}
+            handleOnChange={handleFilterChange}
+            Name="cat"
+          />
 
-        <hr className="border-border/10" />
+          {/* Brands */}
+          <Select
+            label="Brand"
+            Name="brand"
+            array={enums.brands}
+            value={filters.brand!}
+            handleOnChange={handleFilterChange}
+          />
+          {/* SubCategories */}
+          <Select
+            label="SubCategory"
+            Name="subCategory"
+            array={enums.subCategories}
+            value={filters.subCategory!}
+            handleOnChange={handleFilterChange}
+          />
+        </div>
 
         {/* Price Range */}
         <div className="space-y-4">
@@ -86,7 +89,7 @@ const FilterBar = (data: {
               name="Lprice"
               value={filters.Lprice}
               onChange={handleFilterChange}
-              className="w-full py-2 px-3 bg-white/50 border-none rounded-lg text-sm focus:ring-1 focus:ring-gold shadow-sm outline-none"
+              className="w-full py-2 px-3 bg-white/70 border border-border rounded text-sm focus:ring-1 focus:ring-gold shadow-sm outline-none"
               placeholder="Min"
               type="number"
             />
@@ -95,7 +98,7 @@ const FilterBar = (data: {
               name="Uprice"
               value={filters.Uprice}
               onChange={handleFilterChange}
-              className="w-full py-2 px-3 bg-white/50 border-none rounded-lg text-sm focus:ring-1 focus:ring-gold shadow-sm outline-none"
+              className="w-full py-2 px-3 bg-white/70 border border-border rounded text-sm focus:ring-1 focus:ring-gold shadow-sm outline-none"
               placeholder="Max"
               type="number"
             />
@@ -103,35 +106,6 @@ const FilterBar = (data: {
         </div>
 
         <hr className="border-border/10" />
-
-        {/* Brands */}
-        <div className="space-y-4">
-          <label className="text-xs font-semibold uppercase tracking-widest text-text-subtle">
-            Brand
-          </label>
-          <div className="flex flex-col gap-3">
-            {["handMade", "Knoll", "Muuto", "Herman Miller"].map((brand) => (
-              <label
-                key={brand}
-                className="flex items-center gap-3 cursor-pointer group"
-              >
-                <input
-                  type="checkbox"
-                  name="brand"
-                  value={brand}
-                  checked={filters.brand === brand}
-                  onChange={handleFilterChange}
-                  className="w-5 h-5 rounded border-border/30 accent-gold focus:ring-gold transition-all"
-                />
-                <span
-                  className={`text-sm transition-colors ${filters.brand === brand ? "text-primary font-semibold" : "group-hover:text-primary text-text-subtle"}`}
-                >
-                  {brand}
-                </span>
-              </label>
-            ))}
-          </div>
-        </div>
 
         <button
           onClick={handleApplyFilters}

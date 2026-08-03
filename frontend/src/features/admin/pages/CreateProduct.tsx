@@ -88,10 +88,10 @@ const CreateProduct = () => {
 
   const SubmitHandler = async (data: ProductFormValues) => {
     const formData = new FormData();
-
+    
     // Separate the attributes array from scalar fields
     const { attributes, ...scalarFields } = data;
-    console.log(data);
+  
 
     // Append all scalar fields (skip empty optionals to avoid polluting the backend)
     Object.entries(scalarFields).forEach(([key, value]) => {

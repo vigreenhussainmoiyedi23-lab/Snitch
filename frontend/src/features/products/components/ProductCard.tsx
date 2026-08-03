@@ -3,6 +3,7 @@ import type { product } from "../types/product.type";
 import { Link, useNavigate } from "react-router-dom";
 const ProductCard = ({ product }: { product: product }) => {
   const navigate = useNavigate();
+  
   function handleClick() {
     navigate(`/product/${product.slug}`);
   }
@@ -18,6 +19,7 @@ const ProductCard = ({ product }: { product: product }) => {
             src={
               product.images?.[0]?.url || "https://via.placeholder.com/400x500"
             }
+            loading="lazy"
             alt={product.title}
           />
 

@@ -6,6 +6,7 @@ import Pagination from "../components/Pagination";
 import type { Filters } from "../types/Filter.type";
 import FilterBar from "../components/FilterBar";
 import ProductCard from "../components/ProductCard";
+import ProductsHeader from "../components/ProductsHeader";
 
 const Products = () => {
   const { GetAllProducts } = useProduct();
@@ -15,16 +16,16 @@ const Products = () => {
     : (productsResponse as any)?.products || [];
   const totalPages = useAppSelector((state) => state.product.totalPages);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const enums=useAppSelector((state)=>state.product.enums)
-
   const [filters, setFilters] = useState<Filters>({
     page: 1,
-    limit: 20,
+    limit: 12,
     cat: "",
     brand: "",
     search: "",
     Uprice: 0,
     Lprice: 0,
+    subCategory: "",
+    sort:"newest"
   });
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -34,10 +35,12 @@ const Products = () => {
     return () => clearTimeout(timeout);
   }, [filters]);
 
-
-  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
+  const handleFilterChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
+    const { name, value, type } = e.target;
     if (type === "checkbox") {
+      let checked = e.target.checked;
       setFilters((prev) => ({
         ...prev,
         [name]: checked ? value : "",
@@ -62,7 +65,7 @@ const Products = () => {
         {/* Mobile Filter Button */}
         <div className="md:hidden mb-6">
           <button
-            className="w-full flex items-center justify-center gap-2 py-3 bg-background border border-border/30 rounded-2xl shadow-md text-text-subtle font-semibold active:scale-95 transition-all"
+            className="w-full bg-gold-dark flex items-center justify-center gap-2 py-3  border border-border/30 rounded-2xl shadow-md text-white font-semibold active:scale-95 transition-all"
             onClick={toggleSidebar}
           >
             <Menu className="w-5 h-5" />
@@ -82,14 +85,7 @@ const Products = () => {
 
           {/* Main Content: Product Grid */}
           <section className="flex-1">
-            <div className="flex justify-between items-baseline mb-8">
-              <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-text capitalize">
-                {filters.cat || "All Products"}
-              </h2>
-              <p className="text-xs font-semibold text-text-subtle">
-                {products.length} Products Found
-              </p>
-            </div>
+           <ProductsHeader filters={filters} handleFilterChange={handleFilterChange} />
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {products.map((product: any) => (

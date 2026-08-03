@@ -12,11 +12,13 @@ type InitialState = {
   slugProduct: product | null;
   loading: boolean;
   enums: Enums;
+  totalProducts:number
 };
 const initialState: InitialState = {
   error: null,
   products: [],
   totalPages: 1,
+  totalProducts:0,
   slugProduct: null,
   loading: false,
   enums: {
@@ -33,8 +35,14 @@ const productSlice = createSlice({
     setError: (state, action: PayloadAction<string>) => {
       state.error = action.payload;
     },
-    setProducts: (state, action: PayloadAction<any[]>) => {
-      state.products = action.payload;
+    setGetProducts: (state, action: PayloadAction<{
+      products:any[],
+      totalPages: number,
+      total:number
+    }>) => {
+      state.products = action.payload.products;
+      state.totalPages = action.payload.totalPages;
+      state.totalProducts = action.payload.total
     },
     setSlugProduct: (state, action: PayloadAction<product>) => {
       state.slugProduct = action.payload;
@@ -48,7 +56,7 @@ const productSlice = createSlice({
   },
 });
 
-export const { setError, setProducts, setSlugProduct, setLoading,setEnums } =
+export const { setError, setGetProducts, setSlugProduct, setLoading,setEnums } =
   productSlice.actions;
 
 export default productSlice.reducer;

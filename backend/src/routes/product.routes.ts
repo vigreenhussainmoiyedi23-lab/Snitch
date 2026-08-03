@@ -19,7 +19,7 @@ import { isUserVerified } from "../middlewares/auth.middleware.js";
 const productRouter = Router();
 /**
  * @get /api/products/
- * @query {page,limit,cat,brand,search,Uprice,Lprice}
+ * @query {page,limit,cat,brand,search,Uprice,Lprice,subCategory,sort}
  * @description get all products
  * @return { products,page,limit,total,totalPages}
  */

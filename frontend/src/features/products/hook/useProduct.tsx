@@ -3,10 +3,11 @@ import { useApiError } from "../../../app/handleError";
 import { useAppDispatch } from "../../../app/redux/hook";
 import {
   setError,
-  setProducts,
+  
   setSlugProduct,
   setLoading,
   setEnums,
+  setGetProducts,
 } from "../productSlice";
 import {
   CreateProductAPI,
@@ -41,7 +42,7 @@ export const useProduct = () => {
     dispatch(setLoading(true));
     try {
       const response = await GetProductsAPI(params);
-      dispatch(setProducts(response.products));
+      dispatch(setGetProducts(response));
 
       return response;
     } catch (error) {

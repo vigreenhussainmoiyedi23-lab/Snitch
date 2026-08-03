@@ -186,15 +186,10 @@ export const getProductsValidator = [
     .withMessage("Invalid category")
     .trim()
     .bail(),
-  query("brand")
-    .optional()
-    .isString()
-    .withMessage("Invalid brand")
-    .trim(),
+  query("brand").optional().isString().withMessage("Invalid brand").trim(),
   query("search").optional().isLength({ min: 1, max: 100 }),
   query("page").optional().isInt({ min: 1 }),
   query("limit").optional().isInt({ min: 1, max: 100 }),
-  query("sort").optional().isIn(["price", "-price", "createdAt", "-createdAt"]),
   query("Uprice")
     .optional()
     .isNumeric()
@@ -205,5 +200,18 @@ export const getProductsValidator = [
     .isNumeric()
     .notEmpty()
     .withMessage("lower price is required"),
+  query("subCategory")
+    .optional()
+    .isString()
+    .withMessage("Invalid subCategory")
+    .trim()
+    .notEmpty()
+    .withMessage("subCategory is required"),
+  query("sort")
+    .optional()
+    .isString()
+    .withMessage("Invalid sort")
+    .isIn(["newest", "oldest", "price:asc", "price:desc"])
+    .withMessage("Invalid sort"),
   validate,
 ];
