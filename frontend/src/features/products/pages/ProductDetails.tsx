@@ -116,7 +116,7 @@ const ProductDetails = () => {
           {/* Left Column - Image Gallery */}
           <div className="w-full lg:w-1/2 flex flex-col-reverse md:flex-row gap-4 h-full lg:sticky lg:top-24 animate-slide-in">
             {/* Thumbnails */}
-            <div className="flex md:flex-col gap-4 overflow-x-auto md:overflow-y-auto no-scrollbar py-1">
+            <div className="flex w-fit md:flex-col gap-4 overflow-x-auto md:overflow-y-auto no-scrollbar py-1">
               {images?.map((img: any, idx: number) => (
                 <button
                   key={img._id || idx}
@@ -182,7 +182,7 @@ const ProductDetails = () => {
               </span>
             </div>
 
-            <h1 className="eczar text-4xl md:text-5xl lg:text-6xl text-text mb-4 leading-tight">
+            <h1 className="eczar text-4xl md:text-5xl lg:text-6xl text-text mb-4 leading-tight capitalize">
               {title}
             </h1>
 
@@ -231,7 +231,7 @@ const ProductDetails = () => {
                       {key}:
                     </h3>
                     <div className="flex gap-3">
-                      <div className="border-2 border-primary bg-background-light px-4 py-2 rounded-radius-sm text-text font-medium capitalize shadow-soft">
+                      <div className="border-2 border-border bg-gold-light text-white px-4 py-2 rounded-radius-sm  font-medium capitalize shadow-soft">
                         {value as string}
                       </div>
                     </div>
@@ -248,7 +248,7 @@ const ProductDetails = () => {
               <div className="flex items-center justify-between sm:justify-start border-2 border-border rounded-radius-sm p-1 sm:w-max">
                 <button
                   onClick={() => handleQuantity("dec")}
-                  className="p-3 hover:bg-background-light rounded-radius-sm text-text-subtle transition-colors"
+                  className="p-3 hover:bg-yellow-300/30 rounded-radius-sm text-text-subtle transition-colors"
                   disabled={quantity <= 1}
                 >
                   <Minus className="w-4 h-4" />
@@ -258,7 +258,7 @@ const ProductDetails = () => {
                 </span>
                 <button
                   onClick={() => handleQuantity("inc")}
-                  className="p-3 hover:bg-background-light rounded-radius-sm text-text-subtle transition-colors"
+                  className="p-3 hover:bg-yellow-300/30 rounded-radius-sm text-text-subtle transition-colors"
                   disabled={quantity >= stock}
                 >
                   <Plus className="w-4 h-4" />
@@ -266,12 +266,12 @@ const ProductDetails = () => {
               </div>
 
               <div className="flex flex-1 gap-4">
-                <button className="flex-1 bg-background-subtle text-text teko text-2xl px-4 py-3 rounded-radius-sm hover:bg-border transition-all flex items-center justify-center gap-2 group whitespace-nowrap">
+                <button className="flex-1 bg-white text-text teko text-2xl px-4 py-3 rounded-radius-sm hover:bg-white/90 border border-border  transition-all flex items-center justify-center gap-2 group whitespace-nowrap">
                   <ShoppingCart className="w-5 h-5 group-hover:-translate-y-1 transition-transform" />
                   Add to Cart
                 </button>
 
-                <button className="flex-1 bg-primary text-white teko text-2xl px-4 py-3 rounded-radius-sm shadow-medium hover:bg-primary-dark hover:shadow-large transition-all flex items-center justify-center gap-2 group whitespace-nowrap">
+                <button className="flex-1 bg-primary text-white teko text-2xl px-4 py-3 rounded-radius-sm shadow-medium hover:bg-primary-light  transition-all flex items-center justify-center gap-2 group whitespace-nowrap">
                   <CreditCard className="w-5 h-5 group-hover:scale-110 transition-transform" />
                   Buy Now
                 </button>
@@ -319,9 +319,9 @@ const ProductDetails = () => {
               ].map((feat, idx) => (
                 <div
                   key={idx}
-                  className="flex gap-3 items-start p-3 rounded-radius-md hover:bg-background-light transition-colors group"
+                  className="flex gap-3 items-start p-3 rounded-radius-md hover:bg-white/70 hover:border border-border transition-colors group"
                 >
-                  <div className="p-2 bg-background-light group-hover:bg-background text-primary rounded-full shadow-soft shrink-0 transition-colors">
+                  <div className="p-2 bg-white group-hover:bg-background text-primary rounded-full shadow-soft shrink-0 transition-colors">
                     <feat.icon className="w-5 h-5" />
                   </div>
                   <div>

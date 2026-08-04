@@ -1,6 +1,7 @@
 import { Search } from "lucide-react";
 import { useAppSelector } from "../../../app/redux/hook";
 import type { Filters } from "../types/Filter.type";
+import { Link } from "react-router-dom";
 
 const ProductsHeader = ({
   filters,
@@ -14,22 +15,21 @@ const ProductsHeader = ({
   const totalProducts = useAppSelector((state) => state.product.totalProducts);
 
   return (
-    <div className="flex justify-between items-center mb-8 gap-5">
+    <div className="flex lg:sticky top-20 z-10 pt-5 justify-between items-center mb-8 gap-5">
      
-
       {/* Search */}
       <div className="relative w-full max-w-5xl hidden lg:block">
         <input
           name="search"
           value={filters.search}
           onChange={handleFilterChange}
-          className="w-full pl-4 pr-10 py-3 bg-white/70 border border-border focus:ring-1 focus:ring-gold rounded text-sm transition-all outline-none shadow-sm"
+          className="w-full pl-4 pr-10 py-3 bg-white border border-border focus:ring-1 focus:ring-gold rounded text-sm transition-all outline-none shadow-sm"
           placeholder="Search products..."
           type="text"
         />
         <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-border w-4 h-4" />
       </div>
-      <p className="text-xs whitespace-nowrap font-semibold text-text-subtle">
+      <p className="text-xs whitespace-nowrap font-semibold bg-gold-light text-text p-3 rounded ">
         {totalProducts} Products Found
       </p>
     </div>

@@ -73,9 +73,9 @@ const Products = () => {
   };
   return (
     <div className="min-h-screen bg-background font-sans text-text">
-      <main className="max-w-7xl mx-auto px-4 md:px-12 mt-8 mb-16">
+      <main className="max-w-7xl mx-auto px-4 md:px-12 mt-8 mb-16 h-full">
         {/* Mobile Filter Button */}
-        <div className="md:hidden mb-6">
+        <div className="md:hidden mb-6 sticky top-25 z-30">
           <button
             className="w-full bg-gold-dark flex items-center justify-center gap-2 py-3  border border-border/30 rounded-2xl shadow-md text-white font-semibold active:scale-95 transition-all"
             onClick={toggleSidebar}
@@ -85,7 +85,7 @@ const Products = () => {
           </button>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-6">
+        <div className="flex flex-col relative  md:flex-row gap-6 h-full ">
           {/* Left Sidebar (Filter) */}
           <FilterBar
           clearFilters={clearFilters}
@@ -118,6 +118,7 @@ const Products = () => {
               />
             )}
           </section>
+
         </div>
       </main>
     </div>

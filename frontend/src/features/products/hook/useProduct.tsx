@@ -3,7 +3,6 @@ import { useApiError } from "../../../app/handleError";
 import { useAppDispatch } from "../../../app/redux/hook";
 import {
   setError,
-  
   setSlugProduct,
   setLoading,
   setEnums,
@@ -14,6 +13,8 @@ import {
   GetAllEnumsApi,
   GetProductsAPI,
   GetSingleProductAPI,
+  UpdateProductPatchApi,
+  UpdateProductPutAPI,
 } from "../service/api.service";
 import { toastSettings } from "../../../utils/ToastSettings";
 
@@ -68,6 +69,29 @@ export const useProduct = () => {
       const response = await GetAllEnumsApi();
       dispatch(setEnums(response));
     } catch (error) {
+      handleError(error, dispatch, setError);
+    } finally {
+      dispatch(setLoading(false));
+    }
+  }
+  async function UpdateProductsPutHandler(data: any) {
+    dispatch(setLoading(true));
+    try {
+      const response = await UpdateProductPutAPI(data.id, data.data);
+      return response;
+    } catch (error) {
+      handleError(error, dispatch, setError);
+    } finally {
+      dispatch(setLoading(false));
+    }
+  }
+  async function UpdateProductsPatchHandler(data: { id: string; data: any }) {
+    dispatch(setLoading(true));
+    try {
+      const response = await UpdateProductPatchApi(data.id, data.data);
+      return response;
+    } catch (error) {
+      handleError(error, dispatch, setError);
     } finally {
       dispatch(setLoading(false));
     }
@@ -77,5 +101,7 @@ export const useProduct = () => {
     GetAllProducts,
     GetProductThroughSlug,
     GetAllEnumsHandler,
+    UpdateProductsPutHandler,
+    UpdateProductsPatchHandler,
   };
 };

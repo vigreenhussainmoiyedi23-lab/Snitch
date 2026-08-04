@@ -24,9 +24,9 @@ const FilterBar = (data: {
   const enums = useAppSelector((state) => state.product.enums);
   return (
     <aside
-      className={`fixed top-0 left-0 h-screen  inset-0 z-60 bg-black/40 md:bg-transparent md:relative md:inset-auto md:z-0 ${sidebarOpen ? "block" : "hidden md:block"} transition-all`}
+      className={`fixed top-0 pt-5 left-0 md:top-20 h-screen md:h-full z-60 bg-black/40 md:bg-transparent md:sticky  md:z-0 ${sidebarOpen ? "block" : "hidden md:block"} transition-all`}
     >
-      <div className="h-full w-80 md:w-64 bg-background md:bg-transparent p-6 md:p-0 flex flex-col  gap-4 overflow-y-auto rounded-r-2xl md:rounded-none shadow-2xl md:shadow-none">
+      <div className="h-full w-80 md:w-64 bg-background  p-6 md:p-0 flex flex-col  gap-4 overflow-y-auto rounded-r-2xl md:rounded-none shadow-2xl md:shadow-none">
         <div className="flex justify-between items-center md:hidden">
           <h2 className="text-2xl font-semibold text-primary">Filters</h2>
           <button className="p-2" onClick={toggleSidebar}>
@@ -114,15 +114,14 @@ const FilterBar = (data: {
               type="number"
             />
           </div>
-          <button
-            onClick={clearFilters}
-            className="mt-auto bg-gold text-white w-full py-4 rounded-xl font-bold active:scale-95 transition-all shadow-md hover:bg-gold-light"
-          >
-            Clear Filters
-          </button>
         </div>
-
-        <hr className="border-border/10" />
+        <hr className="border-border" />
+        <button
+          onClick={clearFilters}
+          className="mt-auto bg-gold-dark text-white w-full py-4 rounded font-bold active:scale-95 transition-all shadow-md hover:bg-gold"
+        >
+          Clear Filters
+        </button>
 
         <button
           onClick={handleApplyFilters}

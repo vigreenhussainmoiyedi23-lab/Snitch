@@ -53,7 +53,9 @@ productRouter.post(
 /**
  * @put /api/products
  * @body {title,description,shortDescription,category,subCategory,brand,mrp,stock,barcode,tags,status,visibility,isFeatured,discount,images}
- */
+ * @description update the products details as the body
+ * @return {success,message,product}
+*/
 productRouter.put(
   "/:id",
   isUserVerified,
