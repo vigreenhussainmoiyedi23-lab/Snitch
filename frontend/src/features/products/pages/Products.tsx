@@ -25,7 +25,7 @@ const Products = () => {
     Uprice: 0,
     Lprice: 0,
     subCategory: "",
-    sort:"newest"
+    sort: "newest",
   });
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -58,7 +58,19 @@ const Products = () => {
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
-
+  const clearFilters = () => {
+    setFilters({
+      page: 1,
+      limit: 12,
+      cat: "",
+      brand: "",
+      search: "",
+      Uprice: 0,
+      Lprice: 0,
+      subCategory: "",
+      sort: "newest",
+    });
+  };
   return (
     <div className="min-h-screen bg-background font-sans text-text">
       <main className="max-w-7xl mx-auto px-4 md:px-12 mt-8 mb-16">
@@ -76,6 +88,7 @@ const Products = () => {
         <div className="flex flex-col md:flex-row gap-6">
           {/* Left Sidebar (Filter) */}
           <FilterBar
+          clearFilters={clearFilters}
             filters={filters}
             handleFilterChange={handleFilterChange}
             toggleSidebar={toggleSidebar}
@@ -85,7 +98,10 @@ const Products = () => {
 
           {/* Main Content: Product Grid */}
           <section className="flex-1">
-           <ProductsHeader filters={filters} handleFilterChange={handleFilterChange} />
+            <ProductsHeader
+              filters={filters}
+              handleFilterChange={handleFilterChange}
+            />
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {products.map((product: any) => (

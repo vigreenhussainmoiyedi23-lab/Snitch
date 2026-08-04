@@ -27,6 +27,9 @@ const Select = ({
           value={value}
           onChange={handleOnChange}
         >
+          <option value="" disabled hidden>
+            {label}
+          </option>
           {array.map((val) => (
             <option key={val} value={val}>
               {val}

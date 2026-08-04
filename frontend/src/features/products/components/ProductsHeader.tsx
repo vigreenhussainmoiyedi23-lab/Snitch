@@ -1,7 +1,6 @@
 import { Search } from "lucide-react";
 import { useAppSelector } from "../../../app/redux/hook";
 import type { Filters } from "../types/Filter.type";
-import Select from "./Select";
 
 const ProductsHeader = ({
   filters,
@@ -16,13 +15,7 @@ const ProductsHeader = ({
 
   return (
     <div className="flex justify-between items-center mb-8 gap-5">
-      <Select 
-       label="Sort by"
-       value={filters.sort}
-       Name="sort"
-       array={["newest", "oldest", "price:asc", "price:desc"]}
-       handleOnChange={handleFilterChange}
-       />
+     
 
       {/* Search */}
       <div className="relative w-full max-w-5xl hidden lg:block">
@@ -30,7 +23,7 @@ const ProductsHeader = ({
           name="search"
           value={filters.search}
           onChange={handleFilterChange}
-          className="w-full pl-4 pr-10 py-3 bg-white/70 border border-border focus:ring-1 focus:ring-gold rounded-xl text-sm transition-all outline-none shadow-sm"
+          className="w-full pl-4 pr-10 py-3 bg-white/70 border border-border focus:ring-1 focus:ring-gold rounded text-sm transition-all outline-none shadow-sm"
           placeholder="Search products..."
           type="text"
         />

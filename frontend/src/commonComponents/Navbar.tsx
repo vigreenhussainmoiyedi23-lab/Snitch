@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, ShoppingBag } from "lucide-react";
 import { useAppSelector } from "../app/redux/hook";
 import { useNavigate } from "react-router-dom";
 import { Logo } from "./Logo";
@@ -13,9 +13,9 @@ const Navbar = () => {
       initial={{ y: -70, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6 }}
-      className="fixed top-0 z-50 w-full border-b py-2 border-border/40 bg-text backdrop-blur-xl"
+      className="sticky top-0 z-50 w-full border-b py-2 border-border/40 bg-text backdrop-blur-xl"
     >
-      <div className="mx-auto flex h-18 max-w-7xl items-center justify-between px-6 lg:px-10 ">
+      <div className="mx-auto flex h-18 max-w-7xl items-center justify-evenly px-6 lg:px-10 ">
         {/* Logo */}
         <div
           onClick={() => navigate("/")}
@@ -31,7 +31,7 @@ const Navbar = () => {
         </div>
 
         {/* Navigation */}
-        <div className="hidden items-center gap-8 md:flex">
+        <div className="hidden items-center gap-8 lg:flex">
           {["About", "Contact", "Orders"].map((link) => (
             <a
               key={link}
@@ -62,7 +62,7 @@ const Navbar = () => {
         </div>
 
         {/* CTA */}
-        <div className="flex items-center gap-3">
+        <div className="flex  items-center gap-3">
           {user ? (
             <>
               <motion.button
@@ -80,9 +80,11 @@ const Navbar = () => {
               transition-all
                   hover:bg-background
               hover:text-primary
+              flex gap-2 items-center
               "
               >
-                Start Shopping
+                <ShoppingBag className="w-6 h-6" />{" "}
+                <span className="">Shop Now</span>
               </motion.button>
               {user.role === "admin" && (
                 <motion.button
@@ -102,7 +104,7 @@ const Navbar = () => {
               hover:text-background
               "
                 >
-                  Admin DashBoard
+                  DashBoard
                 </motion.button>
               )}
             </>

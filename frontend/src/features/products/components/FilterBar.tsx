@@ -11,6 +11,7 @@ const FilterBar = (data: {
   toggleSidebar: () => void;
   sidebarOpen: boolean;
   handleApplyFilters: () => void;
+  clearFilters: () => void;
 }) => {
   const {
     filters,
@@ -18,11 +19,12 @@ const FilterBar = (data: {
     toggleSidebar,
     sidebarOpen,
     handleApplyFilters,
+    clearFilters,
   } = data;
   const enums = useAppSelector((state) => state.product.enums);
   return (
     <aside
-      className={`fixed inset-0 z-60 bg-black/40 md:bg-transparent md:relative md:inset-auto md:z-0 ${sidebarOpen ? "block" : "hidden md:block"} transition-all`}
+      className={`fixed top-0 left-0 h-screen  inset-0 z-60 bg-black/40 md:bg-transparent md:relative md:inset-auto md:z-0 ${sidebarOpen ? "block" : "hidden md:block"} transition-all`}
     >
       <div className="h-full w-80 md:w-64 bg-background md:bg-transparent p-6 md:p-0 flex flex-col  gap-4 overflow-y-auto rounded-r-2xl md:rounded-none shadow-2xl md:shadow-none">
         <div className="flex justify-between items-center md:hidden">
@@ -31,7 +33,9 @@ const FilterBar = (data: {
             <X className="w-6 h-6" />
           </button>
         </div>
-        <h2 className="text-2xl font-semibold text-primary hidden md:block">Filters</h2>
+        <h2 className="text-2xl font-semibold text-primary hidden md:block">
+          Filters
+        </h2>
         <hr />
         {/* Search */}
         <div className="space-y-3  block lg:hidden">
@@ -43,7 +47,7 @@ const FilterBar = (data: {
               name="search"
               value={filters.search}
               onChange={handleFilterChange}
-              className="w-full pl-4 pr-10 py-3 bg-white/50 border-none focus:ring-1 focus:ring-gold rounded-xl text-sm transition-all outline-none shadow-sm"
+              className="w-full pl-4 pr-10 py-3 bg-white/70 border border-border focus:ring-1 focus:ring-gold rounded text-sm transition-all outline-none shadow-sm"
               placeholder="Search products..."
               type="text"
             />
@@ -77,6 +81,13 @@ const FilterBar = (data: {
             value={filters.subCategory!}
             handleOnChange={handleFilterChange}
           />
+          <Select
+            label="Sort by"
+            value={filters.sort}
+            Name="sort"
+            array={["newest", "oldest", "price:asc", "price:desc"]}
+            handleOnChange={handleFilterChange}
+          />
         </div>
 
         {/* Price Range */}
@@ -103,6 +114,12 @@ const FilterBar = (data: {
               type="number"
             />
           </div>
+          <button
+            onClick={clearFilters}
+            className="mt-auto bg-gold text-white w-full py-4 rounded-xl font-bold active:scale-95 transition-all shadow-md hover:bg-gold-light"
+          >
+            Clear Filters
+          </button>
         </div>
 
         <hr className="border-border/10" />

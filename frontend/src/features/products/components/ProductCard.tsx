@@ -3,7 +3,7 @@ import type { product } from "../types/product.type";
 import { Link, useNavigate } from "react-router-dom";
 const ProductCard = ({ product }: { product: product }) => {
   const navigate = useNavigate();
-  
+
   function handleClick() {
     navigate(`/product/${product.slug}`);
   }
@@ -24,22 +24,18 @@ const ProductCard = ({ product }: { product: product }) => {
           />
 
           <div className="absolute top-4 left-4 flex gap-2 flex-wrap">
-            {product.tags?.map(
-              (tag, idx) =>
-                (idx & 1) === 0 && (
-                  <span className="px-3 py-1 bg-gold text-white text-[10px] font-bold uppercase tracking-wider rounded-full shadow-sm">
-                    {tag}
-                  </span>
-                ),
-            )}
-            {product.tags?.map(
-              (tag, idx) =>
-                (idx & 1) !== 0 && (
-                  <span className="px-3 py-1 bg-white/90 backdrop-blur-sm text-primary text-[10px] font-bold uppercase tracking-wider rounded-full shadow-sm">
-                    {tag}
-                  </span>
-                ),
-            )}
+            {product.tags?.map((tag, idx) => (
+              <span
+                className={
+                  "px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full shadow-sm " +
+                  ((idx & 1) === 0
+                    ? "bg-gold  text-white"
+                    : "bg-white text-text")
+                }
+              >
+                {tag}
+              </span>
+            ))}
           </div>
         </div>
 
@@ -52,7 +48,10 @@ const ProductCard = ({ product }: { product: product }) => {
         </div>
       </div>
 
-      <Link to={`/product/${product.slug}`} className="p-5 flex-1 flex flex-col">
+      <Link
+        to={`/product/${product.slug}`}
+        className="p-5 flex-1 flex flex-col"
+      >
         <p className="text-xs text-text uppercase tracking-widest mb-1">
           {product.category}
         </p>
