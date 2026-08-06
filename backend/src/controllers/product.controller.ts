@@ -86,7 +86,6 @@ export const GetAllEnumsHandler = asyncHandler(async (req, res) => {
   });
 });
 export const GetProductHandler = asyncHandler(async (req, res) => {
-  
   const page = Number(req.query.page) || 1;
   const limit = Math.min(Number(req.query.limit) || 10, 20);
   const query: any = {};
@@ -190,7 +189,10 @@ export const UpdateProductsPutHandler = asyncHandler(async (req, res) => {
       req.body.subCategory = validSubCategory?.name || "other";
     }
   }
-
+  if (req.body.mrp || req.body.discount) {
+    const { mrp, discount } = req.body;
+    req.body.finalPrice = mrp * (1 - discount / 100);
+  }
   const product = await productModel.findByIdAndUpdate(id, req.body, {
     new: true,
   });
@@ -205,7 +207,7 @@ export const UpdateProductsPatchHandler = asyncHandler(async (req, res) => {
   isAdmin(req.user);
   const { id } = req.params;
   const files = req.files as Express.Multer.File[];
-  const keep = JSON.parse(req.body?.keep || "[]") || [];
+  const keep = req.body.keep || [];
 
   if (!keep) throw new AppError("Keep is required", 400);
   let newFilesResponses;

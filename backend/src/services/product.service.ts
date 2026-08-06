@@ -6,6 +6,7 @@ import brandModel from "../models/productSubModels/brands.model.js";
 import categoryModel from "../models/productSubModels/category.model.js";
 import subCategoryModel from "../models/productSubModels/subCategory.model.js";
 import counterModel from "../models/productSubModels/counter.model.js";
+import productModel from "../models/product.model.js";
 
 export const uploadImage = async (data: {
   buffer: Buffer;
@@ -25,9 +26,9 @@ export const isAdmin = (user: any) => {
     throw new AppError("You are not authorized to perform this action", 401);
 };
 export const validSequenceBrandSubCatAndCategory = async (data: {
-  category: string ;
-  subCategory: string ;
-  brand: string ;
+  category: string;
+  subCategory: string;
+  brand: string;
 }) => {
   let [validBrand, validCategory, validSubCategory, sequence] =
     await Promise.all([
@@ -56,4 +57,10 @@ export const validSequenceBrandSubCatAndCategory = async (data: {
 export const deleteImageFromFileId = async (fileId: string) => {
   const res = await imagekit.files.delete(fileId);
   return res;
+};
+export const isValidProductId = async (id: string | null | undefined) => {
+  if (!id) throw new AppError("Product not found", 404);
+  const product = await productModel.findById(id);
+  if (!product) throw new AppError("Product not found", 404);
+  return product;
 };

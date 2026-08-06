@@ -8,6 +8,7 @@ type InputProps<T extends FieldValues> = {
   icon?: ReactNode;
   minLength?: number;
   isRequired?: boolean;
+  height?: number;
 };
 
 const TextArea = <T extends FieldValues>({
@@ -16,7 +17,8 @@ const TextArea = <T extends FieldValues>({
   placeholder,
   icon,
   minLength,
-  isRequired
+  isRequired,
+  height=32
 }: InputProps<T>) => {
   return (
     <>
@@ -38,7 +40,7 @@ const TextArea = <T extends FieldValues>({
             placeholder={placeholder}
             minLength={minLength || 10}
             required={!!isRequired}
-            className={`input-arena h-32 w-full py-2 outline-none  rounded-lg px-4 text-sm ${icon ? "pl-10" : ""} `}
+            className={`input-arena h-${height} w-full py-2 outline-none  rounded-lg px-4 text-sm ${icon ? "pl-10" : ""} `}
           />
         </div>
       </div>

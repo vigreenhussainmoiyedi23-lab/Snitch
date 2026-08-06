@@ -14,6 +14,7 @@ import CreateProduct from "../features/admin/pages/CreateProduct";
 import AdminLayout from "../Layouts/AdminLayout";
 import Products from "../features/products/pages/Products";
 import ProductDetails from "../features/products/pages/ProductDetails";
+import UpdateProducts from "../features/products/pages/UpdateProducts";
 
 export default function AppRoutes() {
   return (
@@ -50,7 +51,17 @@ export default function AppRoutes() {
           </CommonLayout>
         }
       />
-      <Route path="/product/:slug" element={<ProductDetails />} />
+      <Route path="/product/:slug" element={<CommonLayout>
+        <ProductDetails/>
+      </CommonLayout>} />
+      <Route
+        path="/product/:slug/update"
+        element={
+          <AdminLayout>
+            <UpdateProducts />
+          </AdminLayout>
+        }
+      />
       {/* ADMIN Routes */}
       <Route
         path="/admin/create-product"

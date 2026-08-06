@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { useProduct } from "../hook/useProduct";
 import { useEffect, useState } from "react";
 import { useAppSelector } from "../../../app/redux/hook";
@@ -16,14 +16,15 @@ import {
   RotateCcw,
   Heart,
 } from "lucide-react";
+import Navbar from "../../../commonComponents/Navbar";
 
 const ProductDetails = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
-  const { GetProductThroughSlug } = useProduct();
+  const { GetProductThroughSlug, DeleteProductHandler } = useProduct();
   const slugProduct = useAppSelector((state) => state.product.slugProduct);
   const loading = useAppSelector((state) => state.product.loading);
-
+  const user = useAppSelector((state) => state.auth.user);
   const [activeImage, setActiveImage] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [isWishlist, setIsWishlist] = useState(false);
@@ -112,6 +113,28 @@ const ProductDetails = () => {
       </div>
 
       <div className="max-w-7xl mx-auto">
+        {user && user.role === "admin" && (
+          <div className="flex items-center gap-4  justify-end">
+            <Link
+              to={`/product/${slug}/update`}
+              className="bg-gold-dark shadow-md active:scale-90 hover:opacity-95 text-xl teko text-center tracking-wider text-white py-2 px-4 rounded-md hover:bg-primary-dark transition-all"
+            >
+              Update Product
+            </Link>
+            <button
+              onClick={() => {
+                const confirmDelete = window.confirm(
+                  "Are you sure you want to delete this product?",
+                );
+                if (!confirmDelete) return;
+                DeleteProductHandler(slugProduct._id);
+              }}
+              className="bg-red-500 shadow-md active:scale-90 hover:opacity-95 text-xl teko text-center tracking-wider text-white py-2 px-4 rounded-md hover:bg-red-600 transition-all"
+            >
+              Delete Product
+            </button>
+          </div>
+        )}
         <div className="flex flex-col lg:flex-row gap-12 lg:gap-16">
           {/* Left Column - Image Gallery */}
           <div className="w-full lg:w-1/2 flex flex-col-reverse md:flex-row gap-4 h-full lg:sticky lg:top-24 animate-slide-in">
@@ -231,7 +254,7 @@ const ProductDetails = () => {
                       {key}:
                     </h3>
                     <div className="flex gap-3">
-                      <div className="border-2 border-border bg-gold-light text-white px-4 py-2 rounded-radius-sm  font-medium capitalize shadow-soft">
+                      <div className="border-2 border-border bg-primary-light text-white px-4 py-2 rounded-radius-sm  font-medium capitalize shadow-soft">
                         {value as string}
                       </div>
                     </div>

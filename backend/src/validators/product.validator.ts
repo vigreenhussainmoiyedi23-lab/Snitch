@@ -156,12 +156,12 @@ export const updateProductValidator = [
 
   body("status")
     .optional()
-    .isIn(["Draft", "Published", "Archived"])
+    .isIn(["draft", "published", "archived"])
     .withMessage("Invalid product status"),
 
   body("visibility")
     .optional()
-    .isIn(["Public", "Private"])
+    .isIn(["public", "private"])
     .withMessage("Invalid visibility"),
 
   body("isFeatured")
@@ -174,11 +174,18 @@ export const updateProductValidator = [
     .withMessage("Discount must be a number")
     .isFloat({ min: 0, max: 100 })
     .withMessage("Discount must be between 0 and 100"),
+  body("mrp")
+    .optional()
+    .isNumeric()
+    .withMessage("mrp must be a number"),
+  body("stock")
+    .optional()
+    .isNumeric()
+    .withMessage("stock must be a number"),
   body("attributes").optional().isObject().withMessage("Invalid attributes"),
   checkExact([], { message: "Unknown fields are not allowed" }), // Checks for extra properties
   validate,
 ];
-
 export const getProductsValidator = [
   query("cat")
     .optional()

@@ -10,6 +10,7 @@ import {
 } from "../productSlice";
 import {
   CreateProductAPI,
+  DeleteProductAPI,
   GetAllEnumsApi,
   GetProductsAPI,
   GetSingleProductAPI,
@@ -17,10 +18,12 @@ import {
   UpdateProductPutAPI,
 } from "../service/api.service";
 import { toastSettings } from "../../../utils/ToastSettings";
+import { useNavigate } from "react-router-dom";
 
 export const useProduct = () => {
   const { handleError } = useApiError();
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   async function createProductHandler(data: any) {
     const toastId = toast.loading("Creating Product...");
     dispatch(setLoading(true));
@@ -96,6 +99,26 @@ export const useProduct = () => {
       dispatch(setLoading(false));
     }
   }
+  async function DeleteProductHandler(id: string) {
+    dispatch(setLoading(true));
+    const toastId = toast.loading("Deleting Product...");
+    try {
+      await DeleteProductAPI(id);
+      toast.update(toastId, {
+        render: "Product Deleted Successfully. Navigating to Product List",
+        type: "success",
+        isLoading: false,
+        ...toastSettings,
+      });
+      setTimeout(() => {
+        navigate("/products");
+      }, 500);
+    } catch (error) {
+      handleError(error, dispatch, setError, toastId);
+    } finally {
+      dispatch(setLoading(false));
+    }
+  }
   return {
     createProductHandler,
     GetAllProducts,
@@ -103,5 +126,6 @@ export const useProduct = () => {
     GetAllEnumsHandler,
     UpdateProductsPutHandler,
     UpdateProductsPatchHandler,
+    DeleteProductHandler,
   };
 };

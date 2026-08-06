@@ -88,7 +88,7 @@ const Products = () => {
         <div className="flex flex-col relative  md:flex-row gap-6 h-full ">
           {/* Left Sidebar (Filter) */}
           <FilterBar
-          clearFilters={clearFilters}
+            clearFilters={clearFilters}
             filters={filters}
             handleFilterChange={handleFilterChange}
             toggleSidebar={toggleSidebar}
@@ -108,6 +108,13 @@ const Products = () => {
                 <ProductCard key={product._id} product={product} />
               ))}
             </div>
+            {products.length === 0 && (
+              <div className="flex items-center justify-center h-96 w-full">
+                <p className="text-2xl font-semibold text-primary text-center">
+                  No products found ...
+                </p>
+              </div>
+            )}
 
             {/* Pagination */}
             {products.length > 0 && (
@@ -118,7 +125,6 @@ const Products = () => {
               />
             )}
           </section>
-
         </div>
       </main>
     </div>

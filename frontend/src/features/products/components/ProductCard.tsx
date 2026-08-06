@@ -1,4 +1,4 @@
-import { ShoppingCart } from "lucide-react";
+import { ShoppingBag, ShoppingCart } from "lucide-react";
 import type { product } from "../types/product.type";
 import { Link, useNavigate } from "react-router-dom";
 const ProductCard = ({ product }: { product: product }) => {
@@ -38,15 +38,8 @@ const ProductCard = ({ product }: { product: product }) => {
             ))}
           </div>
         </div>
-
-        {/* Quick Add Button - Desktop */}
-        <div className="opacity-0 z-10 md:group-hover:opacity-100 absolute bottom-4 inset-x-4 transition-all duration-300 translate-y-4 group-hover:translate-y-0">
-          <button className="w-full bg-primary hover:bg-primary-light text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-colors">
-            <ShoppingCart className="w-5 h-5" />
-            Add to Cart
-          </button>
-        </div>
       </div>
+      {/* Quick Add Button - Desktop */}
 
       <Link
         to={`/product/${product.slug}`}
@@ -75,12 +68,16 @@ const ProductCard = ({ product }: { product: product }) => {
           )}
         </div>
       </Link>
-
-      {/* Quick Add Button - Mobile */}
-      <button className="md:hidden w-full z-10 bg-background hover:bg-primary hover:text-white text-primary py-4 font-bold flex items-center justify-center gap-2 transition-colors border-t border-border/10">
-        <ShoppingCart className="w-5 h-5" />
-        Quick Add
-      </button>
+      <div className="z-5 py-3 px-1 flex gap-2 flex-wrap">
+        <button className="w-full bg-primary hover:bg-primary-light hover:-translate-y-1 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-all ease-in-out whitespace-nowrap">
+          <ShoppingCart className="w-5 h-5" />
+          Add to Cart
+        </button>
+        <button className="w-full hover:-translate-y-1  transition-all ease-in-out bg-white hover:bg-white/90 text-primary border border-border py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg active:scale-95  whitespace-nowrap">
+          <ShoppingBag className="w-5 h-5" />
+          Buy Now
+        </button>
+      </div>
     </article>
   );
 };
