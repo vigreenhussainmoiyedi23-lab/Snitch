@@ -57,6 +57,8 @@ export const AddToCartHandler = asyncHandler(async (req, res) => {
 
 export const UpdateCartItemHandler = asyncHandler(async (req, res) => {
   const { productId, increaseBy = 0, decreaseBy = 0 } = req.body;
+  if (!increaseBy && !decreaseBy)
+    throw new AppError("Quantity is required", 400);
   await isValidProductId(productId); // throws error if product not found
 
   const cart = await cartModel.findOne({ userId: req.user!._id });
