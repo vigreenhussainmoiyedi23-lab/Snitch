@@ -1,60 +1,77 @@
-import { Minus, Plus, ShoppingCart } from "lucide-react";
-import { useCart } from "../Hooks/useCart";
-import type { product } from "../../products/types/product.type";
-import { useAppSelector } from "../../../app/redux/hook";
-import type { CartItem } from "../@types/cart.types";
-import { useState } from "react";
+import React, { useState } from 'react';
+import { Minus, Plus, ShoppingBag } from 'lucide-react';
+import { useCart } from '../Hooks/useCart';
+import type { product } from '../../products/types/product.type';
 
-const AddToCartButton = ({
-  product,
-}: {
+interface AddToCartButtonProps {
   product: product;
-  quantity: number;
-}) => {
+}
+
+const AddToCartButton: React.FC<AddToCartButtonProps> = ({ product }) => {
   const [quantity, setQuantity] = useState(1);
-  const CartItems = useAppSelector((state) => state.cart.cartItems);
-  const isAlreadyInCart = CartItems.some(
-    (item) => item.product._id === product._id,
-  );
+  const [isAdding, setIsAdding] = useState(false);
   const { AddToCartHandler } = useCart();
-  const handleQuantity = (type: "inc" | "dec") => {
-    if (type === "inc" && quantity < product.stock) {
+
+  const handleQuantity = (type: 'inc' | 'dec') => {
+    if (type === 'inc' && quantity < product.stock) {
       setQuantity((q) => q + 1);
-    } else if (type === "dec" && quantity > 1) {
+    } else if (type === 'dec' && quantity > 1) {
       setQuantity((q) => q - 1);
     }
   };
-  if (isAlreadyInCart) return null;
+
+  const handleAddToCart = async () => {
+    setIsAdding(true);
+    try {
+      await AddToCartHandler({ product, quantity });
+    } finally {
+      setIsAdding(false);
+    }
+  };
+
   return (
-    <div className="flex items-center flex-wrap gap-3">
-      {/* Quantity */}
-      <div className="flex items-center justify-between sm:justify-start border-2 border-border rounded-radius-sm p-1 sm:w-max">
+    <div className="flex flex-wrap sm:flex-nowrap items-stretch gap-2 w-full animate-in fade-in zoom-in-95 duration-300">
+      {/* Quantity Selector */}
+      <div className="flex items-center justify-between border border-[var(--color-border)] bg-[var(--color-background)] rounded-[var(--radius-sm)] flex-shrink-0 min-w-[100px] flex-1 sm:flex-none h-11 sm:h-12 shadow-[var(--shadow-soft)] transition-shadow hover:shadow-[var(--shadow-medium)]">
         <button
-          onClick={() => handleQuantity("dec")}
-          className="p-3 hover:bg-yellow-300/30 rounded-radius-sm text-text-subtle transition-colors"
-          disabled={quantity <= 1}
+          onClick={() => handleQuantity('dec')}
+          disabled={quantity <= 1 || isAdding}
+          aria-label="Decrease quantity"
+          className="h-full px-3 sm:px-4 text-[var(--color-text-subtle)] hover:text-[var(--color-text)] hover:bg-[var(--color-background-subtle)] disabled:opacity-40 disabled:cursor-not-allowed transition-all rounded-l-[var(--radius-sm)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] active:scale-95 flex items-center justify-center group"
         >
-          <Minus className="w-4 h-4" />
+          <Minus className="w-4 h-4 group-active:scale-90 transition-transform" />
         </button>
-        <span className="w-16 sm:w-12 text-center teko text-2xl font-medium">
+        
+        <span className="text-[var(--color-text)] font-medium text-sm sm:text-base w-8 text-center flex-1 tabular-nums tracking-wide">
           {quantity}
         </span>
+        
         <button
-          onClick={() => handleQuantity("inc")}
-          className="p-3 hover:bg-yellow-300/30 rounded-radius-sm text-text-subtle transition-colors"
-          disabled={quantity >= product.stock}
+          onClick={() => handleQuantity('inc')}
+          disabled={quantity >= product.stock || isAdding}
+          aria-label="Increase quantity"
+          className="h-full px-3 sm:px-4 text-[var(--color-text-subtle)] hover:text-[var(--color-text)] hover:bg-[var(--color-background-subtle)] disabled:opacity-40 disabled:cursor-not-allowed transition-all rounded-r-[var(--radius-sm)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] active:scale-95 flex items-center justify-center group"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="w-4 h-4 group-active:scale-90 transition-transform" />
         </button>
       </div>
+
+      {/* Add to Cart Button */}
       <button
-        onClick={() => {
-          AddToCartHandler({ product, quantity });
-        }}
-        className="flex-1 bg-white text-text teko text-2xl px-4 py-3 rounded-radius-sm hover:bg-white/90 border border-border  transition-all flex items-center justify-center gap-2 group whitespace-nowrap"
+        onClick={handleAddToCart}
+        disabled={isAdding}
+        className="flex-[2] min-w-[140px] flex items-center justify-center gap-2 bg-[var(--color-primary)] text-[var(--color-background)] hover:bg-[var(--color-primary-dark)] px-4 h-11 sm:h-12 rounded-[var(--radius-sm)] shadow-[var(--shadow-medium)] transition-all duration-300 outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-background)] active:scale-[0.98] group overflow-hidden relative border border-transparent hover:border-[var(--color-primary-light)]"
       >
-        <ShoppingCart className="w-5 h-5 group-hover:-translate-y-1 transition-transform" />
-        Add to Cart
+        <span className={`flex items-center justify-center gap-2 w-full transition-transform duration-500 ease-out ${isAdding ? 'translate-y-[-150%] opacity-0' : 'translate-y-0 opacity-100'}`}>
+          <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform duration-300 ease-out" />
+          <span className="font-medium tracking-wide text-sm sm:text-base whitespace-nowrap">Add to Cart</span>
+        </span>
+        
+        {isAdding && (
+          <span className="absolute inset-0 flex items-center justify-center">
+            <span className="w-5 h-5 border-2 border-[var(--color-background-subtle)] border-t-[var(--color-background)] rounded-full animate-spin"></span>
+          </span>
+        )}
       </button>
     </div>
   );

@@ -80,5 +80,66 @@ export const useCart = () => {
       dispatch(setLoading(false));
     }
   };
-  return { GetCartHandler, AddToCartHandler };
+  const UpdateCartItemHandler = async (data: {
+    productId: string;
+    increaseBy?: number;
+    decreaseBy?: number;
+  }) => {
+    dispatch(setLoading(true));
+    try {
+      await UpdateCartItemAPI(data);
+      const { cart } = await GetCartAPI();
+      dispatch(setCart(cart));
+    } catch (error) {
+      cartOfLocalStorage.cartItems.map((cartItem: CartItem) => {
+        if (cartItem.product._id.toString() === data.productId) {
+          if (data.increaseBy) {
+            cartItem.quantity += data.increaseBy;
+          } else if (data.decreaseBy) {
+            cartItem.quantity -= data.decreaseBy;
+          }
+        }
+      });
+      localStorage.setItem("cart", JSON.stringify(cartOfLocalStorage));
+      dispatch(setCart(cartOfLocalStorage));
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+  const DeleteCartItemHandler = async (id: string) => {
+    dispatch(setLoading(true));
+    try {
+      await DeleteCartItemAPI(id);
+      const { cart } = await GetCartAPI();
+      dispatch(setCart(cart));
+    } catch (error) {
+      cartOfLocalStorage.filter(
+        (cartItem: CartItem) => cartItem.product._id !== id,
+      );
+      localStorage.setItem("cart", JSON.stringify(cartOfLocalStorage));
+      dispatch(setCart(cartOfLocalStorage));
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+  const DeleteCartHandler = async () => {
+    dispatch(setLoading(true));
+    try {
+      await DeleteCartAPI();
+      dispatch(setCart({ cartItems: [], totalAmount: 0 }));
+    } catch (error) {
+      localStorage.removeItem("cart");
+      dispatch(setCart({ cartItems: [], totalAmount: 0 }));
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+
+  return {
+    GetCartHandler,
+    AddToCartHandler,
+    UpdateCartItemHandler,
+    DeleteCartItemHandler,
+    DeleteCartHandler,
+  };
 };
