@@ -1,7 +1,6 @@
-import { ShoppingBag, ShoppingCart } from "lucide-react";
+import { ShoppingBag } from "lucide-react";
 import type { product } from "../types/product.type";
 import { Link, useNavigate } from "react-router-dom";
-import AddToCartButton from "../../cart/components/AddToCartButton";
 import CartAction from "../../cart/components/CartAction";
 const ProductCard = ({ product }: { product: product }) => {
   const navigate = useNavigate();

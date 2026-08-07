@@ -7,16 +7,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronRight,
   Star,
-  Minus,
-  Plus,
+  
+  
   CreditCard,
   ShieldCheck,
   Truck,
   RotateCcw,
   Heart,
 } from "lucide-react";
-import AddToCartButton from "../../cart/components/AddToCartButton";
-import type { CartItem } from "../../cart/@types/cart.types";
 import CartAction from "../../cart/components/CartAction";
 
 const ProductDetails = () => {
@@ -28,7 +26,6 @@ const ProductDetails = () => {
   const loading = useAppSelector((state) => state.product.loading);
   const user = useAppSelector((state) => state.auth.user);
   const [activeImage, setActiveImage] = useState<string | null>(null);
-  const [quantity, setQuantity] = useState(1);
   const [isWishlist, setIsWishlist] = useState(false);
   const [activeTab, setActiveTab] = useState("description");
 
