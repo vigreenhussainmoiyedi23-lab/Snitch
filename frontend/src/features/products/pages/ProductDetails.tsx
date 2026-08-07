@@ -9,18 +9,19 @@ import {
   Star,
   Minus,
   Plus,
-  ShoppingCart,
   CreditCard,
   ShieldCheck,
   Truck,
   RotateCcw,
   Heart,
 } from "lucide-react";
-import Navbar from "../../../commonComponents/Navbar";
+import AddToCartButton from "../../cart/components/AddToCartButton";
+import type { CartItem } from "../../cart/@types/cart.types";
 
 const ProductDetails = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
+
   const { GetProductThroughSlug, DeleteProductHandler } = useProduct();
   const slugProduct = useAppSelector((state) => state.product.slugProduct);
   const loading = useAppSelector((state) => state.product.loading);
@@ -70,13 +71,7 @@ const ProductDetails = () => {
     attributes,
   } = slugProduct;
 
-  const handleQuantity = (type: "inc" | "dec") => {
-    if (type === "inc" && quantity < stock) {
-      setQuantity((q) => q + 1);
-    } else if (type === "dec" && quantity > 1) {
-      setQuantity((q) => q - 1);
-    }
-  };
+  
 
   const getRatingValue = () => {
     if (typeof rating === "number") return rating;
@@ -84,7 +79,6 @@ const ProductDetails = () => {
       return rating?.average;
     return 0;
   };
-
   const ratingValue = getRatingValue();
 
   return (
@@ -156,7 +150,7 @@ const ProductDetails = () => {
             </div>
 
             {/* Main Image */}
-            <div className="w-full relative bg-white rounded-radius-lg overflow-hidden shadow-soft group h-[400px] md:h-[600px] flex items-center justify-center">
+            <div className="w-full relative bg-white rounded-radius-lg overflow-hidden shadow-soft group h-100 md:h-150 flex items-center justify-center">
               <AnimatePresence mode="wait">
                 <motion.img
                   key={activeImage}
@@ -267,32 +261,10 @@ const ProductDetails = () => {
 
             {/* Actions */}
             <div className="flex flex-col sm:flex-row gap-4 mb-8">
-              {/* Quantity */}
-              <div className="flex items-center justify-between sm:justify-start border-2 border-border rounded-radius-sm p-1 sm:w-max">
-                <button
-                  onClick={() => handleQuantity("dec")}
-                  className="p-3 hover:bg-yellow-300/30 rounded-radius-sm text-text-subtle transition-colors"
-                  disabled={quantity <= 1}
-                >
-                  <Minus className="w-4 h-4" />
-                </button>
-                <span className="w-16 sm:w-12 text-center teko text-2xl font-medium">
-                  {quantity}
-                </span>
-                <button
-                  onClick={() => handleQuantity("inc")}
-                  className="p-3 hover:bg-yellow-300/30 rounded-radius-sm text-text-subtle transition-colors"
-                  disabled={quantity >= stock}
-                >
-                  <Plus className="w-4 h-4" />
-                </button>
-              </div>
+         
 
               <div className="flex flex-1 gap-4">
-                <button className="flex-1 bg-white text-text teko text-2xl px-4 py-3 rounded-radius-sm hover:bg-white/90 border border-border  transition-all flex items-center justify-center gap-2 group whitespace-nowrap">
-                  <ShoppingCart className="w-5 h-5 group-hover:-translate-y-1 transition-transform" />
-                  Add to Cart
-                </button>
+                <AddToCartButton product={slugProduct} quantity={quantity} />
 
                 <button className="flex-1 bg-primary text-white teko text-2xl px-4 py-3 rounded-radius-sm shadow-medium hover:bg-primary-light  transition-all flex items-center justify-center gap-2 group whitespace-nowrap">
                   <CreditCard className="w-5 h-5 group-hover:scale-110 transition-transform" />
@@ -379,7 +351,7 @@ const ProductDetails = () => {
                 ))}
               </div>
 
-              <div className="min-h-[150px]">
+              <div className="min-h-37.5">
                 <AnimatePresence mode="wait">
                   {activeTab === "description" && (
                     <motion.div

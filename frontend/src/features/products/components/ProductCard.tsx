@@ -1,12 +1,14 @@
 import { ShoppingBag, ShoppingCart } from "lucide-react";
 import type { product } from "../types/product.type";
 import { Link, useNavigate } from "react-router-dom";
+import AddToCartButton from "../../cart/components/AddToCartButton";
 const ProductCard = ({ product }: { product: product }) => {
   const navigate = useNavigate();
 
   function handleClick() {
     navigate(`/product/${product.slug}`);
   }
+  
   return (
     <article
       key={product._id}
@@ -69,10 +71,7 @@ const ProductCard = ({ product }: { product: product }) => {
         </div>
       </Link>
       <div className="z-5 py-3 px-1 flex gap-2 flex-wrap">
-        <button className="w-full bg-primary hover:bg-primary-light hover:-translate-y-1 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-all ease-in-out whitespace-nowrap">
-          <ShoppingCart className="w-5 h-5" />
-          Add to Cart
-        </button>
+        <AddToCartButton product={product} quantity={1} />
         <button className="w-full hover:-translate-y-1  transition-all ease-in-out bg-white hover:bg-white/90 text-primary border border-border py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg active:scale-95  whitespace-nowrap">
           <ShoppingBag className="w-5 h-5" />
           Buy Now

@@ -1,16 +1,19 @@
 import api from "../../../app/axios";
 
-export const GetCartHandler = async () => {
+export const GetCartAPI = async () => {
   const response = await api.get("/api/cart");
   return response.data;
 };
 
-export const AddToCartHandler = async (data: any) => {
+export const AddToCartAPI = async (data: {
+  productId: string;
+  quantity: number;
+}) => {
   const response = await api.put("/api/cart", data);
   return response.data;
 };
 
-export const UpdateCartItemHandler = async (data: {
+export const UpdateCartItemAPI = async (data: {
   productId: string;
   increaseBy?: number;
   decreaseBy?: number;
@@ -19,12 +22,12 @@ export const UpdateCartItemHandler = async (data: {
   return response.data;
 };
 
-export const DeleteCartItemHandler = async (id: string) => {
+export const DeleteCartItemAPI = async (id: string) => {
   const response = await api.delete(`/api/cart/${id}`);
   return response.data;
 };
 
-export const DeleteCartHandler = async () => {
+export const DeleteCartAPI = async () => {
   const response = await api.delete("/api/cart");
   return response.data;
 };
