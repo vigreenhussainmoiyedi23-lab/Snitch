@@ -15,6 +15,7 @@ import AdminLayout from "../Layouts/AdminLayout";
 import Products from "../features/products/pages/Products";
 import ProductDetails from "../features/products/pages/ProductDetails";
 import UpdateProducts from "../features/products/pages/UpdateProducts";
+import Checkout from "../features/cart/pages/Checkout";
 
 export default function AppRoutes() {
   return (
@@ -51,9 +52,14 @@ export default function AppRoutes() {
           </CommonLayout>
         }
       />
-      <Route path="/product/:slug" element={<CommonLayout>
-        <ProductDetails/>
-      </CommonLayout>} />
+      <Route
+        path="/product/:slug"
+        element={
+          <CommonLayout>
+            <ProductDetails />
+          </CommonLayout>
+        }
+      />
       <Route
         path="/product/:slug/update"
         element={
@@ -71,7 +77,15 @@ export default function AppRoutes() {
           </AdminLayout>
         }
       />
-
+      {/*Checkout  */}
+      <Route
+        path="/checkout"
+        element={
+          <CommonLayout>
+            |<Checkout />
+          </CommonLayout>
+        }
+      />
       <Route
         path="*"
         element={
