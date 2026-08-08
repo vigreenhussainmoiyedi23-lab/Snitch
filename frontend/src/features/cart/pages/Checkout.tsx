@@ -3,6 +3,7 @@ import CartItem from '../components/CartItem';
 import CartSummary from '../components/CartSummary';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, Lock, ArrowRight, ShieldCheck } from 'lucide-react';
+import PaymentButton from "../../payment/component/PayButton";
 
 const Checkout = () => {
   const { cartItems, totalAmount } = useAppSelector((state) => state.cart);
@@ -99,24 +100,12 @@ const Checkout = () => {
 
             {/* Mobile Checkout Button (Sticky) */}
             <div className="lg:hidden fixed bottom-0 left-0 right-0 p-4 bg-background border-t border-border shadow-[0_-8px_30px_rgba(0,0,0,0.12)] z-50 animate-in slide-in-from-bottom duration-500">
-              <button 
-                type="button"
-                className="w-full flex items-center justify-center gap-2 bg-primary text-background hover:bg-primary-dark px-4 py-4 rounded-lg shadow-[var(--shadow-medium)] transition-all active:scale-[0.98]"
-              >
-                <Lock className="w-4 h-4" />
-                <span className="font-semibold text-lg tracking-wide">Pay ₹{totalAmount.toFixed(2)}</span>
-              </button>
+              <PaymentButton totalAmount={totalAmount} />
             </div>
             
             {/* Desktop Checkout Button */}
             <div className="hidden lg:block pt-4">
-              <button 
-                type="button"
-                className="w-full flex items-center justify-center gap-2 bg-primary text-background hover:bg-primary-dark px-4 py-4 rounded-lg shadow-[var(--shadow-medium)] transition-all focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 active:scale-[0.98] group"
-              >
-                <Lock className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                <span className="font-semibold text-lg tracking-wide">Complete Order • ₹{totalAmount.toFixed(2)}</span>
-              </button>
+            <PaymentButton totalAmount={totalAmount} />
             </div>
           </form>
         </div>

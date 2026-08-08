@@ -1,19 +1,18 @@
 import axios from "axios";
 
-function PaymentButton() {
-  const handlePayment = async () => {
+function PaymentButton({ totalAmount = 0 }) {
+  const handlePayment = async (e: any) => {
     try {
+        e.preventDefault()
+      console.log("Key",import.meta.env.VITE_RAZORPAY_API_KEY)
       // Step 1: Create order on backend
-      
-      const { data: order } = await axios.post(
-        "http://localhost:5000/api/payment/orders",
-        {
-          amount: 500, // Amount in INR
-        },
-      );
 
-      // Step 2: Razorpay options
-
+      const order = (
+        await axios.post("http://localhost:3000/api/payment/create", {
+          amount: totalAmount || 100, // Amount in INR
+        })
+      ).data;
+   
       const options = {
         key: import.meta.env.VITE_RAZORPAY_API_KEY, // from .env (frontend can use only key_id)
         amount: order.amount,
@@ -25,7 +24,7 @@ function PaymentButton() {
           const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
             response;
           try {
-            await axios.post("http://localhost:5000/api/payment/verify", {
+            await axios.post("http://localhost:3000/api/payment/verify", {
               razorpayOrderId: razorpay_order_id,
               razorpayPaymentId: razorpay_payment_id,
               signature: razorpay_signature,
@@ -49,19 +48,14 @@ function PaymentButton() {
       rzp.open();
     } catch (err) {
       console.error(err);
+      alert("Payment failed!");
     }
   };
 
   return (
     <button
       onClick={handlePayment}
-      style={{
-        padding: "10px 20px",
-        background: "#3399cc",
-        color: "#fff",
-        border: "none",
-        borderRadius: "5px",
-      }}
+      className="w-full flex items-center justify-center gap-2 bg-primary text-background hover:bg-primary-dark px-4 py-4 rounded-lg shadow-[var(--shadow-medium)] transition-all active:scale-[0.98]"
     >
       Pay Now
     </button>

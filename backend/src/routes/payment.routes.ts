@@ -2,17 +2,22 @@ import { Router } from "express";
 import Payment from "../models/payment.model.js";
 import razorpay from "../config/razorpay.js";
 import AppError from "../utils/AppError.js";
-
+import { validatePaymentVerification } from "razorpay/dist/utils/razorpay-utils.js";
+import { config } from "../config/config.js";
+import asyncHandler from "../utils/AsyncHandler.js";
 const paymentRouter = Router();
 
-paymentRouter.post("/create/orderId", async (req, res) => {
+paymentRouter.post("/create", asyncHandler(async (req, res) => {
+  const { amount } = req.body;
+  if(!amount || amount<1){
+    throw new AppError("Invalid amount", 400);
+  }
   const options = {
-    amount: 5000 * 100, // amount in smallest currency unit
+    amount: amount * 100, // Amount in INR
     currency: "INR",
   };
   try {
     const order = await razorpay.orders.create(options);
-    res.send(order);
 
     const newPayment = await Payment.create({
       orderId: order.id,
@@ -20,21 +25,19 @@ paymentRouter.post("/create/orderId", async (req, res) => {
       currency: order.currency,
       status: "pending",
     });
-    res.status(201).json(newPayment);
+
+    res.status(201).json(order);
+
   } catch (error) {
     res.status(500).send("Error creating order");
   }
-});
+}));
 
-paymentRouter.post("/api/payment/verify", async (req, res) => {
+paymentRouter.post("/verify", async (req, res) => {
   const { razorpayOrderId, razorpayPaymentId, signature } = req.body;
-  const secret = process.env.RAZORPAY_KEY_SECRET;
+  const secret = config.RAZORPAY_SECRET_KEY;
 
   try {
-    const {
-      validatePaymentVerification,
-    } = require("../node_modules/razorpay/dist/utils/razorpay-utils.js");
-
     const result = validatePaymentVerification(
       { order_id: razorpayOrderId, payment_id: razorpayPaymentId },
       signature,
