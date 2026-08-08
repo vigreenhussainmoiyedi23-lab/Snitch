@@ -32,6 +32,9 @@ const CartSideMenu: React.FC<CartSideMenuProps> = ({ isOpen, setIsOpen }) => {
       document.body.style.overflow = "unset";
     };
   }, [isOpen]);
+  console.log(cartItems);
+  
+  if(!cartItems ) return null
 
   const itemCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
   return (
@@ -107,7 +110,7 @@ const CartSideMenu: React.FC<CartSideMenuProps> = ({ isOpen, setIsOpen }) => {
               <div className="flex-1 flex flex-col gap-2 pb-6">
                 {cartItems.map((item, i) => (
                   <div
-                    key={item.product._id}
+                    key={item.product._id || ""}
                     className="animate-in slide-in-from-right-8 duration-500"
                     style={{
                       animationDelay: `${i * 50}ms`,

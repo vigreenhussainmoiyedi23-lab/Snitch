@@ -3,6 +3,7 @@ import productModel from "../models/product.model.js";
 import { isValidProductId } from "../services/product.service.js";
 import AppError from "../utils/AppError.js";
 import asyncHandler from "../utils/AsyncHandler.js";
+import SendEmail from "../utils/sendOtp.js";
 
 export const GetCartHandler = asyncHandler(async (req, res) => {
   let cart = await cartModel
@@ -19,6 +20,19 @@ export const GetCartHandler = asyncHandler(async (req, res) => {
       cart,
     });
   }
+  cart.cartItems.forEach((item) => {
+    if (item.product === null) {
+      cart.cartItems.pull(item._id);
+      SendEmail({
+        to: req.user!.email,
+        subject: "Product not found",
+        html: `<h1 style="text-align: center;">Your Cart Product was either deleted by admin or not found</h1>`,
+      });
+    }
+  });
+
+  await cart.save();
+
   return res.status(200).json({
     message: "Cart fetched successfully",
     success: true,
@@ -34,6 +48,7 @@ export const AddToCartHandler = asyncHandler(async (req, res) => {
   const isProductExistInCart = cart.cartItems.find(
     (item) => item.product.toString() === productId,
   );
+
   if (isProductExistInCart) {
     throw new AppError("Product already exists in cart", 400);
   } else {

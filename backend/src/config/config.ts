@@ -11,7 +11,7 @@ type CONFIG = {
   FRONTEND_URL: string;
   IMAGEKIT_PRIVATE_KEY: string;
   IMAGEKIT_PUBLIC_KEY: string;
-  PORT: number;
+  PORT: string;
 };
 if (!process.env.JWT_SECRET) throw new Error("JWT_SECRET is not defined");
 if (!process.env.MONGO_URI) throw new Error("MONGO_URI is not defined");
@@ -28,9 +28,9 @@ if(!process.env.IMAGEKIT_PRIVATE_KEY) throw new Error("IMAGEKIT_PRIVATE_KEY is n
 if(!process.env.IMAGEKIT_PUBLIC_KEY) throw new Error("IMAGEKIT_PUBLIC_KEY is not defined");
 export const config: CONFIG = {
   PORT:
-    typeof process.env.PORT === "number" && process.env.PORT
+    typeof process.env.PORT === "string" && process.env.PORT
       ? process.env.PORT
-      : 3000,
+      : "3000",
   MONGO_URI: process.env.MONGO_URI,
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
   GOOGLE_SECRET_KEY: process.env.GOOGLE_SECRET_KEY,

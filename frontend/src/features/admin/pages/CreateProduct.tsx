@@ -136,23 +136,23 @@ const CreateProduct = () => {
     <div className="min-h-screen bg-background">
       {/* ── Sticky Page Header ── */}
       <header
-        className="bg-white border-b border-background-light sticky top-0 z-20"
+        className="bg-text  border-b border-background-light sticky top-0 z-20"
         style={{ boxShadow: "var(--shadow-soft)" }}
       >
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between gap-4">
           <div>
-            <h1 className="eczar text-xl md:text-2xl font-bold text-text leading-tight">
+            <h1 className="eczar text-xl md:text-2xl font-bold text-background leading-tight">
               Create Product
             </h1>
-            <p className="mate text-xs text-text-subtle mt-0.5 hidden sm:block">
+            <p className="mate text-xs text-background-light mt-0.5 hidden sm:block">
               Add a new product to your store
             </p>
           </div>
-          <div className="flex items-center gap-3 flex-shrink-0">
+          <div className="flex items-center gap-3 shrink-0">
             <button
               type="button"
               onClick={handleCancel}
-              className="teko text-base tracking-wider px-5 py-2 rounded-full border border-border text-text-subtle hover:border-primary hover:text-primary transition-colors duration-150 hidden sm:block"
+              className="teko text-base tracking-wider px-5 py-2 rounded-full border border-border text-background-light hover:border-primary hover:text-primary transition-colors duration-150 hidden sm:block"
             >
               Cancel
             </button>
