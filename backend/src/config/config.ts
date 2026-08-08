@@ -12,6 +12,8 @@ type CONFIG = {
   IMAGEKIT_PRIVATE_KEY: string;
   IMAGEKIT_PUBLIC_KEY: string;
   PORT: string;
+  RAZORPAY_API_KEY: string;
+  RAZORPAY_SECRET_KEY: string;
 };
 if (!process.env.JWT_SECRET) throw new Error("JWT_SECRET is not defined");
 if (!process.env.MONGO_URI) throw new Error("MONGO_URI is not defined");
@@ -24,8 +26,16 @@ if (!process.env.GOOGLE_REFRESH_TOKEN)
 if (!process.env.GOOGLE_USER) throw new Error("GOOGLE_USER is not defined");
 if (!process.env.REDIS_URL) throw new Error("REDIS_URL is not defined");
 if (!process.env.FRONTEND_URL) throw new Error("FRONTEND_URL is not defined");
-if(!process.env.IMAGEKIT_PRIVATE_KEY) throw new Error("IMAGEKIT_PRIVATE_KEY is not defined");
-if(!process.env.IMAGEKIT_PUBLIC_KEY) throw new Error("IMAGEKIT_PUBLIC_KEY is not defined");
+if (!process.env.IMAGEKIT_PRIVATE_KEY)
+  throw new Error("IMAGEKIT_PRIVATE_KEY is not defined");
+if (!process.env.IMAGEKIT_PUBLIC_KEY)
+  throw new Error("IMAGEKIT_PUBLIC_KEY is not defined");
+if (!process.env.RAZORPAY_API_KEY)
+  throw new Error("RAZORPAY_API_KEY is not defined");
+if (!process.env.RAZORPAY_SECRET_KEY)
+  throw new Error("RAZORPAY_SECRET_KEY is not defined");
+
+
 export const config: CONFIG = {
   PORT:
     typeof process.env.PORT === "string" && process.env.PORT
@@ -41,4 +51,6 @@ export const config: CONFIG = {
   REDIS_URL: process.env.REDIS_URL,
   IMAGEKIT_PRIVATE_KEY: process.env.IMAGEKIT_PRIVATE_KEY,
   IMAGEKIT_PUBLIC_KEY: process.env.IMAGEKIT_PUBLIC_KEY,
+  RAZORPAY_API_KEY: process.env.RAZORPAY_API_KEY,
+  RAZORPAY_SECRET_KEY: process.env.RAZORPAY_SECRET_KEY,
 };
