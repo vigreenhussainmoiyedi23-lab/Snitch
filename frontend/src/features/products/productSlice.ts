@@ -2,7 +2,7 @@ import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { product } from "./types/product.type";
 type Enums = {
   categories: string[];
-  subCategories: string[];
+  subCategories: { name: string; category: string }[];
   brands: string[];
 };
 type InitialState = {
@@ -12,13 +12,13 @@ type InitialState = {
   slugProduct: product | null;
   loading: boolean;
   enums: Enums;
-  totalProducts:number
+  totalProducts: number;
 };
 const initialState: InitialState = {
   error: null,
   products: [],
   totalPages: 1,
-  totalProducts:0,
+  totalProducts: 0,
   slugProduct: null,
   loading: false,
   enums: {
@@ -35,14 +35,17 @@ const productSlice = createSlice({
     setError: (state, action: PayloadAction<string>) => {
       state.error = action.payload;
     },
-    setGetProducts: (state, action: PayloadAction<{
-      products:any[],
-      totalPages: number,
-      total:number
-    }>) => {
+    setGetProducts: (
+      state,
+      action: PayloadAction<{
+        products: any[];
+        totalPages: number;
+        total: number;
+      }>,
+    ) => {
       state.products = action.payload.products;
       state.totalPages = action.payload.totalPages;
-      state.totalProducts = action.payload.total
+      state.totalProducts = action.payload.total;
     },
     setSlugProduct: (state, action: PayloadAction<product>) => {
       state.slugProduct = action.payload;
@@ -56,7 +59,12 @@ const productSlice = createSlice({
   },
 });
 
-export const { setError, setGetProducts, setSlugProduct, setLoading,setEnums } =
-  productSlice.actions;
+export const {
+  setError,
+  setGetProducts,
+  setSlugProduct,
+  setLoading,
+  setEnums,
+} = productSlice.actions;
 
 export default productSlice.reducer;

@@ -1,17 +1,24 @@
-import { useFormContext } from "react-hook-form";
+import { useFormContext, useWatch } from "react-hook-form";
 import Input from "../product/Form/Input";
 import AttributeEditor from "./AttributeEditor";
 import type { ProductFormValues } from "./types";
 import { useAppSelector } from "../../../../app/redux/hook";
 import CreatableSelect from "../product/Form/CreatableSelect";
+import { useEffect } from "react";
 /**
  * Classification section.
  * Fields: brand, category, subCategory (3-col grid), tags, and dynamic attributes.
  */
 const ClassificationSection = () => {
-  const { register } = useFormContext<ProductFormValues>();
+  const { register, control, setValue } = useFormContext<ProductFormValues>();
   const enums = useAppSelector((state) => state.product.enums);
-
+  const selectedCategory = useWatch({
+    control,
+    name: "category",
+  });
+  useEffect(() => {
+    setValue("subCategory", "");
+  }, [selectedCategory, setValue]);
   return (
     <div className="space-y-1">
       {/* 3-column grid for brand / category / subCategory */}
@@ -27,7 +34,11 @@ const ClassificationSection = () => {
           placeholder="e.g. Bags"
         />
         <CreatableSelect
-          options={enums.subCategories}
+          options={enums.subCategories
+            .filter((s) => {
+              return selectedCategory === s.category || !selectedCategory;
+            })
+            .map((s) => s.name)}
           name="subCategory"
           placeholder="e.g. Tote Bags"
         />

@@ -44,6 +44,7 @@ export const validSequenceBrandSubCatAndCategory = async (data: {
   if (!validSubCategory && data.subCategory)
     validSubCategory = await subCategoryModel.create({
       name: data.subCategory,
+      category: validCategory!._id,
     });
   if (!sequence || !sequence.sequence_value) {
     sequence = await counterModel.create({

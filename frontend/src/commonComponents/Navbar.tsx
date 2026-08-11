@@ -11,6 +11,8 @@ const Navbar = () => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const cartItems = useAppSelector((state) => state.cart.cartItems);
+
+  
   return (
     <>
       <motion.nav

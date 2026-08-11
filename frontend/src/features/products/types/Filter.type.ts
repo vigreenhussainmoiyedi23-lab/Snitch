@@ -1,6 +1,5 @@
 export type Filters = {
   page: number;
-  category?: string;
   brand?: string;
   subCategory?: string;
   search?: string;

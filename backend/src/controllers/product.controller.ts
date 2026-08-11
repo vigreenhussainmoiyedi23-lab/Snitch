@@ -75,13 +75,19 @@ export const CreateProductHandler = asyncHandler(async (req, res) => {
 export const GetAllEnumsHandler = asyncHandler(async (req, res) => {
   const [categories, subCategories, brands] = await Promise.all([
     categoryModel.find().select("name -_id").lean(),
-    subCategoryModel.find().select("name -_id").lean(),
+    subCategoryModel
+      .find()
+      .populate({ path: "category", select: "name -_id" })
+      .lean(),
     brandModel.find().select("name -_id").lean(),
   ]);
 
   res.status(200).json({
     categories: categories.map((c) => c.name),
-    subCategories: subCategories.map((s) => s.name),
+    subCategories: subCategories.map((s:any) => ({
+      name: s.name,
+      category: s.category!.name,
+    })),
     brands: brands.map((b) => b.name),
   });
 });
