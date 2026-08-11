@@ -74,6 +74,7 @@ export default function AppRoutes() {
         element={
           <AdminLayout>
             <Link to="/admin/create-product">Create Product</Link>
+            <Link to="/products">Go To Products</Link>
           </AdminLayout>
         }
       />

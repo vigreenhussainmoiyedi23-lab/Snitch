@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useProduct } from "../hook/useProduct";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useAppSelector } from "../../../app/redux/hook";
 import Loading from "../../../commonComponents/Loading";
 import { FormProvider, useForm } from "react-hook-form";
@@ -168,6 +168,20 @@ const UpdateProducts = () => {
         <h1 className="text-2xl md:text-3xl font-bold text-primary-dark mb-6 eczar">
           Update Product: {slugProduct.title}
         </h1>
+        <div className="px-4 py-3 flex items-center gap-4">
+          <Link
+            to="/products"
+            className="text-sm font-semibold bg-text px-3 py-1 rounded-full text-background"
+          >
+            View All Products
+          </Link>
+          <Link
+            to="/admin"
+            className="text-sm font-semibold bg-text px-3 py-1 rounded-full text-background"
+          >
+            Admin Dashboard
+          </Link>
+        </div>
       </div>
 
       {/* Images Section */}
