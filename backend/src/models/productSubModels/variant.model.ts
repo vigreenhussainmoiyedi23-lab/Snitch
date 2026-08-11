@@ -11,13 +11,14 @@ const variantSchema = new mongoose.Schema(
     mrp: { type: Number, default: 0, required: true },
     discount: { type: Number, default: 0 },
     finalPrice: Number,
-    stock: Number,
+    stock: { type: Number, default: 0, required: true },
     barcode: String,
 
     attributes: {
       type: Map,
       of: String,
       default: {},
+      required: true,
     },
 
     images: [
@@ -28,7 +29,7 @@ const variantSchema = new mongoose.Schema(
       },
     ],
   },
-  { _id: false },
+  { timestamps: true },
 );
 variantSchema.pre("save", function () {
   if (this.isModified("mrp") || this.isModified("discount")) {

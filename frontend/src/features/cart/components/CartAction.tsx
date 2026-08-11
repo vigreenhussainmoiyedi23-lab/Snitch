@@ -23,7 +23,7 @@ const CartAction: React.FC<CartActionProps> = ({ product, className = "" }) => {
   const isAlreadyInCart = !!cartItem;
 
   return (
-    <div className={`w-full max-w-full ${className}`}>
+    <div className={`w-full max-w-full ${className} `}>
       {isAlreadyInCart ? (
         <CartQuantityControls 
           productId={product._id} 

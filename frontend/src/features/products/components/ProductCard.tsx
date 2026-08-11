@@ -41,7 +41,6 @@ const ProductCard = ({ product }: { product: product }) => {
           </div>
         </div>
       </div>
-      {/* Quick Add Button - Desktop */}
 
       <Link
         to={`/product/${product.slug}`}
@@ -70,7 +69,8 @@ const ProductCard = ({ product }: { product: product }) => {
           )}
         </div>
       </Link>
-      <div className="z-5 py-3 px-1 flex gap-2 flex-wrap">
+      
+      <div className="z-5 py-3  px-1 flex gap-2 flex-wrap">
         <CartAction product={product} />
         <button className="w-full hover:-translate-y-1  transition-all ease-in-out bg-white hover:bg-white/90 text-primary border border-border py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg active:scale-95  whitespace-nowrap">
           <ShoppingBag className="w-5 h-5" />

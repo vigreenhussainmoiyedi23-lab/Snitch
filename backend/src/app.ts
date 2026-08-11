@@ -12,6 +12,7 @@ import { apiLimiter } from "./Limiters/globalApi.limiter.js";
 import productRouter from "./routes/product.routes.js";
 import cartRouter from "./routes/cart.routes.js";
 import paymentRouter from "./routes/payment.routes.js";
+import variantRouter from "./routes/variant.routes.js";
 
 const app = express();
 app.use(express.json());
@@ -35,5 +36,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/products", productRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/payment",paymentRouter)
+app.use("/api/variant",variantRouter)
+
 app.use(errorHandler);
 export default app;

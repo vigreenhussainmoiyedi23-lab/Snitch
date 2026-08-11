@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Link } from "react-router-dom";
 
 import Login from "../features/auth/pages/Login";
 import Register from "../features/auth/pages/Register";
@@ -69,6 +69,14 @@ export default function AppRoutes() {
         }
       />
       {/* ADMIN Routes */}
+      <Route
+        path="/admin"
+        element={
+          <AdminLayout>
+            <Link to="/admin/create-product">Create Product</Link>
+          </AdminLayout>
+        }
+      />
       <Route
         path="/admin/create-product"
         element={
