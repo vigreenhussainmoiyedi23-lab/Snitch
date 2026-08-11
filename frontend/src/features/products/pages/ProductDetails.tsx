@@ -7,8 +7,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronRight,
   Star,
-  
-  
   CreditCard,
   ShieldCheck,
   Truck,
@@ -20,14 +18,12 @@ import CartAction from "../../cart/components/CartAction";
 const ProductDetails = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
-
   const { GetProductThroughSlug, DeleteProductHandler } = useProduct();
   const slugProduct = useAppSelector((state) => state.product.slugProduct);
   const loading = useAppSelector((state) => state.product.loading);
   const user = useAppSelector((state) => state.auth.user);
   const [activeImage, setActiveImage] = useState<string | null>(null);
   const [isWishlist, setIsWishlist] = useState(false);
-  const [activeTab, setActiveTab] = useState("description");
 
   useEffect(() => {
     if (slug) {
@@ -68,8 +64,6 @@ const ProductDetails = () => {
     tags,
     attributes,
   } = slugProduct;
-
-
 
   const getRatingValue = () => {
     if (typeof rating === "number") return rating;
@@ -259,8 +253,6 @@ const ProductDetails = () => {
 
             {/* Actions */}
             <div className="flex flex-col sm:flex-row gap-4 mb-8">
-
-
               <div className="flex flex-1 gap-4">
                 <CartAction product={slugProduct} />
 
@@ -329,104 +321,77 @@ const ProductDetails = () => {
               ))}
             </div>
 
-            {/* Tabs */}
-            <div className="mt-auto">
-              <div className="flex border-b border-border/30 gap-8 mb-6">
-                {["description", "specifications", "reviews"].map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={`pb-3 teko text-2xl tracking-wide capitalize relative transition-colors ${activeTab === tab ? "text-primary" : "text-text-subtle hover:text-text"}`}
-                  >
-                    {tab}
-                    {activeTab === tab && (
-                      <motion.div
-                        layoutId="activeTab"
-                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"
-                      />
-                    )}
-                  </button>
-                ))}
-              </div>
+            <div className="min-h-37.5">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key="desc"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                  className="mate text-text-subtle leading-relaxed text-lg"
+                >
+                  <p>{description}</p>
+                </motion.div>
+                <motion.div
+                  key="specs"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                  className="mate text-lg"
+                >
+                  <table className="w-full text-left border-collapse">
+                    <tbody>
+                      <tr className="border-b border-border/20">
+                        <th className="py-3 font-semibold text-text w-1/3">
+                          Brand
+                        </th>
+                        <td className="py-3 text-text-subtle capitalize">
+                          {brand}
+                        </td>
+                      </tr>
+                      <tr className="border-b border-border/20">
+                        <th className="py-3 font-semibold text-text w-1/3">
+                          Category
+                        </th>
+                        <td className="py-3 text-text-subtle capitalize">
+                          {category}
+                        </td>
+                      </tr>
+                      {attributes &&
+                        Object.entries(attributes).map(([k, v]) => (
+                          <tr key={k} className="border-b border-border/20">
+                            <th className="py-3 font-semibold text-text w-1/3 capitalize">
+                              {k}
+                            </th>
+                            <td className="py-3 text-text-subtle capitalize">
+                              {v as string}
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                </motion.div>
 
-              <div className="min-h-37.5">
-                <AnimatePresence mode="wait">
-                  {activeTab === "description" && (
-                    <motion.div
-                      key="desc"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.2 }}
-                      className="mate text-text-subtle leading-relaxed text-lg"
-                    >
-                      <p>{description}</p>
-                    </motion.div>
-                  )}
-                  {activeTab === "specifications" && (
-                    <motion.div
-                      key="specs"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.2 }}
-                      className="mate text-lg"
-                    >
-                      <table className="w-full text-left border-collapse">
-                        <tbody>
-                          <tr className="border-b border-border/20">
-                            <th className="py-3 font-semibold text-text w-1/3">
-                              Brand
-                            </th>
-                            <td className="py-3 text-text-subtle capitalize">
-                              {brand}
-                            </td>
-                          </tr>
-                          <tr className="border-b border-border/20">
-                            <th className="py-3 font-semibold text-text w-1/3">
-                              Category
-                            </th>
-                            <td className="py-3 text-text-subtle capitalize">
-                              {category}
-                            </td>
-                          </tr>
-                          {attributes &&
-                            Object.entries(attributes).map(([k, v]) => (
-                              <tr key={k} className="border-b border-border/20">
-                                <th className="py-3 font-semibold text-text w-1/3 capitalize">
-                                  {k}
-                                </th>
-                                <td className="py-3 text-text-subtle capitalize">
-                                  {v as string}
-                                </td>
-                              </tr>
-                            ))}
-                        </tbody>
-                      </table>
-                    </motion.div>
-                  )}
-                  {activeTab === "reviews" && (
-                    <motion.div
-                      key="reviews"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.2 }}
-                      className="mate text-text-subtle text-center py-8 bg-background-light/50 rounded-radius-md"
-                    >
-                      <Star className="w-12 h-12 text-gold mx-auto mb-4 opacity-50" />
-                      <p className="text-lg">
-                        No reviews yet for this product.
-                      </p>
-                      <p className="text-sm mt-1">Be the first to review!</p>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+                <motion.div
+                  key="reviews"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                  className="mate text-text-subtle text-center py-8 bg-background-light/50 rounded-radius-md"
+                >
+                  <Star className="w-12 h-12 text-gold mx-auto mb-4 opacity-50" />
+                  <p className="text-lg">No reviews yet for this product.</p>
+                  <p className="text-sm mt-1">Be the first to review!</p>
+                </motion.div>
+              </AnimatePresence>
             </div>
           </div>
         </div>
       </div>
+     
     </div>
   );
 };

@@ -36,7 +36,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/products", productRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/payment",paymentRouter)
-app.use("/api/variant",variantRouter)
+app.use("/api/variants",variantRouter)
 
 app.use(errorHandler);
 export default app;
