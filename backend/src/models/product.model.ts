@@ -41,8 +41,12 @@ const productSchema = new mongoose.Schema(
       unique: true,
       immutable: true, // Cannot be changed after creation
       index: true,
+      select: false,
     },
-    barcode: String,
+    barcode: {
+      type: String,
+      select: false,
+    },
     tags: [String],
     currency: { type: String, default: "INR" },
     images: [
@@ -78,7 +82,10 @@ const productSchema = new mongoose.Schema(
       default: 0, // percentage
     },
 
-    costPrice: Number,
+    costPrice: {
+      type: Number,
+      select: false,
+    },
 
     stock: {
       type: Number,
@@ -89,6 +96,7 @@ const productSchema = new mongoose.Schema(
     lowStockThreshold: {
       type: Number,
       default: 5,
+      select: false,
     },
 
     status: {
@@ -110,9 +118,8 @@ const productSchema = new mongoose.Schema(
     },
 
     seo: {
-      metaTitle: String,
-      metaDescription: String,
-      keywords: [String],
+      type: { metaTitle: String, metaDescription: String, keywords: [String] },
+      select: false,
     },
 
     shipping: {
@@ -123,25 +130,28 @@ const productSchema = new mongoose.Schema(
     },
 
     analytics: {
-      views: {
-        type: Number,
-        default: 0,
-      },
+      type: {
+        views: {
+          type: Number,
+          default: 0,
+        },
 
-      purchases: {
-        type: Number,
-        default: 0,
-      },
+        purchases: {
+          type: Number,
+          default: 0,
+        },
 
-      wishlistCount: {
-        type: Number,
-        default: 0,
-      },
+        wishlistCount: {
+          type: Number,
+          default: 0,
+        },
 
-      cartCount: {
-        type: Number,
-        default: 0,
+        cartCount: {
+          type: Number,
+          default: 0,
+        },
       },
+      select: false,
     },
 
     rating: {

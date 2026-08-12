@@ -65,3 +65,15 @@ export const isValidProductId = async (id: string | null | undefined) => {
   if (!product) throw new AppError("Product not found", 404);
   return product;
 };
+
+export const isValidVariantOfProduct = async (
+  productId: string | null | undefined,
+  variantId: string | undefined | null,
+) => {
+  if (!productId || !variantId) throw new AppError("Product not found", 404);
+  const product = await productModel.findById(productId);
+  if (!product) throw new AppError("Product not found", 404);
+  const variant = product.variants.find((v) => v.toString() === variantId);
+  if (!variant) throw new AppError("Variant not found", 404);
+  return variant;
+};

@@ -22,11 +22,15 @@ const CartAction: React.FC<CartActionProps> = ({
   className = "",
   selectedVariant,
 }) => {
+  console.log(selectedVariant);
+
   const cartItems = useAppSelector((state) => state.cart.cartItems);
 
   // Use find() to determine whether the product is already in cart, as requested
   const cartItem = cartItems.find((item) => {
-    item.product._id === product._id;
+    if (item.isVariant && selectedVariant)
+      return item.variant!._id === selectedVariant._id;
+    else return item.product._id === product._id;
   });
   const isAlreadyInCart = !!cartItem;
 
@@ -39,7 +43,7 @@ const CartAction: React.FC<CartActionProps> = ({
           stock={product.stock}
         />
       ) : (
-        <AddToCartButton product={product} selectedVairant={selectedVariant}/>
+        <AddToCartButton product={product} selectedVairant={selectedVariant} />
       )}
     </div>
   );

@@ -1,6 +1,9 @@
 import cartModel from "../models/cart.model.js";
 import productModel from "../models/product.model.js";
-import { isValidProductId } from "../services/product.service.js";
+import {
+  isValidProductId,
+  isValidVariantOfProduct,
+} from "../services/product.service.js";
 import AppError from "../utils/AppError.js";
 import asyncHandler from "../utils/AsyncHandler.js";
 import SendEmail from "../utils/sendOtp.js";
@@ -21,7 +24,7 @@ export const GetCartHandler = asyncHandler(async (req, res) => {
     });
   }
 
-  cart.cartItems.forEach((item) => {
+  cart.cartItems.forEach(async (item, idx) => {
     if (item.product === null) {
       cart.cartItems.pull(item._id);
       SendEmail({
@@ -29,6 +32,9 @@ export const GetCartHandler = asyncHandler(async (req, res) => {
         subject: "Product not found",
         html: `<h1 style="text-align: center;">Your Cart Product was either deleted by admin or not found</h1>`,
       });
+    }
+    if (item.isVariant) {
+      await cart.populate(`cartItems.${idx}.variant`);
     }
   });
   await cart.save();
@@ -41,31 +47,40 @@ export const GetCartHandler = asyncHandler(async (req, res) => {
 });
 
 export const AddToCartHandler = asyncHandler(async (req, res) => {
-  const { productId, quantity } = req.body;
-  await isValidProductId(productId); // throws error if product not found
+  const { productId, quantity, variantId } = req.body;
+  let isVariant = false;
+  await isValidProductId(productId);
+  if (variantId) await isValidVariantOfProduct(productId, variantId);
   const cart = await cartModel.findOne({ userId: req.user!._id }).populate({
     path: "cartItems.product",
     select: "finalPrice",
   });
   if (!cart) throw new AppError("Cart not found", 404);
 
-  const item = cart?.cartItems.find((i) => i.product.toString() === productId);
+  const item = cart?.cartItems.find((i) => {
+    if (i.isVariant && variantId) return i.variant!.toString() === variantId;
+    else return i.product.toString() === productId;
+  });
 
   if (item) {
     item.quantity = quantity;
   } else {
+    if (variantId) isVariant = true;
     cart?.cartItems.push({
       product: productId,
       quantity,
+      isVariant,
+      variant: variantId,
     });
   }
   // Populate after saving
-  await cart.populate("cartItems.product");
+  await cart.populate(["cartItems.product", "cartItems.variant"]);
 
-  const totalAmount = cart.cartItems.reduce((total, item) => {
-    const product = item.product as any;
-
-    return total + product.finalPrice * item.quantity;
+  const totalAmount = cart.cartItems.reduce((total, item: any) => {
+    let finalPrice = item.product.finalPrice;
+    if (item.isVariant) finalPrice = item.variant.finalPrice;    
+    if(isNaN(finalPrice)) finalPrice = item.product.finalPrice
+    return total + finalPrice * item.quantity;
   }, 0);
   cart.totalAmount = totalAmount;
   await cart.save();
@@ -76,11 +91,11 @@ export const AddToCartHandler = asyncHandler(async (req, res) => {
 });
 
 export const UpdateCartItemHandler = asyncHandler(async (req, res) => {
-  const { productId, increaseBy = 0, decreaseBy = 0 } = req.body;
+  const { productId, variantId, increaseBy = 0, decreaseBy = 0 } = req.body;
   if (!increaseBy && !decreaseBy)
     throw new AppError("Quantity is required", 400);
-  await isValidProductId(productId); // throws error if product not found
-
+  await isValidProductId(productId);
+  if (variantId) await isValidVariantOfProduct(productId, variantId);
   const cart: any = await cartModel
     .findOne({ userId: req.user!._id })
     .populate({
@@ -89,16 +104,16 @@ export const UpdateCartItemHandler = asyncHandler(async (req, res) => {
     });
   if (!cart) throw new AppError("Cart not found", 404);
 
-  const isProductExistInCart = cart.cartItems.find(
-    (item: any) => item.product._id.toString() === productId,
-  );
-  if (!isProductExistInCart) {
+  const item = cart.cartItems.find((item: any) => {
+    if (!variantId && !item.isVariant)
+      return item.product._id.toString() === productId;
+    if (variantId && item.isVariant)
+      return item.variant.toString() === variantId;
+  });
+
+  if (!item) {
     throw new AppError("Product not found in cart", 404);
   } else {
-    const item = cart.cartItems.find(
-      (item: any) => item.product._id.toString() === productId,
-    );
-
     item!.quantity += increaseBy - decreaseBy;
     if (item!?.quantity <= 0) {
       const index = cart.cartItems.findIndex(
@@ -109,10 +124,17 @@ export const UpdateCartItemHandler = asyncHandler(async (req, res) => {
         cart.cartItems.splice(index, 1);
       }
     }
-    cart.totalAmount =
-      cart.totalAmount -
-      item?.product.finalPrice * decreaseBy +
-      item?.product.finalPrice * increaseBy;
+    if (item.isVariant) {
+      cart.totalAmount =
+        cart.totalAmount -
+        item?.variant.finalPrice * decreaseBy +
+        item?.variant.finalPrice * increaseBy;
+    } else {
+      cart.totalAmount =
+        cart.totalAmount -
+        item?.product.finalPrice * decreaseBy +
+        item?.product.finalPrice * increaseBy;
+    }
     await cart.save();
   }
   return res.status(200).json({
@@ -160,7 +182,7 @@ export const DeleteCartItemHandler = asyncHandler(async (req, res) => {
     throw new AppError("Product not found in cart", 404);
   }
 
-  const item:any = cart.cartItems[index];
+  const item: any = cart.cartItems[index];
   if (!item) throw new AppError("Product not found in cart", 404);
   cart.totalAmount -= item.quantity * item.product.finalPrice;
 

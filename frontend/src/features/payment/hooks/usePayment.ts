@@ -3,6 +3,7 @@ import { CreateOrderApi, verifyPaymentApi } from "../service/api.service";
 const usePayment = () => {
   const handlePayment =async () => {
     try {
+      console.count("🔥 handlePayment called");
       const order = await CreateOrderApi();
       const options = {
         key: import.meta.env.VITE_RAZORPAY_API_KEY,
