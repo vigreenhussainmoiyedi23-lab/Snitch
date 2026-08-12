@@ -26,4 +26,4 @@ const variantSlice = createSlice({
 });
 export const { setLoading, setError, setVariants } = variantSlice.actions;
 
-export default variantSlice;
+export default variantSlice.reducer;

@@ -18,13 +18,21 @@ const cartSchema = new mongoose.Schema({
         type: Number,
         required: true,
       },
+      isVariant: {
+        type: Boolean,
+        default: false,
+      },
+      variant: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "variant",
+      },
     },
   ],
-  
+
   totalAmount: {
     type: Number,
-    default:0
-},
+    default: 0,
+  },
 });
 
 const cartModel = mongoose.model("cart", cartSchema);

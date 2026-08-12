@@ -6,6 +6,7 @@ import {
 } from "../services/product.service.js";
 import asyncHandler from "../utils/AsyncHandler.js";
 import variantModel from "../models/productSubModels/variant.model.js";
+import AppError from "../utils/AppError.js";
 
 export const createVariantHandler = asyncHandler(async (req, res) => {
   isAdmin(req.user);
@@ -27,11 +28,13 @@ export const createVariantHandler = asyncHandler(async (req, res) => {
       ),
     );
     responses.map((image) => images.push(image));
-  }
+  } else throw new AppError("Minimum one image is required", 400);
   const sku =
     product.sku +
     "-" +
-    Object.values(attributes)?.map((val) => val?.toString()?.toLowerCase()).join("-");
+    Object.values(attributes)
+      ?.map((val) => val?.toString()?.toLowerCase())
+      .join("-");
   let finalPrice: number = mrp - (mrp * discount) / 100;
   if (isNaN(finalPrice)) finalPrice = product.finalPrice!;
   const isVariantExists = await variantModel.findOne({ sku });
@@ -72,47 +75,49 @@ export const getProductsVariantHandler = asyncHandler(async (req, res) => {
 export const updateVariantHandler = asyncHandler(async (req, res) => {
   isAdmin(req.user);
   const { variantId } = req.params;
-  const files = req.files as Express.Multer.File[]
+  const files = req.files as Express.Multer.File[];
   const keep = JSON.parse(req.body.keep || `[]`);
-  const images: any = []
-
-  const variant = await variantModel.findById(variantId)
+  const images: any = [];
+  if (!keep && keep.length + files.length === 0)
+    throw new AppError("Minimum one image is required", 400);
+  const variant = await variantModel.findById(variantId);
   if (!variant) {
     return res.status(404).json({
       success: false,
-      message: "Variant not found"
-    })
+      message: "Variant not found",
+    });
   }
   if (files) {
-    const responses = await Promise.all(files.map(f =>
-      uploadImage({
-        buffer: f.buffer,
-        fileName: f.originalname + Date.now().toLocaleString(),
-        folder: "products"
-      })
-    ))
-    responses.map((res) => images.push(res))
+    const responses = await Promise.all(
+      files.map((f) =>
+        uploadImage({
+          buffer: f.buffer,
+          fileName: f.originalname + Date.now().toLocaleString(),
+          folder: "products",
+        }),
+      ),
+    );
+    responses.map((res) => images.push(res));
   }
   if (keep) {
     variant?.images.map((img: any) => {
-      if (keep.includes(img.fileId))
-        images.push(img)
-    })
+      if (keep.includes(img.fileId)) images.push(img);
+    });
   }
-  variant?.images.splice(0, variant.images.length, ...images)
-  await variant?.save()
+  variant?.images.splice(0, variant.images.length, ...images);
+  await variant?.save();
 
   return res.status(200).json({
     success: true,
     message: "Variant updated successfully",
-    variant
-  })
+    variant,
+  });
 });
 
 export const deleteVariantHandler = asyncHandler(async (req, res) => {
   isAdmin(req.user);
   const { variantId } = req.params;
-  const variant = await variantModel.findByIdAndDelete(variantId)
+  const variant = await variantModel.findByIdAndDelete(variantId);
   if (!variant) {
     return res.status(404).json({
       success: false,
@@ -127,27 +132,28 @@ export const deleteVariantHandler = asyncHandler(async (req, res) => {
   return res.status(200).json({
     success: true,
     message: "Variant deleted successfully",
-    variant
-  })
+    variant,
+  });
 });
 
 export const updatePutVariantHandler = asyncHandler(async (req, res) => {
-
   isAdmin(req.user);
   const { variantId } = req.params;
-  const { mrp, discount, stock, attributes } = req.body
-  let tobeUpdated: any = {}
-  if (mrp) tobeUpdated['mrp'] = mrp
-  if (discount) tobeUpdated['discount'] = discount
-  if (stock) tobeUpdated['stock'] = stock
-  if (attributes) tobeUpdated['attributes'] = attributes
+  const { mrp, discount, stock, attributes } = req.body;
+  let tobeUpdated: any = {};
+  if (mrp) tobeUpdated["mrp"] = mrp;
+  if (discount) tobeUpdated["discount"] = discount;
+  if (stock) tobeUpdated["stock"] = stock;
+  if (attributes) tobeUpdated["attributes"] = attributes;
   if (Object.keys(tobeUpdated).length === 0) {
     return res.status(400).json({
       success: false,
       message: "No field to update",
     });
   }
-  const variant = await variantModel.findByIdAndUpdate(variantId, tobeUpdated, { new: true })
+  const variant = await variantModel.findByIdAndUpdate(variantId, tobeUpdated, {
+    new: true,
+  });
   if (!variant) {
     return res.status(404).json({
       success: false,
@@ -157,7 +163,6 @@ export const updatePutVariantHandler = asyncHandler(async (req, res) => {
   return res.status(200).json({
     success: true,
     message: "Variant Updated successfully",
-    variant
-  })
-
+    variant,
+  });
 });

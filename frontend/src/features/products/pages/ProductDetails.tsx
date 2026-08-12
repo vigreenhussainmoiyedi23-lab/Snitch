@@ -6,6 +6,7 @@ import Loading from "../../../commonComponents/Loading";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronRight,
+  ChevronLeft,
   Star,
   CreditCard,
   ShieldCheck,
@@ -14,22 +15,53 @@ import {
   Heart,
 } from "lucide-react";
 import CartAction from "../../cart/components/CartAction";
+import { useVariant } from "../../variants/hooks/useVariant";
+import VariantSection from "../../variants/components/VariantSection";
 
 const ProductDetails = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
   const { GetProductThroughSlug, DeleteProductHandler } = useProduct();
+  const { GetVariantHandler } = useVariant();
+  const [images, setImages] = useState([] as { fileId: string; url: string }[]);
+
   const slugProduct = useAppSelector((state) => state.product.slugProduct);
   const loading = useAppSelector((state) => state.product.loading);
   const user = useAppSelector((state) => state.auth.user);
+  const variants = useAppSelector((state) => state.variant.variants);
   const [activeImage, setActiveImage] = useState<string | null>(null);
   const [isWishlist, setIsWishlist] = useState(false);
+  const [selectedVariantId, setSelectedVariantId] = useState<string | null>(
+    null,
+  );
+  const selectedVariant =
+    variants.find((v) => v._id === selectedVariantId) || null;
 
   useEffect(() => {
     if (slug) {
       GetProductThroughSlug(slug);
     }
   }, [slug]);
+  useEffect(() => {
+    if (slugProduct && slugProduct.images.length > 0) {
+      setImages(slugProduct.images);
+    }
+  }, [slugProduct]);
+  useEffect(() => {
+    if (selectedVariant) {
+      setImages(selectedVariant.images);
+    }
+    else if(!selectedVariant && slugProduct){
+      console.log(slugProduct.images, "slugProduct.images");
+      
+      setImages(slugProduct!.images)};
+  }, [selectedVariant]);
+
+  useEffect(() => {
+    if (slugProduct?._id) {
+      GetVariantHandler(slugProduct._id);
+    }
+  }, [slugProduct?._id]);
 
   if (loading) return <Loading subheading="Loading Product Details" />;
 
@@ -59,7 +91,6 @@ const ProductDetails = () => {
     stock,
     brand,
     category,
-    images,
     rating,
     tags,
     attributes,
@@ -73,6 +104,27 @@ const ProductDetails = () => {
   };
   const ratingValue = getRatingValue();
 
+  // Image navigation helpers
+  const currentIndex =
+    images?.findIndex(
+      (img: any) => img.url === (activeImage || images?.[0]?.url),
+    ) ?? 0;
+  const safeIndex = currentIndex < 0 ? 0 : currentIndex;
+
+  const goPrev = () => {
+    if (!images?.length) return;
+    const idx = (safeIndex - 1 + images.length) % images.length;
+    setActiveImage(images[idx]?.url);
+  };
+
+  const goNext = () => {
+    if (!images?.length) return;
+    const idx = (safeIndex + 1) % images.length;
+    setActiveImage(images[idx]?.url);
+  };
+  if(!images){
+    return <Loading subheading="Loading Product Images" />
+  }
   return (
     <div className="min-h-screen bg-background text-text py-12 px-4 sm:px-6 lg:px-8">
       {/* Breadcrumbs */}
@@ -142,10 +194,10 @@ const ProductDetails = () => {
             </div>
 
             {/* Main Image */}
-            <div className="w-full relative bg-white rounded-radius-lg overflow-hidden shadow-soft group h-100 md:h-150 flex items-center justify-center">
+            <div className="w-full relative bg-white rounded-radius-lg overflow-hidden shadow-soft group h-100 md:h-150 flex items-center justify-center min-w-0">
               <AnimatePresence mode="wait">
                 <motion.img
-                  key={activeImage}
+                  key={activeImage || images?.[0]?.url}
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 1.05 }}
@@ -155,6 +207,44 @@ const ProductDetails = () => {
                   className="w-full h-full object-contain p-4"
                 />
               </AnimatePresence>
+
+              {/* Navigation Arrows - visible on group hover */}
+              {images?.length > 1 && (
+                <>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      goPrev();
+                    }}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 z-20 p-2.5 bg-background/80 backdrop-blur-sm rounded-full shadow-soft opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-white hover:shadow-medium active:scale-90"
+                  >
+                    <ChevronLeft className="w-5 h-5 text-text" />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      goNext();
+                    }}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 z-20 p-2.5 bg-background/80 backdrop-blur-sm rounded-full shadow-soft opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-white hover:shadow-medium active:scale-90"
+                  >
+                    <ChevronRight className="w-5 h-5 text-text" />
+                  </button>
+                </>
+              )}
+
+              {/* Dot indicators */}
+              {images?.length > 1 && (
+                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+                  {images.map((_: any, idx: number) => (
+                    <button
+                      key={idx}
+                      onClick={() => setActiveImage(images[idx].url)}
+                      className={`h-1.5 rounded-full transition-all duration-200 ${idx === safeIndex ? "bg-primary w-4" : "bg-text/30 w-1.5 hover:bg-text/60"}`}
+                    />
+                  ))}
+                </div>
+              )}
+
               <button
                 onClick={() => setIsWishlist(!isWishlist)}
                 className="absolute top-4 right-4 p-3 bg-background-light/80 backdrop-blur-md rounded-full shadow-soft hover:bg-white hover:text-danger text-text-subtle transition-all z-10"
@@ -231,30 +321,24 @@ const ProductDetails = () => {
               {shortDescription || description}
             </p>
 
-            {/* Attributes (e.g. Color) */}
-            {attributes && Object.keys(attributes).length > 0 && (
-              <div className="mb-8">
-                {Object.entries(attributes).map(([key, value]) => (
-                  <div key={key} className="mb-4">
-                    <h3 className="mate font-semibold text-text mb-2 capitalize">
-                      {key}:
-                    </h3>
-                    <div className="flex gap-3">
-                      <div className="border-2 border-border bg-primary-light text-white px-4 py-2 rounded-radius-sm  font-medium capitalize shadow-soft">
-                        {value as string}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+            <VariantSection
+              productId={slugProduct._id}
+              isAdmin={user?.role === "admin"}
+              onRefresh={() => {
+                if (slug) GetProductThroughSlug(slug);
+                if (slugProduct?._id) GetVariantHandler(slugProduct._id);
+              }}
+              selectedVariant={selectedVariant}
+              selectedVariantId={selectedVariantId}
+              setSelectedVariantId={setSelectedVariantId}
+            />
 
             <hr className="border-border/30 mb-8" />
 
             {/* Actions */}
             <div className="flex flex-col sm:flex-row gap-4 mb-8">
               <div className="flex flex-1 gap-4">
-                <CartAction product={slugProduct} />
+                <CartAction product={slugProduct} selectedVariant={selectedVariant}/>
 
                 <button className="flex-1 bg-primary text-white teko text-2xl px-4 py-3 rounded-radius-sm shadow-medium hover:bg-primary-light  transition-all flex items-center justify-center gap-2 group whitespace-nowrap">
                   <CreditCard className="w-5 h-5 group-hover:scale-110 transition-transform" />
@@ -391,7 +475,6 @@ const ProductDetails = () => {
           </div>
         </div>
       </div>
-     
     </div>
   );
 };
