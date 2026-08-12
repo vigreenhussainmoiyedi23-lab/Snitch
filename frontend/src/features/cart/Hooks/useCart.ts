@@ -8,7 +8,7 @@ import {
   DeleteCartAPI,
   DeleteCartItemAPI,
 } from "../services/api.service";
-import type { product } from "../../products/types/product.type";
+import type { product, variant } from "../../products/types/product.type";
 
 export const useCart = () => {
   const dispatch = useAppDispatch();
@@ -54,12 +54,14 @@ export const useCart = () => {
   const AddToCartHandler = async (data: {
     product: product;
     quantity: number;
+    selectedVairant: variant;
   }) => {
     dispatch(setLoading(true));
     try {
       await AddToCartAPI({
         productId: data.product._id,
         quantity: data.quantity,
+        variantId: data.selectedVairant._id,
       });
       const { cart } = await GetCartAPI();
       dispatch(setCart(cart));

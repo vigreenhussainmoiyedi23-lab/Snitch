@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { Minus, Plus, ShoppingBag } from 'lucide-react';
 import { useCart } from '../Hooks/useCart';
-import type { product } from '../../products/types/product.type';
+import type { product, variant } from '../../products/types/product.type';
 
 interface AddToCartButtonProps {
   product: product;
+  selectedVairant:variant;
 }
 
-const AddToCartButton: React.FC<AddToCartButtonProps> = ({ product }) => {
+const AddToCartButton: React.FC<AddToCartButtonProps> = ({ product,selectedVariant }) => {
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
   const { AddToCartHandler } = useCart();
@@ -23,7 +24,7 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({ product }) => {
   const handleAddToCart = async () => {
     setIsAdding(true);
     try {
-      await AddToCartHandler({ product, quantity });
+      await AddToCartHandler({ product, quantity ,selectedVairant });
     } finally {
       setIsAdding(false);
     }

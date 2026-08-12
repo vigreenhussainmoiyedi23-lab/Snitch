@@ -28,6 +28,11 @@ const variantSchema = new mongoose.Schema(
         thumbnailUrl: String,
       },
     ],
+    productId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Product",
+      required: true,
+    },
   },
   { timestamps: true },
 );

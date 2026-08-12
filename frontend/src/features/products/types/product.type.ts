@@ -27,7 +27,20 @@ export type product = {
   attributes: {
     [key: string]: string;
   };
-  rating:{
+  rating: {
     average: number
   }
 };
+export type variant = {
+
+  images: { fileId: string; thumbnailUrl: string; url: string }[];
+  _id: string;
+  stock: number;
+  discount: number;
+  finalPrice: number;
+  mrp: number;
+  attributes: {
+    [key: string]: string;
+  };
+  productId: string
+}

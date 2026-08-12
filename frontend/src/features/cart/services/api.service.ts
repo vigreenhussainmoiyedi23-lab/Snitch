@@ -1,4 +1,5 @@
 import api from "../../../app/axios";
+import type { variant } from "../../products/types/product.type";
 
 export const GetCartAPI = async () => {
   const response = await api.get("/api/cart");
@@ -8,6 +9,7 @@ export const GetCartAPI = async () => {
 export const AddToCartAPI = async (data: {
   productId: string;
   quantity: number;
+  variantId?: string;
 }) => {
   const response = await api.put("/api/cart", data);
   return response.data;

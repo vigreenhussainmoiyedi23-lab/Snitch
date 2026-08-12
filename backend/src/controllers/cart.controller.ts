@@ -20,6 +20,7 @@ export const GetCartHandler = asyncHandler(async (req, res) => {
       cart,
     });
   }
+
   cart.cartItems.forEach((item) => {
     if (item.product === null) {
       cart.cartItems.pull(item._id);
@@ -30,7 +31,6 @@ export const GetCartHandler = asyncHandler(async (req, res) => {
       });
     }
   });
-
   await cart.save();
 
   return res.status(200).json({
@@ -81,26 +81,28 @@ export const UpdateCartItemHandler = asyncHandler(async (req, res) => {
     throw new AppError("Quantity is required", 400);
   await isValidProductId(productId); // throws error if product not found
 
-  const cart  = await cartModel.findOne({ userId: req.user!._id }).populate({
-    path: "cartItems.product",
-    select: "finalPrice",
-  });
+  const cart: any = await cartModel
+    .findOne({ userId: req.user!._id })
+    .populate({
+      path: "cartItems.product",
+      select: "finalPrice",
+    });
   if (!cart) throw new AppError("Cart not found", 404);
 
   const isProductExistInCart = cart.cartItems.find(
-    (item) => item.product._id.toString() === productId,
+    (item: any) => item.product._id.toString() === productId,
   );
   if (!isProductExistInCart) {
     throw new AppError("Product not found in cart", 404);
   } else {
     const item = cart.cartItems.find(
-      (item) => item.product._id.toString() === productId,
+      (item: any) => item.product._id.toString() === productId,
     );
 
     item!.quantity += increaseBy - decreaseBy;
     if (item!?.quantity <= 0) {
       const index = cart.cartItems.findIndex(
-        (item) => item.product._id.toString() === productId,
+        (item: any) => item.product._id.toString() === productId,
       );
 
       if (index !== -1) {
@@ -135,7 +137,7 @@ export const DeleteCartHandler = asyncHandler(async (req, res) => {
 export const DeleteCartItemHandler = asyncHandler(async (req, res) => {
   const { productId } = req.params;
 
-  await isValidProductId(productId);
+  await isValidProductId(productId?.toString());
 
   const cart = await cartModel
     .findOne({
@@ -158,7 +160,7 @@ export const DeleteCartItemHandler = asyncHandler(async (req, res) => {
     throw new AppError("Product not found in cart", 404);
   }
 
-  const item = cart.cartItems[index];
+  const item:any = cart.cartItems[index];
   if (!item) throw new AppError("Product not found in cart", 404);
   cart.totalAmount -= item.quantity * item.product.finalPrice;
 

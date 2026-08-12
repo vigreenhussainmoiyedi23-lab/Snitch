@@ -1,8 +1,10 @@
-import type { product } from "../../products/types/product.type";
+import type { product, variant } from "../../products/types/product.type";
 
 export type CartItem = {
   product: product
   quantity: number;
+  isVariant: boolean;
+  variant: variant | null;
 };
 export type CartSlice = {
   cartItems: CartItem[];
