@@ -1,5 +1,4 @@
 import api from "../../../app/axios";
-import type { variant } from "../../products/types/product.type";
 
 export const GetCartAPI = async () => {
   const response = await api.get("/api/cart");
@@ -19,13 +18,19 @@ export const UpdateCartItemAPI = async (data: {
   productId: string;
   increaseBy?: number;
   decreaseBy?: number;
+  variantId?: string;
 }) => {
   const response = await api.patch("/api/cart", data);
   return response.data;
 };
 
-export const DeleteCartItemAPI = async (id: string) => {
-  const response = await api.delete(`/api/cart/${id}`);
+export const DeleteCartItemAPI = async (
+  productId: string,
+  variantId?: string,
+) => {
+  const response = await api.delete(`/api/cart/${productId}`, {
+    data: { variantId },
+  });
   return response.data;
 };
 

@@ -30,6 +30,7 @@ export const useCart = () => {
             AddToCartAPI({
               productId: cartItem.product._id,
               quantity: cartItem.quantity,
+              variantId: cartItem.variant?._id,
             });
           }),
         );
@@ -86,6 +87,7 @@ export const useCart = () => {
     productId: string;
     increaseBy?: number;
     decreaseBy?: number;
+    variantId?: string;
   }) => {
     dispatch(setLoading(true));
     try {
@@ -108,16 +110,23 @@ export const useCart = () => {
       dispatch(setLoading(false));
     }
   };
-  const DeleteCartItemHandler = async (id: string) => {
+  const DeleteCartItemHandler = async (
+    productId: string,
+    variantId?: string,
+  ) => {
     dispatch(setLoading(true));
     try {
-      await DeleteCartItemAPI(id);
+      await DeleteCartItemAPI(productId, variantId);
       const { cart } = await GetCartAPI();
       dispatch(setCart(cart));
     } catch (error) {
-      cartOfLocalStorage.filter(
-        (cartItem: CartItem) => cartItem.product._id !== id,
-      );
+      cartOfLocalStorage.filter((cartItem: CartItem) => {
+        if (
+          cartItem.variant?._id !== variantId &&
+          cartItem.product._id !== productId
+        )
+          return true;
+      });
       localStorage.setItem("cart", JSON.stringify(cartOfLocalStorage));
       dispatch(setCart(cartOfLocalStorage));
     } finally {
