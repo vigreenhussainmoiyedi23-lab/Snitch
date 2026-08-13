@@ -9,43 +9,51 @@ import {
   DeleteCartItemAPI,
 } from "../services/api.service";
 import type { product, variant } from "../../products/types/product.type";
-
+import {
+  getLocalCart,
+  saveLocalCart,
+  isSameCartItem,
+  EMPTY_CART
+} from "./useLoacalStorage";
 export const useCart = () => {
   const dispatch = useAppDispatch();
-  let cartOfLocalStorage = JSON.parse(
-    localStorage.getItem("cart") ||
-      JSON.stringify({
-        cartItems: [],
-        totalAmount: 0,
-      }),
-  );
 
   const GetCartHandler = async () => {
     dispatch(setLoading(true));
+
     try {
+      const localCart = getLocalCart();
       const { cart } = await GetCartAPI();
-      if (Object.keys(cartOfLocalStorage).length > 0) {
+
+      // Sync guest/local cart into backend cart
+      if (localCart.cartItems.length > 0) {
         await Promise.all(
-          cartOfLocalStorage.cartItems.map((cartItem: CartItem) => {
+          localCart.cartItems.map((cartItem) =>
             AddToCartAPI({
               productId: cartItem.product._id,
               quantity: cartItem.quantity,
               variantId: cartItem.variant?._id,
-            });
-          }),
+            }),
+          ),
         );
+
         localStorage.removeItem("cart");
-      }
-      dispatch(setCart(cart));
-    } catch (error) {
-      if (cartOfLocalStorage.cartItems.length === 0) {
-        cartOfLocalStorage = {
-          cartItems: [],
-          totalAmount: 0,
-        };
-        localStorage.setItem("cart", JSON.stringify(cartOfLocalStorage));
+
+        // Get updated backend cart after merging
+        const { cart: updatedCart } = await GetCartAPI();
+
+        dispatch(setCart(updatedCart));
       } else {
-        dispatch(setCart(cartOfLocalStorage));
+        dispatch(setCart(cart));
+      }
+    } catch (error) {
+      const localCart = getLocalCart();
+
+      if (localCart.cartItems.length === 0) {
+        saveLocalCart(EMPTY_CART);
+        dispatch(setCart(EMPTY_CART));
+      } else {
+        dispatch(setCart(localCart));
       }
     } finally {
       dispatch(setLoading(false));
@@ -55,34 +63,49 @@ export const useCart = () => {
   const AddToCartHandler = async (data: {
     product: product;
     quantity: number;
-    selectedVairant: variant;
+    selectedVairant?: variant;
   }) => {
     dispatch(setLoading(true));
+
     try {
       await AddToCartAPI({
         productId: data.product._id,
         quantity: data.quantity,
-        variantId: data.selectedVairant._id,
+        variantId: data.selectedVairant?._id,
       });
+
       const { cart } = await GetCartAPI();
+
       dispatch(setCart(cart));
     } catch (error) {
-      const idx = cartOfLocalStorage.cartItems.findIndex(
-        (cartItem: CartItem) =>
-          cartItem.product._id.toString() === data.product._id.toString(),
+      const localCart = getLocalCart();
+
+      const productId = data.product._id;
+      const variantId = data.selectedVairant?._id;
+
+      const existingItemIndex = localCart.cartItems.findIndex((cartItem) =>
+        isSameCartItem(cartItem, productId, variantId),
       );
 
-      if (idx > -1) {
-        cartOfLocalStorage.cartItems[idx].quantity += data.quantity;
+      if (existingItemIndex !== -1) {
+        localCart.cartItems[existingItemIndex].quantity += data.quantity;
       } else {
-        cartOfLocalStorage.cartItems.push(data);
+        localCart.cartItems.push({
+          product: data.product,
+          quantity: data.quantity,
+          variant: data.selectedVairant,
+          isVariant: !!data.selectedVairant,
+        } as CartItem);
       }
-      localStorage.setItem("cart", JSON.stringify(cartOfLocalStorage));
-      dispatch(setCart(cartOfLocalStorage));
+
+      saveLocalCart(localCart);
+
+      dispatch(setCart(localCart));
     } finally {
       dispatch(setLoading(false));
     }
   };
+
   const UpdateCartItemHandler = async (data: {
     productId: string;
     increaseBy?: number;
@@ -90,57 +113,86 @@ export const useCart = () => {
     variantId?: string;
   }) => {
     dispatch(setLoading(true));
+
     try {
       await UpdateCartItemAPI(data);
+
       const { cart } = await GetCartAPI();
+
       dispatch(setCart(cart));
     } catch (error) {
-      cartOfLocalStorage.cartItems.map((cartItem: CartItem) => {
-        if (cartItem.product._id.toString() === data.productId) {
-          if (data.increaseBy) {
-            cartItem.quantity += data.increaseBy;
-          } else if (data.decreaseBy) {
-            cartItem.quantity -= data.decreaseBy;
-          }
+      const localCart = getLocalCart();
+
+      const item = localCart.cartItems.find((cartItem) =>
+        isSameCartItem(cartItem, data.productId, data.variantId),
+      );
+
+      if (item) {
+        if (data.increaseBy) {
+          item.quantity += data.increaseBy;
         }
-      });
-      localStorage.setItem("cart", JSON.stringify(cartOfLocalStorage));
-      dispatch(setCart(cartOfLocalStorage));
+
+        if (data.decreaseBy) {
+          item.quantity -= data.decreaseBy;
+        }
+
+        // Prevent quantity <= 0
+        if (item.quantity <= 0) {
+          localCart.cartItems = localCart.cartItems.filter(
+            (cartItem) =>
+              !isSameCartItem(cartItem, data.productId, data.variantId),
+          );
+        }
+      }
+
+      saveLocalCart(localCart);
+
+      dispatch(setCart(localCart));
     } finally {
       dispatch(setLoading(false));
     }
   };
+
   const DeleteCartItemHandler = async (
     productId: string,
     variantId?: string,
   ) => {
     dispatch(setLoading(true));
+
     try {
       await DeleteCartItemAPI(productId, variantId);
+
       const { cart } = await GetCartAPI();
+
       dispatch(setCart(cart));
     } catch (error) {
-      cartOfLocalStorage.filter((cartItem: CartItem) => {
-        if (
-          cartItem.variant?._id !== variantId &&
-          cartItem.product._id !== productId
-        )
-          return true;
-      });
-      localStorage.setItem("cart", JSON.stringify(cartOfLocalStorage));
-      dispatch(setCart(cartOfLocalStorage));
+      const localCart = getLocalCart();
+
+      localCart.cartItems = localCart.cartItems.filter(
+        (cartItem) => !isSameCartItem(cartItem, productId, variantId),
+      );
+
+      saveLocalCart(localCart);
+
+      dispatch(setCart(localCart));
     } finally {
       dispatch(setLoading(false));
     }
   };
+
   const DeleteCartHandler = async () => {
     dispatch(setLoading(true));
+
     try {
       await DeleteCartAPI();
-      dispatch(setCart({ cartItems: [], totalAmount: 0 }));
+
+      localStorage.removeItem("cart");
+
+      dispatch(setCart(EMPTY_CART));
     } catch (error) {
       localStorage.removeItem("cart");
-      dispatch(setCart({ cartItems: [], totalAmount: 0 }));
+
+      dispatch(setCart(EMPTY_CART));
     } finally {
       dispatch(setLoading(false));
     }

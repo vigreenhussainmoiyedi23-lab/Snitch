@@ -1,6 +1,6 @@
 import type { CartItem } from "../@types/cart.types";
 
-const EMPTY_CART = {
+export const EMPTY_CART = {
   cartItems: [],
   totalAmount: 0,
 };
