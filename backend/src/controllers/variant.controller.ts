@@ -28,7 +28,8 @@ export const createVariantHandler = asyncHandler(async (req, res) => {
       ),
     );
     responses.map((image) => images.push(image));
-  } 
+  }else{
+  }
   const sku =
     product.sku +
     "-" +

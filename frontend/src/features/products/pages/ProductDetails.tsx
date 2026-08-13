@@ -1,4 +1,4 @@
-import { useParams, useNavigate, Link } from "react-router-dom";
+﻿import { useParams, useNavigate, Link } from "react-router-dom";
 import { useProduct } from "../hook/useProduct";
 import { useEffect, useState } from "react";
 import { useAppSelector } from "../../../app/redux/hook";
@@ -49,13 +49,19 @@ const ProductDetails = () => {
   }, [slugProduct]);
   useEffect(() => {
     if (selectedVariant) {
-      setImages(selectedVariant.images);
+
+      if (selectedVariant?.images && selectedVariant.images.length > 0) {
+        setImages(selectedVariant.images);
+      } else {
+        setImages(slugProduct?.images || []);
+      }
     }
-    else if(!selectedVariant && slugProduct){
+    else if (!selectedVariant && slugProduct) {
       console.log(slugProduct.images, "slugProduct.images");
-      
-      setImages(slugProduct!.images)};
-  }, [selectedVariant]);
+
+      setImages(slugProduct!.images)
+    };
+  }, [selectedVariant, slugProduct]);
 
   useEffect(() => {
     if (slugProduct?._id) {
@@ -122,7 +128,7 @@ const ProductDetails = () => {
     const idx = (safeIndex + 1) % images.length;
     setActiveImage(images[idx]?.url);
   };
-  if(!images){
+  if (!images) {
     return <Loading subheading="Loading Product Images" />
   }
   return (
@@ -344,35 +350,33 @@ const ProductDetails = () => {
                   </button>
 
                   {/* Variants */}
-                  {variants.map(v => (
-                    <button
+                  {variants.map(v =>
+                    v?.images[0]?.url ? (<button
                       key={v._id}
                       onClick={() => setSelectedVariantId(v._id)}
                       title={v.sku || "Variant"}
                       className={`shrink-0 w-20 h-24 rounded-radius-sm overflow-hidden border-2 transition-all duration-200 ${selectedVariantId === v._id ? 'border-primary shadow-medium scale-105' : 'border-border/40 opacity-70 hover:opacity-100 hover:border-primary/50'}`}
                     >
-                      {v.images?.[0]?.url ? (
-                        <img src={v.images[0].url} alt={v.sku || "Variant"} className="w-full h-full object-cover bg-white" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-background-light text-text-subtle text-xs text-center mate p-1">
-                          No Image
-                        </div>
-                      )}
+
+                      <img src={v.images[0].url} alt={v.sku || "Variant"} className="w-full h-full object-cover bg-white" />
                     </button>
-                  ))}
+                    ) : (
+                      null
+                    )
+                  )}
                 </div>
               </div>
             )}
 
             <VariantSection
               productId={slugProduct._id}
+              baseProduct={slugProduct}
               isAdmin={user?.role === "admin"}
               onRefresh={() => {
                 if (slug) GetProductThroughSlug(slug);
                 if (slugProduct?._id) GetVariantHandler(slugProduct._id);
               }}
               selectedVariant={selectedVariant}
-              selectedVariantId={selectedVariantId}
               setSelectedVariantId={setSelectedVariantId}
             />
 
@@ -381,7 +385,7 @@ const ProductDetails = () => {
             {/* Actions */}
             <div className="flex flex-col sm:flex-row gap-4 mb-8">
               <div className="flex flex-1 gap-4">
-                <CartAction product={slugProduct} selectedVariant={selectedVariant}/>
+                <CartAction product={slugProduct} selectedVariant={selectedVariant} />
 
                 <button className="flex-1 bg-primary text-white teko text-2xl px-4 py-3 rounded-radius-sm shadow-medium hover:bg-primary-light  transition-all flex items-center justify-center gap-2 group whitespace-nowrap">
                   <CreditCard className="w-5 h-5 group-hover:scale-110 transition-transform" />
@@ -450,7 +454,7 @@ const ProductDetails = () => {
 
           </div>
         </div>
-        
+
         {/* Product Details & Specs */}
         <div className="mt-16 max-w-4xl mx-auto animate-fade-in" style={{ animationDelay: "0.2s" }}>
           {/* Table (Specs) */}
@@ -515,7 +519,7 @@ const ProductDetails = () => {
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 };
 

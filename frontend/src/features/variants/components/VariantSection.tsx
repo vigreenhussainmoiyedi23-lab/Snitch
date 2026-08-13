@@ -1,4 +1,4 @@
-﻿import React, { useState, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus,
@@ -24,8 +24,8 @@ interface VariantSectionProps {
   isAdmin: boolean;
   onRefresh: () => void;
   selectedVariant: any;
-  selectedVariantId: any;
   setSelectedVariantId: any;
+  baseProduct?: any;
 }
 const getAttrsObj = (v: any): Record<string, string> => {
   if (!v?.attributes) return {};
@@ -53,19 +53,32 @@ const VariantSection: React.FC<VariantSectionProps> = ({
   isAdmin,
   onRefresh,
   selectedVariant,
-  setSelectedVariantId
+  setSelectedVariantId,
+  baseProduct
 }) => {
   const { CreateVariantHandler, UpdateVariantHandler, DeleteVariantHandler } =
     useVariant();
   const variants = useAppSelector((s) => s.variant.variants);
+
+  const allItems = React.useMemo(() => {
+    return baseProduct ? [{ ...baseProduct, _id: null, isBase: true }, ...variants] : variants;
+  }, [baseProduct, variants]);
   const loading = useAppSelector((s) => s.variant.loading);
 
   const [selectedAttrs, setSelectedAttrs] = useState<Record<string, string>>(
     {},
   );
 
+  React.useEffect(() => {
+    if (!selectedVariant && baseProduct) {
+      setSelectedAttrs(getAttrsObj(baseProduct));
+    } else if (selectedVariant) {
+      setSelectedAttrs(getAttrsObj(selectedVariant));
+    }
+  }, [selectedVariant, baseProduct]);
+
   const allKeys = [
-    ...new Set(variants.flatMap((v) => Object.keys(getAttrsObj(v)))),
+    ...new Set(allItems.flatMap((v) => Object.keys(getAttrsObj(v)))),
   ];
 
   const getAvailableValues = (
@@ -75,7 +88,7 @@ const VariantSection: React.FC<VariantSectionProps> = ({
     const others = Object.entries(baseSelections).filter(
       ([k, val]) => k !== key && !!val,
     );
-    const filtered = variants.filter((v) => {
+    const filtered = allItems.filter((v) => {
       const attrs = getAttrsObj(v);
       return others.every(([k, val]) => attrs[k] === val);
     });
@@ -101,7 +114,7 @@ const VariantSection: React.FC<VariantSectionProps> = ({
         cascaded[otherKey] = available.includes(prev) ? prev : "";
       });
     setSelectedAttrs(cascaded);
-    const matched = variants.find((v) => {
+    const matched = allItems.find((v) => {
       const attrs = getAttrsObj(v);
       return allKeys.every((k) => !cascaded[k] || attrs[k] === cascaded[k]);
     });
@@ -148,7 +161,7 @@ const VariantSection: React.FC<VariantSectionProps> = ({
     fd.append("attributes", JSON.stringify(attrObj));
     createForm.images.forEach((img) => fd.append("images", img));
     await CreateVariantHandler(productId, fd as any);
-     onRefresh();
+    onRefresh();
     setShowCreate(false);
     setCreateForm({
       mrp: "",
@@ -324,7 +337,7 @@ const VariantSection: React.FC<VariantSectionProps> = ({
                   <div className="h-full overflow-hidden">
                     <img
                       className="w-full h-full object-cover"
-                      src={selectedVariant.images[0].url}
+                      src={selectedVariant.images[0]?.url || baseProduct.images[0].url}
                       alt="variant image"
                     />
                   </div>
