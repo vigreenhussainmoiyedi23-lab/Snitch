@@ -321,6 +321,41 @@ const ProductDetails = () => {
               {shortDescription || description}
             </p>
 
+            {/* Variant Image Picker */}
+            {variants && variants.length > 0 && (
+              <div className="mb-8">
+                <div className="flex items-center justify-between mb-3 border-b border-border/20 pb-2">
+                  <h3 className="mate font-semibold text-text text-lg">Available Variants</h3>
+                  {selectedVariantId && (
+                    <button 
+                      onClick={() => setSelectedVariantId(null)} 
+                      className="text-sm bg-primary/10 text-primary-dark px-3 py-1 rounded-full hover:bg-primary/20 transition-colors mate font-medium border border-primary/20"
+                    >
+                      Original Product
+                    </button>
+                  )}
+                </div>
+                <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
+                  {variants.map(v => (
+                    <button
+                      key={v._id}
+                      onClick={() => setSelectedVariantId(v._id)}
+                      title={v.sku || "Variant"}
+                      className={`shrink-0 w-20 h-24 rounded-radius-sm overflow-hidden border-2 transition-all duration-200 ${selectedVariantId === v._id ? 'border-primary shadow-medium scale-105' : 'border-border/40 opacity-70 hover:opacity-100 hover:border-primary/50'}`}
+                    >
+                      {v.images?.[0]?.url ? (
+                        <img src={v.images[0].url} alt={v.sku || "Variant"} className="w-full h-full object-cover bg-white" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-background-light text-text-subtle text-xs text-center mate p-1">
+                          No Image
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <VariantSection
               productId={slugProduct._id}
               isAdmin={user?.role === "admin"}
@@ -405,73 +440,70 @@ const ProductDetails = () => {
               ))}
             </div>
 
-            <div className="min-h-37.5">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key="desc"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.2 }}
-                  className="mate text-text-subtle leading-relaxed text-lg"
-                >
-                  <p>{description}</p>
-                </motion.div>
-                <motion.div
-                  key="specs"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.2 }}
-                  className="mate text-lg"
-                >
-                  <table className="w-full text-left border-collapse">
-                    <tbody>
-                      <tr className="border-b border-border/20">
-                        <th className="py-3 font-semibold text-text w-1/3">
-                          Brand
+          </div>
+        </div>
+        
+        {/* Product Details & Specs */}
+        <div className="mt-16 max-w-4xl mx-auto animate-fade-in" style={{ animationDelay: "0.2s" }}>
+          {/* Table (Specs) */}
+          <div className="mb-12">
+            <h3 className="eczar text-3xl mb-6 text-text border-b border-border/30 pb-3">Specifications</h3>
+            <div className="bg-white/50 rounded-radius-md p-6 border border-border/20 shadow-soft">
+              <table className="w-full text-left border-collapse mate text-lg">
+                <tbody>
+                  <tr className="border-b border-border/20 last:border-0">
+                    <th className="py-4 font-semibold text-text w-1/3">
+                      Brand
+                    </th>
+                    <td className="py-4 text-text-subtle capitalize">
+                      {brand}
+                    </td>
+                  </tr>
+                  <tr className="border-b border-border/20 last:border-0">
+                    <th className="py-4 font-semibold text-text w-1/3">
+                      Category
+                    </th>
+                    <td className="py-4 text-text-subtle capitalize">
+                      {category}
+                    </td>
+                  </tr>
+                  {attributes &&
+                    Object.entries(attributes).map(([k, v]) => (
+                      <tr key={k} className="border-b border-border/20 last:border-0">
+                        <th className="py-4 font-semibold text-text w-1/3 capitalize">
+                          {k}
                         </th>
-                        <td className="py-3 text-text-subtle capitalize">
-                          {brand}
+                        <td className="py-4 text-text-subtle capitalize">
+                          {v as string}
                         </td>
                       </tr>
-                      <tr className="border-b border-border/20">
-                        <th className="py-3 font-semibold text-text w-1/3">
-                          Category
-                        </th>
-                        <td className="py-3 text-text-subtle capitalize">
-                          {category}
-                        </td>
-                      </tr>
-                      {attributes &&
-                        Object.entries(attributes).map(([k, v]) => (
-                          <tr key={k} className="border-b border-border/20">
-                            <th className="py-3 font-semibold text-text w-1/3 capitalize">
-                              {k}
-                            </th>
-                            <td className="py-3 text-text-subtle capitalize">
-                              {v as string}
-                            </td>
-                          </tr>
-                        ))}
-                    </tbody>
-                  </table>
-                </motion.div>
-
-                <motion.div
-                  key="reviews"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.2 }}
-                  className="mate text-text-subtle text-center py-8 bg-background-light/50 rounded-radius-md"
-                >
-                  <Star className="w-12 h-12 text-gold mx-auto mb-4 opacity-50" />
-                  <p className="text-lg">No reviews yet for this product.</p>
-                  <p className="text-sm mt-1">Be the first to review!</p>
-                </motion.div>
-              </AnimatePresence>
+                    ))}
+                </tbody>
+              </table>
             </div>
+          </div>
+
+          {/* Description */}
+          <div className="mb-12">
+            <h3 className="eczar text-3xl mb-4 text-text">Product Description</h3>
+            <div className="mate text-text-subtle leading-relaxed text-lg bg-white/30 p-6 rounded-radius-md border border-border/10">
+              <p>{description}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Reviews (Full screen) */}
+      <div className="mt-16 w-full bg-background-light py-20 px-4 border-t border-border/20">
+        <div className="max-w-7xl mx-auto text-center mate text-text-subtle">
+          <h3 className="eczar text-4xl mb-8 text-text">Customer Reviews</h3>
+          <div className="bg-white/40 max-w-2xl mx-auto rounded-radius-lg p-12 border border-border/10 shadow-soft">
+            <Star className="w-16 h-16 text-gold mx-auto mb-6 opacity-60" />
+            <p className="text-xl mb-2 text-text">No reviews yet for this product.</p>
+            <p className="text-base">Be the first to share your thoughts!</p>
+            <button className="mt-8 bg-primary text-white teko text-xl px-8 py-2.5 rounded-radius-sm hover:bg-primary-dark transition-colors shadow-soft">
+              Write a Review
+            </button>
           </div>
         </div>
       </div>

@@ -45,14 +45,14 @@ const Checkout = () => {
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-12 lg:gap-16 items-start">
+      <div className="flex flex-col-reverse lg:flex-row gap-12 lg:gap-16 items-start">
         {/* Main Content - Checkout Form */}
         <div className="w-full lg:flex-[3]">
           <h1 className="text-3xl font-semibold text-text mb-8 tracking-wide">Shipping Information</h1>
           
           <form className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
             {/* Contact */}
-            <div className="bg-background-light p-6 md:p-8 rounded-lg shadow-[var(--shadow-soft)] border border-border space-y-6 transition-shadow hover:shadow-[var(--shadow-medium)]">
+            <div className="bg-white/95 p-6 md:p-8 rounded-lg shadow-soft border border-border space-y-6 transition-shadow hover:shadow-medium">
               <h2 className="text-xl font-semibold text-text mb-2 flex items-center gap-2">
                 <span className="w-6 h-6 rounded-full bg-primary text-background text-xs flex items-center justify-center font-bold">1</span>
                 Contact Details
@@ -70,7 +70,7 @@ const Checkout = () => {
             </div>
 
             {/* Address */}
-            <div className="bg-background-light p-6 md:p-8 rounded-lg shadow-[var(--shadow-soft)] border border-border space-y-6 transition-shadow hover:shadow-[var(--shadow-medium)]">
+            <div className="bg-white/95 p-6 md:p-8 rounded-lg shadow-soft border border-border space-y-6 transition-shadow hover:shadow-medium">
               <h2 className="text-xl font-semibold text-text mb-2 flex items-center gap-2">
                 <span className="w-6 h-6 rounded-full bg-primary text-background text-xs flex items-center justify-center font-bold">2</span>
                 Shipping Address
@@ -112,13 +112,13 @@ const Checkout = () => {
 
         {/* Sidebar - Cart Summary & Items */}
         <div className="w-full lg:flex-2 lg:sticky lg:top-8 space-y-8 animate-in fade-in slide-in-from-right-4 duration-700">
-          <div className="bg-background-light p-6 md:p-8 rounded-lg shadow-[var(--shadow-soft)] border border-border">
+          <div className="bg-white/95 p-6 md:p-8 rounded-lg shadow-soft border border-border">
             <h2 className="text-xl font-semibold text-text mb-6 flex items-center justify-between">
               <span>Order Summary</span>
               <span className="text-sm font-normal text-text-muted bg-background-subtle px-3 py-1 rounded-full">{itemCount} items</span>
             </h2>
             
-            <div className="flex flex-col gap-2 max-h-87.5 overflow-y-auto pr-2 pb-6 border-b border-border mb-6 custom-scrollbar scroll-smooth">
+            <div className="flex flex-col gap-2 max-h-87.5 overflow-y-auto overflow-x-hidden pr-2 pb-6 border-b border-border mb-6 custom-scrollbar scroll-smooth">
               {cartItems.map((item, i) => (
                 <div key={item.product._id} className="animate-in slide-in-from-right-8 duration-500" style={{ animationDelay: `${i * 100}ms`, animationFillMode: 'both' }}>
                   <CartItem item={item} />

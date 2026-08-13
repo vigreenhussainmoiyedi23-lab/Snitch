@@ -12,7 +12,7 @@ const ProductCard = ({ product }: { product: product }) => {
   return (
     <article
       key={product._id}
-      className="group bg-white rounded-2xl shadow-[0_6px_24px_rgb(0,0,0,0.12)] overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_12px_40px_rgb(0,0,0,0.18)] relative flex flex-col"
+      className="group bg-white/95 rounded-2xl shadow-soft overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-medium relative flex flex-col"
     >
       <div className="relative aspect-4/5 overflow-hidden bg-background">
         <div onClick={handleClick} className="w-full h-full">

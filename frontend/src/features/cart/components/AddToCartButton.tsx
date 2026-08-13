@@ -16,8 +16,10 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
   const [isAdding, setIsAdding] = useState(false);
   const { AddToCartHandler } = useCart();
 
+  const stock = selectedVairant ? selectedVairant.stock : product.stock;
+
   const handleQuantity = (type: "inc" | "dec") => {
-    if (type === "inc" && quantity < product.stock) {
+    if (type === "inc" && quantity < stock) {
       setQuantity((q) => q + 1);
     } else if (type === "dec" && quantity > 1) {
       setQuantity((q) => q - 1);
@@ -52,7 +54,7 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
 
         <button
           onClick={() => handleQuantity("inc")}
-          disabled={quantity >= product.stock || isAdding}
+          disabled={quantity >= stock || isAdding}
           aria-label="Increase quantity"
           className="h-full px-3 sm:px-4 text-text-subtle hover:text-text hover:bg-background-subtle disabled:opacity-40 disabled:cursor-not-allowed transition-all rounded-r-[var(--radius-sm)] outline-none focus-visible:ring-2 focus-visible:ring-primary active:scale-95 flex items-center justify-center group"
         >
