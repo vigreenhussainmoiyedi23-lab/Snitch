@@ -28,7 +28,7 @@ export const createVariantHandler = asyncHandler(async (req, res) => {
       ),
     );
     responses.map((image) => images.push(image));
-  } else throw new AppError("Minimum one image is required", 400);
+  } 
   const sku =
     product.sku +
     "-" +
@@ -51,6 +51,7 @@ export const createVariantHandler = asyncHandler(async (req, res) => {
     attributes: attributes,
     images: images || [],
     sku,
+    productId:productId!?.toString()
   });
   product.variants.push(variant._id);
   await product.save();

@@ -27,44 +27,6 @@ interface VariantSectionProps {
   selectedVariantId: any;
   setSelectedVariantId: any;
 }
-
-const isColorKey = (key: string) =>
-  key.toLowerCase().includes("color") || key.toLowerCase().includes("colour");
-
-const COLOR_MAP: Record<string, string> = {
-  red: "#e55454",
-  blue: "#3b82f6",
-  green: "#22c55e",
-  yellow: "#eab308",
-  black: "#1a1a1a",
-  white: "#f0ede8",
-  purple: "#a855f7",
-  pink: "#ec4899",
-  orange: "#f97316",
-  grey: "#6b7280",
-  gray: "#6b7280",
-  brown: "#92400e",
-  navy: "#1e3a5f",
-  teal: "#14b8a6",
-  maroon: "#7f1d1d",
-  beige: "#d4b483",
-  indigo: "#6366f1",
-  violet: "#8b5cf6",
-  rose: "#f43f5e",
-  sky: "#0ea5e9",
-  lime: "#84cc16",
-  amber: "#f59e0b",
-  emerald: "#10b981",
-  cyan: "#06b6d4",
-};
-
-const getCSSColor = (value: string) => {
-  const lower = value.toLowerCase().trim();
-  if (COLOR_MAP[lower]) return COLOR_MAP[lower];
-  if (lower.startsWith("#") || lower.startsWith("rgb")) return lower;
-  return "#aaa";
-};
-
 const getAttrsObj = (v: any): Record<string, string> => {
   if (!v?.attributes) return {};
   if (v.attributes instanceof Map) return Object.fromEntries(v.attributes);
@@ -176,8 +138,8 @@ const VariantSection: React.FC<VariantSectionProps> = ({
 
   const submitCreate = async () => {
     const fd = new FormData();
-    fd.append("mrp", createForm.mrp);
-    fd.append("discount", createForm.discount || "0");
+    if (createForm.mrp) fd.append("mrp", createForm.mrp);
+    if (createForm.discount) fd.append("discount", createForm.discount);
     fd.append("stock", createForm.stock);
     const attrObj: Record<string, string> = {};
     createForm.attributes.forEach(({ key, value }) => {
@@ -186,7 +148,7 @@ const VariantSection: React.FC<VariantSectionProps> = ({
     fd.append("attributes", JSON.stringify(attrObj));
     createForm.images.forEach((img) => fd.append("images", img));
     await CreateVariantHandler(productId, fd as any);
-    await onRefresh();
+     onRefresh();
     setShowCreate(false);
     setCreateForm({
       mrp: "",
@@ -222,9 +184,9 @@ const VariantSection: React.FC<VariantSectionProps> = ({
       attributes:
         Object.entries(attrs).length > 0
           ? Object.entries(attrs).map(([key, value]) => ({
-              key,
-              value: value as string,
-            }))
+            key,
+            value: value as string,
+          }))
           : [{ key: "", value: "" }],
       newImages: [],
       keepFileIds: (variant.images || [])
@@ -375,15 +337,15 @@ const VariantSection: React.FC<VariantSectionProps> = ({
                     </p>
                     {selectedVariant.mrp >
                       (selectedVariant.finalPrice || 0) && (
-                      <div>
-                        <p className="mate text-xs text-text-subtle mb-0.5">
-                          MRP
-                        </p>
-                        <p className="teko text-xl text-text-subtle line-through leading-none">
-                          Rs.{selectedVariant.mrp}
-                        </p>
-                      </div>
-                    )}
+                        <div>
+                          <p className="mate text-xs text-text-subtle mb-0.5">
+                            MRP
+                          </p>
+                          <p className="teko text-xl text-text-subtle line-through leading-none">
+                            Rs.{selectedVariant.mrp}
+                          </p>
+                        </div>
+                      )}
                     {selectedVariant.discount > 0 && (
                       <div className="bg-success-light/20 text-success-dark px-2.5 py-1 rounded-full">
                         <p className="teko text-base leading-none">
@@ -666,12 +628,7 @@ const VariantSection: React.FC<VariantSectionProps> = ({
                             className="inline-flex items-center gap-1 text-xs bg-primary/10 text-primary-dark px-2 py-0.5 rounded-full border border-primary/15 teko tracking-wider"
                           >
                             <span className="capitalize">{k}:</span>
-                            {isColorKey(k) && (
-                              <span
-                                className="w-2.5 h-2.5 rounded-full border border-white/50 inline-block shrink-0"
-                                style={{ backgroundColor: getCSSColor(v) }}
-                              />
-                            )}
+
                             <span className="capitalize">{v}</span>
                           </span>
                         ))}
