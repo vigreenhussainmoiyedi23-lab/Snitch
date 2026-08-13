@@ -1,5 +1,6 @@
 import cartModel from "../models/cart.model.js";
 import productModel from "../models/product.model.js";
+import { CalculateTotal, isItemInCart } from "../services/cart.service.js";
 import {
   isValidProductId,
   isValidVariantOfProduct,
@@ -9,11 +10,11 @@ import asyncHandler from "../utils/AsyncHandler.js";
 import SendEmail from "../utils/sendOtp.js";
 
 export const GetCartHandler = asyncHandler(async (req, res) => {
-  let cart = await cartModel
+let cart = await cartModel
     .findOne({
       userId: req.user!._id,
     })
-    .populate("cartItems.product");
+    .populate(["cartItems.product", "cartItems.variant"]);
 
   if (!cart) {
     cart = await cartModel.create({ userId: req.user!._id });
@@ -34,7 +35,14 @@ export const GetCartHandler = asyncHandler(async (req, res) => {
       });
     }
     if (item.isVariant) {
-      await cart.populate(`cartItems.${idx}.variant`);
+      if (!cart.cartItems[idx]!.variant) {
+        cart.cartItems.pull(item._id);
+        SendEmail({
+          to: req.user!.email,
+          subject: "Variant not found",
+          html: `<h1 style="text-align: center;">Your Cart Variant was either deleted by admin or not found</h1>`,
+        });
+      }
     }
   });
   await cart.save();
@@ -50,17 +58,12 @@ export const AddToCartHandler = asyncHandler(async (req, res) => {
   const { productId, quantity, variantId } = req.body;
   let isVariant = false;
   await isValidProductId(productId);
+
   if (variantId) await isValidVariantOfProduct(productId, variantId);
-  const cart = await cartModel.findOne({ userId: req.user!._id }).populate({
-    path: "cartItems.product",
-    select: "finalPrice",
-  });
+  const cart = await cartModel.findOne({ userId: req.user!._id });
   if (!cart) throw new AppError("Cart not found", 404);
 
-  const item = cart?.cartItems.find((i) => {
-    if (i.isVariant && variantId) return i.variant!.toString() === variantId;
-    else return i.product.toString() === productId;
-  });
+  const [item] = await isItemInCart(productId, variantId, cart , false);
 
   if (item) {
     item.quantity = quantity;
@@ -73,16 +76,9 @@ export const AddToCartHandler = asyncHandler(async (req, res) => {
       variant: variantId,
     });
   }
-  // Populate after saving
-  await cart.populate(["cartItems.product", "cartItems.variant"]);
 
-  const totalAmount = cart.cartItems.reduce((total, item: any) => {
-    let finalPrice = item.product.finalPrice;
-    if (item.isVariant) finalPrice = item.variant.finalPrice;    
-    if(isNaN(finalPrice)) finalPrice = item.product.finalPrice
-    return total + finalPrice * item.quantity;
-  }, 0);
-  cart.totalAmount = totalAmount;
+  await CalculateTotal(cart);
+
   await cart.save();
   res.status(201).json({
     message: "Product added to cart successfully",
@@ -94,49 +90,49 @@ export const UpdateCartItemHandler = asyncHandler(async (req, res) => {
   const { productId, variantId, increaseBy = 0, decreaseBy = 0 } = req.body;
   if (!increaseBy && !decreaseBy)
     throw new AppError("Quantity is required", 400);
+
   await isValidProductId(productId);
   if (variantId) await isValidVariantOfProduct(productId, variantId);
   const cart: any = await cartModel
     .findOne({ userId: req.user!._id })
-    .populate({
-      path: "cartItems.product",
-      select: "finalPrice",
-    });
+    .populate([
+      {
+        path: "cartItems.product",
+        select: "finalPrice",
+      },
+      {
+        path: "cartItems.variant",
+        select: "finalPrice",
+      },
+    ]);
   if (!cart) throw new AppError("Cart not found", 404);
 
-  const item = cart.cartItems.find((item: any) => {
-    if (!variantId && !item.isVariant)
-      return item.product._id.toString() === productId;
-    if (variantId && item.isVariant)
-      return item.variant.toString() === variantId;
-  });
+  const [item] = await isItemInCart(productId, variantId, cart);
 
-  if (!item) {
-    throw new AppError("Product not found in cart", 404);
+  const oldQuantity = item?.quantity;
+  const finalPrice =
+    item.isVariant && item.variant.finalPrice
+      ? item.variant.finalPrice
+      : item.product.finalPrice;
+
+  item!.quantity += increaseBy - decreaseBy;
+
+  if (item!?.quantity <= 0) {
+    const index = cart.cartItems.findIndex(
+      (i: any) => i._id.toString() === item._id.toString(),
+    );
+
+    if (index !== -1) {
+      cart.cartItems.splice(index, 1);
+      cart.totalAmount = cart.totalAmount - finalPrice * oldQuantity;
+    }
   } else {
-    item!.quantity += increaseBy - decreaseBy;
-    if (item!?.quantity <= 0) {
-      const index = cart.cartItems.findIndex(
-        (item: any) => item.product._id.toString() === productId,
-      );
-
-      if (index !== -1) {
-        cart.cartItems.splice(index, 1);
-      }
-    }
-    if (item.isVariant) {
-      cart.totalAmount =
-        cart.totalAmount -
-        item?.variant.finalPrice * decreaseBy +
-        item?.variant.finalPrice * increaseBy;
-    } else {
-      cart.totalAmount =
-        cart.totalAmount -
-        item?.product.finalPrice * decreaseBy +
-        item?.product.finalPrice * increaseBy;
-    }
-    await cart.save();
+    cart.totalAmount =
+      cart.totalAmount - finalPrice * decreaseBy + finalPrice * increaseBy;
   }
+
+  await cart.save();
+
   return res.status(200).json({
     message: "Cart updated successfully",
     success: true,
@@ -158,33 +154,42 @@ export const DeleteCartHandler = asyncHandler(async (req, res) => {
 
 export const DeleteCartItemHandler = asyncHandler(async (req, res) => {
   const { productId } = req.params;
+  const { variantId } = req.body;
 
   await isValidProductId(productId?.toString());
+  if (variantId)
+    await isValidVariantOfProduct(productId?.toString(), variantId);
 
   const cart = await cartModel
     .findOne({
       userId: req.user!._id,
     })
-    .populate({
-      path: "cartItems.product",
-      select: "finalPrice",
-    });
+    .populate([
+      {
+        path: "cartItems.product",
+        select: "finalPrice",
+      },
+      {
+        path: "cartItems.variant",
+        select: "finalPrice",
+      },
+    ]);
 
   if (!cart) {
     throw new AppError("Cart not found", 404);
   }
 
-  const index = cart.cartItems.findIndex(
-    (item) => item.product._id.toString() === productId,
+  const [item, index] = await isItemInCart(
+    productId!.toString(),
+    variantId,
+    cart,
   );
 
-  if (index === -1) {
-    throw new AppError("Product not found in cart", 404);
-  }
-
-  const item: any = cart.cartItems[index];
-  if (!item) throw new AppError("Product not found in cart", 404);
-  cart.totalAmount -= item.quantity * item.product.finalPrice;
+  const finalPrice =
+    item.isVariant && item.variant.finalPrice
+      ? item.variant.finalPrice
+      : item.product.finalPrice;
+  cart.totalAmount -= item.quantity * finalPrice;
 
   cart.cartItems.splice(index, 1);
 
