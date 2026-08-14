@@ -3,6 +3,7 @@ import { type RequestHandler } from "express";
 
 export const validate: RequestHandler = (req, res, next) => {
   const errors = validationResult(req);
+  console.log(errors);
 
   if (!errors.isEmpty()) {
     res.status(400).json({

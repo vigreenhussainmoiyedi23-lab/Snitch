@@ -4,12 +4,12 @@ import { useEffect, useState } from "react";
 import { useAppSelector } from "../../../app/redux/hook";
 import Loading from "../../../commonComponents/Loading";
 import { useVariant } from "../../variants/hooks/useVariant";
-import VariantSection from "../../variants/components/VariantSection";
+import VariantSection from "../../variants/components/CreateVariantSection";
 import ProductBreadcrumbs from "../components/ProductBreadcrumbs";
 import AdminActions from "../components/AdminActions";
 import ImageGallery from "../components/ImageGallery";
 import ProductInfo from "../components/ProductInfo";
-import VariantPicker from "../components/VariantPicker";
+
 import ProductFeatures from "../components/ProductFeatures";
 import ProductSpecs from "../components/ProductSpecs";
 import ProductDescription from "../components/ProductDescription";
@@ -26,8 +26,11 @@ const ProductDetails = () => {
   const loading = useAppSelector((state) => state.product.loading);
   const user = useAppSelector((state) => state.auth.user);
   const variants = useAppSelector((state) => state.variant.variants);
-  const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
-  const selectedVariant = variants.find((v) => v._id === selectedVariantId) || null;
+  const [selectedVariantId, setSelectedVariantId] = useState<string | null>(
+    null,
+  );
+  const selectedVariant =
+    variants.find((v) => v._id === selectedVariantId) || null;
 
   useEffect(() => {
     if (slug) {
@@ -125,37 +128,35 @@ const ProductDetails = () => {
               product={slugProduct}
               selectedVariant={selectedVariant}
             />
-            <VariantPicker
-              variants={variants}
-              selectedVariantId={selectedVariantId}
-              onVariantSelect={setSelectedVariantId}
-              baseProductImages={slugProduct.images || []}
-            />
 
             <VariantSection
               productId={slugProduct._id}
-              baseProduct={slugProduct}
               isAdmin={user?.role === "admin"}
               onRefresh={() => {
                 if (slug) GetProductThroughSlug(slug);
                 if (slugProduct?._id) GetVariantHandler(slugProduct._id);
               }}
-              selectedVariant={selectedVariant}
-              setSelectedVariantId={setSelectedVariantId}
             />
 
             <ProductFeatures />
           </div>
         </div>
 
-        <div className="mt-16 max-w-4xl mx-auto animate-fade-in" style={{ animationDelay: "0.2s" }}>
-          <ProductSpecs brand={brand} category={category} attributes={attributes} />
+        <div
+          className="mt-16 max-w-4xl mx-auto animate-fade-in"
+          style={{ animationDelay: "0.2s" }}
+        >
+          <ProductSpecs
+            brand={brand}
+            category={category}
+            attributes={attributes}
+          />
           <ProductDescription description={description} />
         </div>
       </div>
 
       <ReviewsSection />
-    </div >
+    </div>
   );
 };
 

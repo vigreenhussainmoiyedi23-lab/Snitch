@@ -3,19 +3,15 @@ import { Package, Loader2 } from "lucide-react";
 import { useVariant } from "../hooks/useVariant";
 import { useAppSelector } from "../../../app/redux/hook";
 import api from "../../../app/axios";
-import VariantSelector from "./VariantSelector";
-import CreateVariantForm from "./CreateVariantForm";
-import VariantCard from "./VariantCard";
-import EditVariantForm from "./EditVariantForm";
-import DeleteConfirmDialog from "./DeleteConfirmDialog";
+import CreateVariantForm from "./CreateSubComponents/CreateVariantForm";
+import VariantCard from "./CreateSubComponents/VariantCard";
+import EditVariantForm from "./CreateSubComponents/EditVariantForm";
+import DeleteConfirmDialog from "./CreateSubComponents/DeleteConfirmDialog";
 
 interface VariantSectionProps {
   productId: string;
   isAdmin: boolean;
   onRefresh: () => void;
-  selectedVariant: any;
-  setSelectedVariantId: any;
-  baseProduct?: any;
 }
 
 const getAttrsObj = (v: any): Record<string, string> => {
@@ -30,75 +26,11 @@ const VariantSection: React.FC<VariantSectionProps> = ({
   productId,
   isAdmin,
   onRefresh,
-  selectedVariant,
-  setSelectedVariantId,
-  baseProduct
 }) => {
   const { CreateVariantHandler, UpdateVariantHandler, DeleteVariantHandler } =
     useVariant();
   const variants = useAppSelector((s) => s.variant.variants);
-
-  const allItems = React.useMemo(() => {
-    return baseProduct ? [{ ...baseProduct, _id: null, isBase: true }, ...variants] : variants;
-  }, [baseProduct, variants]);
   const loading = useAppSelector((s) => s.variant.loading);
-
-  const [selectedAttrs, setSelectedAttrs] = useState<Record<string, string>>(
-    {},
-  );
-
-  React.useEffect(() => {
-    if (!selectedVariant && baseProduct) {
-      setSelectedAttrs(getAttrsObj(baseProduct));
-    } else if (selectedVariant) {
-      setSelectedAttrs(getAttrsObj(selectedVariant));
-    }
-  }, [selectedVariant, baseProduct]);
-
-  const allKeys = [
-    ...new Set(allItems.flatMap((v) => Object.keys(getAttrsObj(v)))),
-  ];
-
-  const getAvailableValues = (
-    key: string,
-    baseSelections: Record<string, string>,
-  ): string[] => {
-    const others = Object.entries(baseSelections).filter(
-      ([k, val]) => k !== key && !!val,
-    );
-    const filtered = allItems.filter((v) => {
-      const attrs = getAttrsObj(v);
-      return others.every(([k, val]) => attrs[k] === val);
-    });
-    return [
-      ...new Set(
-        filtered
-          .map((v) => getAttrsObj(v)[key])
-          .filter((x): x is string => !!x),
-      ),
-    ];
-  };
-
-  const handleSelectAttr = (key: string, value: string) => {
-    const isDeselecting = selectedAttrs[key] === value;
-    const cascaded: Record<string, string> = {
-      [key]: isDeselecting ? "" : value,
-    };
-    allKeys
-      .filter((k) => k !== key)
-      .forEach((otherKey) => {
-        const prev = selectedAttrs[otherKey];
-        const available = getAvailableValues(otherKey, cascaded);
-        cascaded[otherKey] = available.includes(prev) ? prev : "";
-      });
-    setSelectedAttrs(cascaded);
-    const matched = allItems.find((v) => {
-      const attrs = getAttrsObj(v);
-      return allKeys.every((k) => !cascaded[k] || attrs[k] === cascaded[k]);
-    });
-    setSelectedVariantId(matched?._id || null);
-  };
-
   const [showCreate, setShowCreate] = useState(false);
   const [createForm, setCreateForm] = useState({
     mrp: "",
@@ -157,9 +89,9 @@ const VariantSection: React.FC<VariantSectionProps> = ({
       attributes:
         Object.entries(attrs).length > 0
           ? Object.entries(attrs).map(([key, value]) => ({
-            key,
-            value: value as string,
-          }))
+              key,
+              value: value as string,
+            }))
           : [{ key: "", value: "" }],
       newImages: [],
       keepFileIds: (variant.images || [])
@@ -196,7 +128,7 @@ const VariantSection: React.FC<VariantSectionProps> = ({
     fd.append("keep", JSON.stringify(editForm.keepFileIds));
     editForm.newImages.forEach((img) => fd.append("images", img));
     await api.patch(`/api/variants/${variantId}`, fd);
-    await onRefresh();
+    onRefresh();
     setEditingId(null);
   };
 
@@ -204,7 +136,7 @@ const VariantSection: React.FC<VariantSectionProps> = ({
 
   const submitDelete = async (variantId: string) => {
     await DeleteVariantHandler(variantId);
-    await onRefresh();
+    onRefresh();
     setDeletingId(null);
   };
 
@@ -217,7 +149,7 @@ const VariantSection: React.FC<VariantSectionProps> = ({
     );
   }
 
-  if (!isAdmin && variants.length === 0) return null;
+  if (!isAdmin) return null;
 
   return (
     <div className="mb-6">
@@ -233,83 +165,70 @@ const VariantSection: React.FC<VariantSectionProps> = ({
         )}
       </div>
 
-      {!isAdmin && (
-        <VariantSelector
-          allKeys={allKeys}
-          selectedAttrs={selectedAttrs}
-          getAvailableValues={getAvailableValues}
-          onSelectAttr={handleSelectAttr}
-          selectedVariant={selectedVariant}
-          baseProduct={baseProduct}
+      <div className="space-y-4">
+        <CreateVariantForm
+          show={showCreate}
+          onToggle={() => setShowCreate((v) => !v)}
+          form={createForm}
+          previews={createPreviews}
+          fileError={createFileError}
+          loading={loading}
+          onFormChange={setCreateForm}
+          onImagesChange={(files) => {
+            setCreateForm((f) => ({ ...f, images: files }));
+          }}
+          onFileErrorChange={setCreateFileError}
+          onPreviewsChange={setCreatePreviews}
+          onSubmit={submitCreate}
         />
-      )}
 
-      {isAdmin && (
-        <div className="space-y-4">
-          <CreateVariantForm
-            show={showCreate}
-            onToggle={() => setShowCreate((v) => !v)}
-            form={createForm}
-            previews={createPreviews}
-            fileError={createFileError}
-            loading={loading}
-            onFormChange={setCreateForm}
-            onImagesChange={(files) => {
-              setCreateForm((f) => ({ ...f, images: files }));
-            }}
-            onFileErrorChange={setCreateFileError}
-            onPreviewsChange={setCreatePreviews}
-            onSubmit={submitCreate}
-          />
-
-          {variants.length === 0 && !showCreate && (
-            <div className="text-center py-10 border border-dashed border-border/30 rounded-radius-md">
-              <Package className="w-10 h-10 text-text-subtle/30 mx-auto mb-3" />
-              <p className="mate text-sm text-text-subtle">No variants yet.</p>
-              <p className="mate text-xs text-text-subtle/60 mt-1">
-                Create a variant above to get started.
-              </p>
-            </div>
-          )}
-
-          <div className="space-y-3">
-            {variants.map((variant) => {
-              const isEditing = editingId === variant._id;
-              return (
-                <div key={variant._id}>
-                  <VariantCard
-                    variant={variant}
-                    isEditing={isEditing}
-                    onEdit={() =>
-                      isEditing ? setEditingId(null) : openEdit(variant)
-                    }
-                    onDelete={() => setDeletingId(variant._id)}
-                    getAttrsObj={getAttrsObj}
-                  />
-                  {isEditing && (
-                    <EditVariantForm
-                      variant={variant}
-                      form={editForm}
-                      previews={editPreviews}
-                      fileError={editFileError}
-                      loading={loading}
-                      onFormChange={setEditForm}
-                      onImagesChange={(files) => {
-                        setEditForm((f) => ({ ...f, newImages: files }));
-                      }}
-                      onFileErrorChange={setEditFileError}
-                      onPreviewsChange={setEditPreviews}
-                      onToggleKeep={toggleKeep}
-                      onCancel={() => setEditingId(null)}
-                      onSubmit={() => submitEdit(variant._id)}
-                    />
-                  )}
-                </div>
-              );
-            })}
+        {variants.length === 0 && !showCreate && (
+          <div className="text-center py-10 border border-dashed border-border/30 rounded-radius-md">
+            <Package className="w-10 h-10 text-text-subtle/30 mx-auto mb-3" />
+            <p className="mate text-sm text-text-subtle">No variants yet.</p>
+            <p className="mate text-xs text-text-subtle/60 mt-1">
+              Create a variant above to get started.
+            </p>
           </div>
+        )}
+
+        <div className="space-y-3">
+          {variants.map((variant) => {
+            const isEditing = editingId === variant._id;
+            return (
+              <div key={variant._id}>
+                <VariantCard
+                  variant={variant}
+                  isEditing={isEditing}
+                  onEdit={() =>
+                    isEditing ? setEditingId(null) : openEdit(variant)
+                  }
+                  onDelete={() => setDeletingId(variant._id)}
+                  getAttrsObj={getAttrsObj}
+                />
+                {isEditing && (
+                  <EditVariantForm
+                    variant={variant}
+                    form={editForm}
+                    previews={editPreviews}
+                    fileError={editFileError}
+                    loading={loading}
+                    onFormChange={setEditForm}
+                    onImagesChange={(files) => {
+                      setEditForm((f) => ({ ...f, newImages: files }));
+                    }}
+                    onFileErrorChange={setEditFileError}
+                    onPreviewsChange={setEditPreviews}
+                    onToggleKeep={toggleKeep}
+                    onCancel={() => setEditingId(null)}
+                    onSubmit={() => submitEdit(variant._id)}
+                  />
+                )}
+              </div>
+            );
+          })}
         </div>
-      )}
+      </div>
 
       <DeleteConfirmDialog
         show={!!deletingId}

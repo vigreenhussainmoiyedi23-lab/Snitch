@@ -12,6 +12,7 @@ import {
 import AppError from "../utils/AppError.js";
 import asyncHandler from "../utils/AsyncHandler.js";
 export const CreateProductHandler = asyncHandler(async (req, res) => {
+  console.log("product creation body", req.body);
   const files = req.files as Express.Multer.File[];
   const user = req.user;
   isAdmin(user);
@@ -31,6 +32,7 @@ export const CreateProductHandler = asyncHandler(async (req, res) => {
     isFeatured,
     discount,
     attributes,
+    options,
   } = req.body;
 
   if (!files || files.length === 0)
@@ -61,13 +63,14 @@ export const CreateProductHandler = asyncHandler(async (req, res) => {
     stock,
     sku,
     barcode,
-    tags: tags.split(",") || [],
+    tags: tags?.split(",") || [],
     status,
     visibility,
     isFeatured,
     discount: discount || 0,
     images: responses,
     attributes: JSON.parse(attributes || `{}`),
+    options: JSON.parse(options || `[]`),
   });
   res.status(201).json({ product, message: "Product created successfully" });
   await sequence!.save();
@@ -84,7 +87,7 @@ export const GetAllEnumsHandler = asyncHandler(async (req, res) => {
 
   res.status(200).json({
     categories: categories.map((c) => c.name),
-    subCategories: subCategories.map((s:any) => ({
+    subCategories: subCategories.map((s: any) => ({
       name: s.name,
       category: s.category!.name,
     })),
@@ -159,7 +162,10 @@ export const GetProductHandler = asyncHandler(async (req, res) => {
 
 export const GetProductThroughSlugHandler = asyncHandler(async (req, res) => {
   if (!req.params.slug) throw new AppError("Slug is required", 400);
-  const product = await productModel.findOne({ slug: req.params.slug }).populate("variants").lean();
+  const product = await productModel
+    .findOne({ slug: req.params.slug })
+    .populate("variants")
+    .lean();
   if (!product) throw new AppError("Product not found", 404);
   res.status(200).json({
     product,

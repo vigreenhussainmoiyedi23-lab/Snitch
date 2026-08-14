@@ -61,6 +61,9 @@ const ClassificationSection = () => {
         </p>
         <AttributeEditor />
       </div>
+      <div>
+        
+      </div>
     </div>
   );
 };

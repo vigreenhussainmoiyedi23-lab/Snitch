@@ -82,8 +82,64 @@ export const createProductValidator = [
     .withMessage("Discount must be a number")
     .isFloat({ min: 0, max: 100 })
     .withMessage("Discount must be between 0 and 100"),
+  body("options")
+    .optional()
+    .custom((value, { req }) => {
+      let parsedValue = value;
+
+      // 1. If it's a string, clean up broken client-side single quotes
+      if (typeof parsedValue === "string") {
+        try {
+          // Removes single quotes immediately surrounding brackets: :'[' to :[ and ]' to ]
+          let cleaned = parsedValue
+            .replace(/:\s*['"`](\s*\[.*?\]\s*)['"`]/g, ":$1")
+            .trim();
+
+          parsedValue = JSON.parse(cleaned);
+        } catch (e) {
+          throw new Error("Options field contains invalid JSON formatting");
+        }
+      }
+
+      // 2. Ensure the top-level structure resolved to an array
+      if (!Array.isArray(parsedValue)) {
+        throw new Error("Options must be an array structure");
+      }
+
+      // 3. Inspect inner objects safely
+      parsedValue.forEach((val: any) => {
+        if (!val || typeof val !== "object") {
+          throw new Error("Invalid option item format");
+        }
+        if (!val.name || !val.values) {
+          throw new Error("Option name and values are required");
+        }
+
+        // Ensure values field within the object is a valid array
+        let internalValues = val.values;
+        if (typeof internalValues === "string") {
+          try {
+            internalValues = JSON.parse(internalValues);
+          } catch (e) {
+            throw new Error(`Invalid values array for option: ${val.name}`);
+          }
+        }
+
+        if (!Array.isArray(internalValues)) {
+          throw new Error(`Values property for '${val.name}' must be an array`);
+        }
+
+        // Save the cleaned inner array back
+        val.values = internalValues;
+      });
+
+      // 4. Overwrite request body with clean JavaScript objects
+      req.body.options = parsedValue;
+      return true;
+    }),
   validate,
 ];
+
 export const updateProductValidator = [
   body("title")
     .optional()
@@ -174,14 +230,8 @@ export const updateProductValidator = [
     .withMessage("Discount must be a number")
     .isFloat({ min: 0, max: 100 })
     .withMessage("Discount must be between 0 and 100"),
-  body("mrp")
-    .optional()
-    .isNumeric()
-    .withMessage("mrp must be a number"),
-  body("stock")
-    .optional()
-    .isNumeric()
-    .withMessage("stock must be a number"),
+  body("mrp").optional().isNumeric().withMessage("mrp must be a number"),
+  body("stock").optional().isNumeric().withMessage("stock must be a number"),
   body("attributes").optional().isObject().withMessage("Invalid attributes"),
   checkExact([], { message: "Unknown fields are not allowed" }), // Checks for extra properties
   validate,
