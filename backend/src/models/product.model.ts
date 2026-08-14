@@ -62,13 +62,28 @@ const productSchema = new mongoose.Schema(
         ref: "variant",
       },
     ],
-
+    options: [
+      {
+        name: { type: String }, // e.g., "Color", "Size"
+        values: [{ type: String }], // e.g., ["Red", "Blue"], ["S", "M", "L"]
+        imageMap: {
+          type: Map,
+          of: [
+            {
+              fileId: String,
+              url: String,
+              thumbnailUrl: String,
+            },
+          ],
+          default: {},
+        },
+      },
+    ],
     attributes: {
       type: Map,
       of: String,
       default: {},
     },
-
     mrp: {
       type: Number,
       required: true,

@@ -1,26 +1,42 @@
 import mongoose from "mongoose";
+
 const variantSchema = new mongoose.Schema(
   {
+    productId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Product",
+      required: true,
+      index: true,
+    },
+    // Matches the selected options (e.g., { "color": "Red", "size": "XL" })
+    attributes: {
+      type: Map,
+      of: String,
+      required: true,
+    },
     sku: {
       type: String,
       required: true,
       unique: true,
-      immutable: true, // Cannot be changed after creation
       index: true,
     },
-    mrp: { type: Number, default: 0, required: true },
-    discount: { type: Number, default: 0 },
-    finalPrice: Number,
-    stock: { type: Number, default: 0, required: true },
     barcode: String,
-
-    attributes: {
-      type: Map,
-      of: String,
-      default: {},
+    mrp: {
+      type: Number,
       required: true,
     },
-
+    finalPrice: {
+      type: Number,
+    },
+    discount: {
+      type: Number,
+      default: 0, // percentage
+    },
+    stock: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
     images: [
       {
         fileId: String,
@@ -28,18 +44,16 @@ const variantSchema = new mongoose.Schema(
         thumbnailUrl: String,
       },
     ],
-    productId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Product",
-      required: true,
-    },
   },
   { timestamps: true },
 );
+
+// Calculate final price for the variant on save
 variantSchema.pre("save", function () {
   if (this.isModified("mrp") || this.isModified("discount")) {
-    this.finalPrice = (this.mrp || 0) * (1 - (this.discount || 0) / 100);
+    this.finalPrice = this.mrp * (1 - this.discount / 100);
   }
 });
+
 const variantModel = mongoose.model("variant", variantSchema);
 export default variantModel;
