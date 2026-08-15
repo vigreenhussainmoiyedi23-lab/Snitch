@@ -32,7 +32,6 @@ const CartSideMenu: React.FC<CartSideMenuProps> = ({ isOpen, setIsOpen }) => {
       document.body.style.overflow = "unset";
     };
   }, [isOpen]);
-  console.log(cartItems);
   
   if(!cartItems ) return null
 

@@ -70,7 +70,6 @@ export const useProduct = () => {
     dispatch(setLoading(true));
     try {
       const response = await GetAllEnumsApi();
-      console.log(response, "response from backend");
       
       dispatch(setEnums(response));
     } catch (error) {

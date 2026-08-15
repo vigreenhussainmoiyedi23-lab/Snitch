@@ -182,7 +182,6 @@ export const useAuth = () => {
   const refreshTokenHand1er = async () => {
     dispatch(authStart());
     try {
-      console.log("roataing token");
       const response = await refreshTokenApi();
       dispatch(setAccessToken(response.accessToken));
       await GetMeHandler();

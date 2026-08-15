@@ -29,7 +29,11 @@ export type product = {
   };
   rating: {
     average: number
-  }
+  },
+  options:[{
+    name:string;
+    values:string[]
+  }]
 };
 export type variant = {
 

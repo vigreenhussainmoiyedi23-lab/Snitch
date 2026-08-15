@@ -15,6 +15,7 @@ import ProductSpecs from "../components/ProductDetails/ProductSpecs";
 import ProductDescription from "../components/ProductDetails/ProductDescription";
 import ReviewsSection from "../components/ProductDetails/ReviewsSection";
 import OptionsShowCase from "../components/ProductDetails/OptionsShowCase";
+import BrowseAndSelectVariant from "../../variants/components/BrowseAndSelectVariant";
 
 const ProductDetails = () => {
   const { slug } = useParams();
@@ -115,6 +116,7 @@ const ProductDetails = () => {
               product={slugProduct}
             />
             <OptionsShowCase/>
+            <BrowseAndSelectVariant options={slugProduct.options}/>
             <CreateVariantSection
               productId={slugProduct._id}
               isAdmin={user?.role === "admin"}

@@ -79,8 +79,6 @@ const FilterBar = (data: {
             Name="subCategory"
             array={enums.subCategories.filter(
               (s) => {
-                console.log(filters.cat, s.category, filters.cat === s.category);
-                
                 return s.category === filters.cat || !filters.cat},
             ).map((s) => s.name)}
             value={filters.subCategory!}

@@ -22,7 +22,6 @@ const CartAction: React.FC<CartActionProps> = ({
   className = "",
   selectedVariant,
 }) => {
-  console.log(selectedVariant);
 
   const cartItems = useAppSelector((state) => state.cart.cartItems);
 
