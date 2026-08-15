@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useAppSelector } from "../../../app/redux/hook";
 import Loading from "../../../commonComponents/Loading";
 import { useVariant } from "../../variants/hooks/useVariant";
-import VariantSection from "../../variants/components/CreateVariantSection";
+import CreateVariantSection from "../../variants/components/CreateVariantSection";
 import ProductBreadcrumbs from "../components/ProductDetails/ProductBreadcrumbs";
 import AdminActions from "../components/ProductDetails/AdminActions";
 import ImageGallery from "../components/ProductDetails/ImageGallery";
@@ -14,6 +14,7 @@ import ProductFeatures from "../components/ProductDetails/ProductFeatures";
 import ProductSpecs from "../components/ProductDetails/ProductSpecs";
 import ProductDescription from "../components/ProductDetails/ProductDescription";
 import ReviewsSection from "../components/ProductDetails/ReviewsSection";
+import OptionsShowCase from "../components/ProductDetails/OptionsShowCase";
 
 const ProductDetails = () => {
   const { slug } = useParams();
@@ -26,11 +27,7 @@ const ProductDetails = () => {
   const loading = useAppSelector((state) => state.product.loading);
   const user = useAppSelector((state) => state.auth.user);
   const variants = useAppSelector((state) => state.variant.variants);
-  const [selectedVariantId, setSelectedVariantId] = useState<string | null>(
-    null,
-  );
-  const selectedVariant =
-    variants.find((v) => v._id === selectedVariantId) || null;
+ 
 
   useEffect(() => {
     if (slug) {
@@ -42,17 +39,7 @@ const ProductDetails = () => {
       setImages(slugProduct.images);
     }
   }, [slugProduct]);
-  useEffect(() => {
-    if (selectedVariant) {
-      if (selectedVariant?.images && selectedVariant.images.length > 0) {
-        setImages(selectedVariant.images);
-      } else {
-        setImages(slugProduct?.images || []);
-      }
-    } else if (!selectedVariant && slugProduct) {
-      setImages(slugProduct!.images);
-    }
-  }, [selectedVariant, slugProduct]);
+
 
   useEffect(() => {
     if (slugProduct?._id) {
@@ -126,10 +113,9 @@ const ProductDetails = () => {
               stock={stock}
               rating={rating}
               product={slugProduct}
-              selectedVariant={selectedVariant}
             />
-
-            <VariantSection
+            <OptionsShowCase/>
+            <CreateVariantSection
               productId={slugProduct._id}
               isAdmin={user?.role === "admin"}
               onRefresh={() => {

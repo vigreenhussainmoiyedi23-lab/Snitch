@@ -22,7 +22,7 @@ const getAttrsObj = (v: any): Record<string, string> => {
   return {};
 };
 
-const VariantSection: React.FC<VariantSectionProps> = ({
+const CreateVariantSection: React.FC<VariantSectionProps> = ({
   productId,
   isAdmin,
   onRefresh,
@@ -240,4 +240,4 @@ const VariantSection: React.FC<VariantSectionProps> = ({
   );
 };
 
-export default VariantSection;
+export default CreateVariantSection;

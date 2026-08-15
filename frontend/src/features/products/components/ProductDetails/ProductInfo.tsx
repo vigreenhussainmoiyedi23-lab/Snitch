@@ -13,7 +13,7 @@ interface ProductInfoProps {
   stock?: number;
   rating?: number | { average: number };
   product: any;
-  selectedVariant: any;
+  selectedVariant?: any;
 }
 
 const ProductInfo = ({
