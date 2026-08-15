@@ -1,5 +1,5 @@
 import { Star } from "lucide-react";
-import CartAction from "../../cart/components/CartAction";
+import CartAction from "../../../cart/components/CartAction";
 import { CreditCard } from "lucide-react";
 
 interface ProductInfoProps {

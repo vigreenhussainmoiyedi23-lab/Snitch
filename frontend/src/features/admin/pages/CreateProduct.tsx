@@ -35,10 +35,11 @@ const SubmitButton = ({ isSubmitting, size = "lg", form }: SubmitBtnProps) => (
     form={form}
     disabled={isSubmitting}
     aria-disabled={isSubmitting}
-    className={`teko tracking-wider text-white rounded-full flex items-center justify-center gap-2 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed ${size === "sm"
-      ? "text-base px-7 py-2"
-      : "text-xl px-14 py-3 w-full sm:w-auto"
-      }`}
+    className={`teko tracking-wider text-white rounded-full flex items-center justify-center gap-2 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed ${
+      size === "sm"
+        ? "text-base px-7 py-2"
+        : "text-xl px-14 py-3 w-full sm:w-auto"
+    }`}
     style={{
       background:
         "linear-gradient(135deg, var(--color-primary-light), var(--color-primary-dark))",
@@ -89,10 +90,12 @@ const CreateProduct = () => {
 
   const SubmitHandler = async (data: ProductFormValues) => {
     const formData = new FormData();
-    
+
     // Separate the attributes array from scalar fields
-    const { attributes, ...scalarFields } = data;
-  
+    const { attributes,options, ...scalarFields } = data;
+    if (options) {
+      formData.append("options", JSON.stringify(options));
+    }
 
     // Append all scalar fields (skip empty optionals to avoid polluting the backend)
     Object.entries(scalarFields).forEach(([key, value]) => {
@@ -105,10 +108,13 @@ const CreateProduct = () => {
     if (attributes?.length > 0) {
       const validAttrs = attributes.filter((a) => a.key.trim() !== "");
       if (validAttrs.length > 0) {
-        const object = validAttrs.reduce((acc, item) => {
-          acc[item.key] = item.value;
-          return acc;
-        }, {} as Record<string, string>)
+        const object = validAttrs.reduce(
+          (acc, item) => {
+            acc[item.key] = item.value;
+            return acc;
+          },
+          {} as Record<string, string>,
+        );
         formData.append("attributes", JSON.stringify(object));
       }
     }
@@ -164,8 +170,11 @@ const CreateProduct = () => {
             >
               Cancel
             </button>
-            <SubmitButton isSubmitting={isSubmitting} size="sm" form="create-product-form" />
-
+            <SubmitButton
+              isSubmitting={isSubmitting}
+              size="sm"
+              form="create-product-form"
+            />
           </div>
         </div>
       </header>
@@ -180,7 +189,6 @@ const CreateProduct = () => {
           <div className="max-w-7xl mx-auto px-4 md:px-6 py-8">
             {/* ── Two-column responsive grid ── */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
               {/* ── Left column (2/3) ── */}
               <div className="lg:col-span-2 space-y-6">
                 <SectionCard

@@ -5,15 +5,15 @@ import { useAppSelector } from "../../../app/redux/hook";
 import Loading from "../../../commonComponents/Loading";
 import { useVariant } from "../../variants/hooks/useVariant";
 import VariantSection from "../../variants/components/CreateVariantSection";
-import ProductBreadcrumbs from "../components/ProductBreadcrumbs";
-import AdminActions from "../components/AdminActions";
-import ImageGallery from "../components/ImageGallery";
-import ProductInfo from "../components/ProductInfo";
+import ProductBreadcrumbs from "../components/ProductDetails/ProductBreadcrumbs";
+import AdminActions from "../components/ProductDetails/AdminActions";
+import ImageGallery from "../components/ProductDetails/ImageGallery";
+import ProductInfo from "../components/ProductDetails/ProductInfo";
 
-import ProductFeatures from "../components/ProductFeatures";
-import ProductSpecs from "../components/ProductSpecs";
-import ProductDescription from "../components/ProductDescription";
-import ReviewsSection from "../components/ReviewsSection";
+import ProductFeatures from "../components/ProductDetails/ProductFeatures";
+import ProductSpecs from "../components/ProductDetails/ProductSpecs";
+import ProductDescription from "../components/ProductDetails/ProductDescription";
+import ReviewsSection from "../components/ProductDetails/ReviewsSection";
 
 const ProductDetails = () => {
   const { slug } = useParams();

@@ -1,10 +1,11 @@
-import { useFormContext, useWatch } from "react-hook-form";
+import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
 import Input from "../product/Form/Input";
 import AttributeEditor from "./AttributeEditor";
 import type { ProductFormValues } from "./types";
 import { useAppSelector } from "../../../../app/redux/hook";
 import CreatableSelect from "../product/Form/CreatableSelect";
 import { useEffect } from "react";
+import OptionsEditor from "./OptionsEditor";
 /**
  * Classification section.
  * Fields: brand, category, subCategory (3-col grid), tags, and dynamic attributes.
@@ -61,8 +62,9 @@ const ClassificationSection = () => {
         </p>
         <AttributeEditor />
       </div>
-      <div>
-        
+      <div className="pt-3">
+       
+        <OptionsEditor />
       </div>
     </div>
   );

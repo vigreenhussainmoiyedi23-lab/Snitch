@@ -4,6 +4,10 @@ export type AttributeItem = {
   key: string;
   value: string;
 };
+export type OptionItem = {
+  name: string;
+  values: string[];
+};
 
 export type ProductFormValues = {
   // ── Basic Information ──────────────────────────────────
@@ -27,6 +31,7 @@ export type ProductFormValues = {
   subCategory: string;
   tags: string;
   attributes: AttributeItem[];
+  options: OptionItem[];
 
   // ── Shipping ───────────────────────────────────────────
   weight: string;
