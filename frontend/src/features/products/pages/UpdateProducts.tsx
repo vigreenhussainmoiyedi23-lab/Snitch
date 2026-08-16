@@ -7,23 +7,18 @@ import { FormProvider, useForm } from "react-hook-form";
 import Input from "../../admin/components/product/Form/Input";
 import TextArea from "../../admin/components/product/Form/TextArea";
 import CreatableInput from "../../admin/components/product/Form/CreatableSelect";
-import { Check, Upload, X } from "lucide-react";
 import { toast } from "react-toastify";
 import ImagesSection from "../components/UpdateProducts/ImagesSection";
+import ClassisficationSection from "../components/UpdateProducts/ClassisficationSection";
+import PriceSection from "../components/UpdateProducts/PriceSection";
 
 const UpdateProducts = () => {
   const { slug } = useParams();
   if (!slug) return null;
-
-  const enums = useAppSelector((state: any) => state.product.enums);
   const loading = useAppSelector((state: any) => state.product.loading);
   const slugProduct = useAppSelector((state: any) => state.product.slugProduct);
 
-  const {
-    UpdateProductsPatchHandler,
-    UpdateProductsPutHandler,
-    GetProductThroughSlug,
-  } = useProduct();
+  const { UpdateProductsPutHandler, GetProductThroughSlug } = useProduct();
 
   useEffect(() => {
     GetProductThroughSlug(slug);
@@ -79,9 +74,6 @@ const UpdateProducts = () => {
 
   if (loading) return <Loading subheading="Loading Product Details..." />;
   if (!slugProduct) return <Loading subheading="Product Not Found..." />;
-
-
-
 
   const onDetailsSubmit = async (data: any) => {
     // Format tags if needed
@@ -178,48 +170,13 @@ const UpdateProducts = () => {
               placeholder="Full Description"
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <CreatableInput
-                name="category"
-                options={enums?.categories || []}
-                placeholder="Category"
-              />
-              <CreatableInput
-                name="subCategory"
-                options={enums?.subCategories || []}
-                placeholder="Sub Category"
-              />
-              <CreatableInput
-                name="brand"
-                options={enums?.brands || []}
-                placeholder="Brand"
-              />
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Input
-                name="mrp"
-                type="number"
-                register={methods.register}
-                placeholder="MRP"
-                min={0}
-              />
-              <Input
-                name="discount"
-                type="number"
-                register={methods.register}
-                placeholder="Discount %"
-                min={0}
-                max={100}
-              />
-              <Input
-                name="stock"
-                type="number"
-                register={methods.register}
-                placeholder="Stock"
-                min={0}
-              />
-            </div>
+            {/* Category | SubCategory | Brand */}
+            <ClassisficationSection />
+
+
+            {/* mrp | discount | stock */}
+            <PriceSection methods={methods} />
 
             <Input
               name="tags"
