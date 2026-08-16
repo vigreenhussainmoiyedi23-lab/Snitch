@@ -11,11 +11,20 @@ import {
 } from "../services/product.service.js";
 import AppError from "../utils/AppError.js";
 import asyncHandler from "../utils/AsyncHandler.js";
+
 export const CreateProductHandler = asyncHandler(async (req, res) => {
-  console.log("product creation body", req.body);
   const files = req.files as Express.Multer.File[];
-  const user = req.user;
-  isAdmin(user);
+  if (!files) throw new AppError("No files uploaded", 400);
+  const images: Express.Multer.File[] = [];
+  const others: Express.Multer.File[] = [];
+  files.forEach((file) => {
+    if (file.fieldname === "images") {
+      images.push(file);
+    } else {
+      others.push(file);
+    }
+  });
+
   const {
     title,
     description,
@@ -32,17 +41,54 @@ export const CreateProductHandler = asyncHandler(async (req, res) => {
     isFeatured,
     discount,
     attributes,
-    options,
   } = req.body;
 
-  if (!files || files.length === 0)
+  const options = JSON.parse(req.body.options || "[]");
+  if (!files || !images || images?.length === 0)
     throw new AppError("No files uploaded", 400);
+  // Making a map of options
+  if (others?.length) {
+    const responses = await Promise.all(
+      others.map(async (file) => {
+        const response = await uploadImage({
+          buffer: file.buffer,
+          fileName: file.originalname,
+          folder: "STITCH/products/Options",
+        });
+
+        return {
+          fieldname: file.fieldname,
+          response,
+        };
+      }),
+    );
+
+    responses.map((response) => {
+      const [name, value] = response.fieldname.split(":");
+      if (!name || !value) return;
+      const isOption = options.find((o: any) => o.name === name);
+      if (!isOption) {
+        options.push({
+          name,
+          values: [value],
+          imageMap: { [value?.toString()]: response.response },
+        });
+      } else {
+        if (!isOption.values.includes(value)) isOption.values.push(value);
+        isOption.imageMap = {
+          ...isOption?.imageMap,
+          [value?.toString()]: response.response,
+        };
+      }
+    });
+  }
+
   const responses = await Promise.all(
-    files.map((file) =>
+    images!.map((file) =>
       uploadImage({
         buffer: file.buffer,
         fileName: file.originalname,
-        folder: "products",
+        folder: "STITCH/products",
       }),
     ),
   );
@@ -70,7 +116,7 @@ export const CreateProductHandler = asyncHandler(async (req, res) => {
     discount: discount || 0,
     images: responses,
     attributes: JSON.parse(attributes || `{}`),
-    options: JSON.parse(options || `[]`),
+    options,
   });
   res.status(201).json({ product, message: "Product created successfully" });
   await sequence!.save();
@@ -175,18 +221,35 @@ export const GetProductThroughSlugHandler = asyncHandler(async (req, res) => {
 });
 
 export const DeleteProductHandler = asyncHandler(async (req, res) => {
-  const user = req.user;
-  isAdmin(user);
   const { id } = req.params;
-  const product = await productModel.findByIdAndDelete(id);
-  if (!product) throw new AppError("Product not found", 404);
-  res.status(200).json({ message: "Product deleted successfully" });
-  product.images.map((image) => deleteImageFromFileId(image.fileId!));
+
+  const product = await productModel.findById(id);
+
+  if (!product) {
+    throw new AppError("Product not found", 404);
+  }
+
+  const imageDeletePromises = [
+    ...product.images.map((image) => deleteImageFromFileId(image.fileId!)),
+
+    ...product.options.flatMap((option) =>
+      Array.from(option.imageMap.values())
+        .flat()
+        .map((image) => deleteImageFromFileId(image.fileId!)),
+    ),
+  ];
+
+  await Promise.all(imageDeletePromises);
+
+  await productModel.findByIdAndDelete(id);
+
+  res.status(200).json({
+    message: "Product deleted successfully",
+  });
 });
 
 export const UpdateProductsPutHandler = asyncHandler(async (req, res) => {
   const user = req.user;
-  isAdmin(user);
   const { id } = req.params;
   let validBrand, validCategory, validSubCategory;
 
@@ -216,6 +279,48 @@ export const UpdateProductsPutHandler = asyncHandler(async (req, res) => {
 });
 
 export const UpdateProductsPatchHandler = asyncHandler(async (req, res) => {
+  isAdmin(req.user);
+  const { id } = req.params;
+  const files = req.files as Express.Multer.File[];
+  const keep = req.body.keep || [];
+
+  if (!keep) throw new AppError("Keep is required", 400);
+  let newFilesResponses;
+  if (files) {
+    newFilesResponses = await Promise.all(
+      files.map((file) =>
+        uploadImage({
+          buffer: file.buffer,
+          fileName: file.originalname,
+          folder: "products",
+        }),
+      ),
+    );
+  }
+
+  const product = await productModel.findById(id);
+  if (!product) throw new AppError("Product not found", 404);
+
+  product!.images = product!.images.filter((image) => {
+    console.log(
+      image.fileId!.toString(),
+      keep.includes(image.fileId!.toString()),
+    );
+    return keep.includes(image.fileId!.toString());
+  }) as any;
+  if (newFilesResponses) {
+    product!.images.push(...newFilesResponses);
+  }
+  if (product.images.length === 0)
+    throw new AppError("At least one image is required", 400);
+  await product.save();
+  res.status(200).json({
+    product,
+    message: "Product updated successfully",
+  });
+});
+
+export const UpdateProductsOptionsHandler = asyncHandler(async (req, res) => {
   isAdmin(req.user);
   const { id } = req.params;
   const files = req.files as Express.Multer.File[];

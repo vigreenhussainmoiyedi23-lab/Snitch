@@ -6,6 +6,7 @@ import {
   GetAllEnumsHandler,
   GetProductHandler,
   GetProductThroughSlugHandler,
+  UpdateProductsOptionsHandler,
   UpdateProductsPatchHandler,
   UpdateProductsPutHandler,
 } from "../controllers/product.controller.js";
@@ -14,9 +15,24 @@ import {
   getProductsValidator,
   updateProductValidator,
 } from "../validators/product.validator.js";
-import { isUserVerified } from "../middlewares/auth.middleware.js";
+import { isUserAdmin, isUserVerified } from "../middlewares/auth.middleware.js";
 
 const productRouter = Router();
+
+/**
+ * @post /api/products/
+ * @body {title,description,shortDescription,category,subCategory,brand,mrp,stock,barcode,tags,status,visibility,isFeatured,discount,images}
+ * @description create a product
+ * @return {success,message,product}
+ */
+productRouter.post(
+  "/",
+  isUserVerified,
+  isUserAdmin,
+  upload.any(),
+  createProductValidator,
+  CreateProductHandler,
+);
 /**
  * @get /api/products/
  * @query {page,limit,cat,brand,search,Uprice,Lprice,subCategory,sort}
@@ -37,19 +53,7 @@ productRouter.get("/all/enums", GetAllEnumsHandler);
  * @return {success,message,product}
  */
 productRouter.get("/:slug", getProductsValidator, GetProductThroughSlugHandler);
-/**
- * @post /api/products/
- * @body {title,description,shortDescription,category,subCategory,brand,mrp,stock,barcode,tags,status,visibility,isFeatured,discount,images}
- * @description create a product
- * @return {success,message,product}
- */
-productRouter.post(
-  "/",
-  isUserVerified,
-  upload.array("images", 5),
-  createProductValidator,
-  CreateProductHandler,
-);
+
 /**
  * @put /api/products
  * @body {title,description,shortDescription,category,subCategory,brand,mrp,stock,barcode,tags,status,visibility,isFeatured,discount,attributes,options}
@@ -59,6 +63,7 @@ productRouter.post(
 productRouter.put(
   "/:id",
   isUserVerified,
+  isUserAdmin,
   updateProductValidator,
   UpdateProductsPutHandler,
 );
@@ -71,14 +76,26 @@ productRouter.patch(
   "/:id",
   upload.array("images", 5),
   isUserVerified,
+  isUserAdmin,
   UpdateProductsPatchHandler,
 );
-
+/**
+ * @patch /api/products/:id/options
+ * @body {keep:
+ * @files {images}:new images
+ */
+productRouter.patch(
+  "/:id/options",
+  upload.any(),
+  isUserVerified,
+  isUserAdmin,
+  UpdateProductsOptionsHandler,
+);
 /**
  * @delete /api/products/:id
  * @description delete a product
  * @return {success,message}
  */
-productRouter.delete("/:id", isUserVerified, DeleteProductHandler);
+productRouter.delete("/:id", isUserVerified, isUserAdmin, DeleteProductHandler);
 
 export default productRouter;

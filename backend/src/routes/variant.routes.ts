@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { isUserVerified } from "../middlewares/auth.middleware.js";
 import upload from "../config/multer.js";
-import { createVariantHandler, deleteVariantHandler, getProductsVariantHandler, updatePutVariantHandler, updateVariantHandler } from "../controllers/variant.controller.js";
+import { createMultipleVariantHandler, createVariantHandler, deleteVariantHandler, getProductsVariantHandler, updatePutVariantHandler, updateVariantHandler } from "../controllers/variant.controller.js";
 import { createVariantValidator } from "../validators/variant.vallidator.js";
 import { handleMulterError } from "../middlewares/error.middleware.js";
 
@@ -19,6 +19,12 @@ variantRouter.post(
   upload.array("images", 5),
   createVariantValidator,
   createVariantHandler,
+);
+variantRouter.post(
+  "/:productId/multiple",
+  isUserVerified,
+  upload.array("images", 5),
+  createMultipleVariantHandler,
 );
 /**
  * @get /api/variants/:productId

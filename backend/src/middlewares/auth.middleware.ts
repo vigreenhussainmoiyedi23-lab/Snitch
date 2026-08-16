@@ -38,3 +38,9 @@ export const isUserVerified: RequestHandler = async (req, res, next) => {
     res.status(500).json({ message: "Something went wrong" });
   }
 };
+export const isUserAdmin: RequestHandler = (req, res, next) => {
+  if (req.user!.role !== "admin") {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+  next();
+};
