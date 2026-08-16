@@ -29,7 +29,7 @@ productRouter.get("/", getProductsValidator, GetProductHandler);
  * @description get all Enums (categories , subCategories , brands)
  * @return { categories,subCategories,brands}
  */
-productRouter.get("/all/enums",  GetAllEnumsHandler);
+productRouter.get("/all/enums", GetAllEnumsHandler);
 /**
  * @get /api/products/:slug
  * @query {slug}
@@ -52,10 +52,10 @@ productRouter.post(
 );
 /**
  * @put /api/products
- * @body {title,description,shortDescription,category,subCategory,brand,mrp,stock,barcode,tags,status,visibility,isFeatured,discount,images}
+ * @body {title,description,shortDescription,category,subCategory,brand,mrp,stock,barcode,tags,status,visibility,isFeatured,discount,attributes,options}
  * @description update the products details as the body
  * @return {success,message,product}
-*/
+ */
 productRouter.put(
   "/:id",
   isUserVerified,

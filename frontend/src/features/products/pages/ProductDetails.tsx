@@ -27,7 +27,6 @@ const ProductDetails = () => {
   const slugProduct = useAppSelector((state) => state.product.slugProduct);
   const loading = useAppSelector((state) => state.product.loading);
   const user = useAppSelector((state) => state.auth.user);
-  const variants = useAppSelector((state) => state.variant.variants);
  
 
   useEffect(() => {
