@@ -6,26 +6,32 @@ const Select = ({
   value,
   handleOnChange,
   Name,
+  register,
 }: {
   label: string;
   array: string[];
-  value: string;
+  value?: string;
   Name: string;
-  handleOnChange: (
+  handleOnChange?: (
     e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>,
   ) => void;
+  register?: any;
 }) => {
   return (
     <div className="space-y-4">
-      <label className="text-xs font-semibold uppercase tracking-widest text-text-subtle">
+      <label className="text-xs font-semibold eczar capitalize tracking-widest  text-primary-light">
         {label}
       </label>
       <div className="flex flex-col gap-3">
         <select
-          className="bg-white/70 text-text focus:ring-1 focus:ring-gold font-semibold mate px-3 py-2 rounded capitalize border-border border outline-0  "
+          className="bg-background text-text focus:ring-1 focus:ring-gold font-semibold mate px-3 py-2 rounded capitalize border-border border outline-0  "
           name={Name}
-          value={value}
-          onChange={handleOnChange}
+          {...(register
+            ? register(Name)
+            : {
+                value: value,
+                onChange: handleOnChange,
+              })}
         >
           <option value="" disabled hidden>
             {label}

@@ -90,11 +90,11 @@ const OptionsEditor = () => {
               {/* Option header */}
               <div className="flex items-center justify-between mb-5">
                 <div>
-                  <span className="text-xs font-medium uppercase tracking-wider text-text/40">
+                  <span className="text-sm  uppercase tracking-wider text-text mate font-semibold">
                     Option {optionIndex + 1}
                   </span>
 
-                  <p className="text-sm text-text/60 mt-0.5">
+                  <p className="text-lg text-text/90 font-medium mt-0.5">
                     Define a selectable product attribute
                   </p>
                 </div>
@@ -102,7 +102,7 @@ const OptionsEditor = () => {
                 <button
                   type="button"
                   onClick={() => removeOption(optionIndex)}
-                  className="p-2 rounded-lg text-text/40 hover:text-red-500 hover:bg-red-500/10 transition-colors"
+                  className="p-2 rounded-lg text-text/40  bg-red-500 text-white hover:text-red-500 hover:bg-red-500/10 transition-colors"
                   title="Remove option"
                 >
                   <Trash size={18} />

@@ -4,13 +4,13 @@ import { Link, useParams } from "react-router-dom";
 import { useAppSelector } from "../../../app/redux/hook";
 import Loading from "../../../commonComponents/Loading";
 import { FormProvider, useForm } from "react-hook-form";
-import Input from "../../admin/components/product/Form/Input";
-import TextArea from "../../admin/components/product/Form/TextArea";
-import CreatableInput from "../../admin/components/product/Form/CreatableSelect";
 import { toast } from "react-toastify";
 import ImagesSection from "../components/UpdateProducts/ImagesSection";
 import ClassisficationSection from "../components/UpdateProducts/ClassisficationSection";
 import PriceSection from "../components/UpdateProducts/PriceSection";
+import ProductStatusUpdation from "../components/UpdateProducts/ProductStatusUpdation";
+import MainDetails from "../components/UpdateProducts/MainDetails";
+import AttributesOptionsSection from "../components/UpdateProducts/AttributesOptionsSection";
 
 const UpdateProducts = () => {
   const { slug } = useParams();
@@ -40,6 +40,13 @@ const UpdateProducts = () => {
       visibility: "",
       isFeatured: "false",
       discount: 0,
+      // UI representation
+      attributes: [] as { key: string; value: string }[],
+      options: [] as {
+        name: string;
+        values: string[];
+        imageMap?: Record<string, any[]>;
+      }[],
     },
   });
 
@@ -49,6 +56,13 @@ const UpdateProducts = () => {
 
   useEffect(() => {
     if (slugProduct) {
+      const attributes = slugProduct.attributes
+        ? Object.entries(slugProduct.attributes).map(([key, value]) => ({
+            key,
+            value: String(value),
+          }))
+        : [];
+
       methods.reset({
         title: slugProduct.title || "",
         description: slugProduct.description || "",
@@ -64,6 +78,8 @@ const UpdateProducts = () => {
         visibility: slugProduct.visibility || "",
         isFeatured: slugProduct.isFeatured ? "true" : "false",
         discount: slugProduct.discount || 0,
+        attributes: attributes || {},
+        options: slugProduct.options || [],
       });
 
       if (slugProduct.images) {
@@ -77,6 +93,10 @@ const UpdateProducts = () => {
 
   const onDetailsSubmit = async (data: any) => {
     // Format tags if needed
+    const attributes = data?.attributes?.reduce((acc: any, val: any) => {
+      acc[val.key] = val.value;
+      return acc;
+    }, {});
     const formattedData = {
       ...data,
       tags: data.tags,
@@ -85,6 +105,7 @@ const UpdateProducts = () => {
       mrp: Number(data.mrp),
       stock: Number(data.stock),
       discount: Number(data.discount),
+      attributes: attributes || {},
     };
     if (formattedData.barcode === "") delete formattedData.barcode;
     try {
@@ -141,68 +162,16 @@ const UpdateProducts = () => {
             onSubmit={methods.handleSubmit(onDetailsSubmit)}
             className="space-y-4"
           >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Input
-                name="title"
-                type="text"
-                register={methods.register}
-                placeholder="Product Title"
-                minLength={10}
-              />
-              <Input
-                name="barcode"
-                type="text"
-                register={methods.register}
-                placeholder="Barcode"
-                isRequired={false}
-              />
+            <MainDetails methods={methods} />
+            <div className="flex flex-col gap-8">
+              {/* Category | SubCategory | Brand | Tags | Barcode */}
+              <ClassisficationSection methods={methods} />
+              {/* Status | Visibility | isFeatured */}
+              <ProductStatusUpdation methods={methods} />
+              {/* mrp | discount | stock */}
+              <PriceSection methods={methods} />
             </div>
-
-            <TextArea
-              name="shortDescription"
-              register={methods.register}
-              height={16}
-              placeholder="Short Description"
-            />
-            <TextArea
-              name="description"
-              register={methods.register}
-              placeholder="Full Description"
-            />
-
-
-            {/* Category | SubCategory | Brand */}
-            <ClassisficationSection />
-
-
-            {/* mrp | discount | stock */}
-            <PriceSection methods={methods} />
-
-            <Input
-              name="tags"
-              type="text"
-              register={methods.register}
-              placeholder="Tags (comma separated)"
-            />
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <CreatableInput
-                name="status"
-                options={["published", "draft", "archived"]}
-                placeholder="Status"
-              />
-              <CreatableInput
-                name="visibility"
-                options={["public", "private"]}
-                placeholder="Visibility"
-              />
-              <CreatableInput
-                name="isFeatured"
-                options={["true", "false"]}
-                placeholder="Is Featured?"
-              />
-            </div>
-
+            <AttributesOptionsSection />
             <div className="pt-4">
               <button
                 type="submit"
