@@ -18,7 +18,10 @@ import ShippingSection from "../components/CreateProduct/ShippingSection";
 import SEOSection from "../components/CreateProduct/SEOSection";
 import PublishingSection from "../components/CreateProduct/PublishingSection";
 import SummaryCard from "../components/CreateProduct/SummaryCard";
-import type { ProductFormValues } from "../components/CreateProduct/types";
+import type {
+  optionImages,
+  ProductFormValues,
+} from "../components/CreateProduct/types";
 import { Link } from "react-router-dom";
 import OptionsEditor from "../components/CreateProduct/OptionsEditor";
 
@@ -71,7 +74,7 @@ const CreateProduct = () => {
   const { createProductHandler } = useProduct();
   const [images, setImages] = useState<File[]>([]);
   const error = useAppSelector((state) => state.product.error);
-  const [optionImages, setOptionImages] = useState([] as File[]);
+  const [optionImages, setOptionImages] = useState([] as optionImages);
 
   const methods = useForm<ProductFormValues>({
     defaultValues: {
@@ -92,7 +95,7 @@ const CreateProduct = () => {
 
   const SubmitHandler = async (data: ProductFormValues) => {
     const formData = new FormData();
-
+    // return console.log(optionImages);
     // Separate the attributes array from scalar fields
     const { attributes, options, ...scalarFields } = data;
     if (options) {
@@ -105,7 +108,19 @@ const CreateProduct = () => {
         formData.append(key, String(value));
       }
     });
-
+    if (optionImages.length > 0) {
+      optionImages.forEach((image) => {
+        if (image.images.length > 1) {
+          image.images.forEach((img) => {
+            formData.append(`${image.optionName}:${image.valueName}`, img);
+          });
+        } else
+          formData.append(
+            `${image.optionName}:${image.valueName}`,
+            image.images[0],
+          );
+      });
+    }
     // Serialize valid attribute pairs as JSON
     if (attributes?.length > 0) {
       const validAttrs = attributes.filter((a) => a.key.trim() !== "");
@@ -130,6 +145,7 @@ const CreateProduct = () => {
       await createProductHandler(formData);
       reset();
       setImages([]);
+      setOptionImages([]);
     } catch (_) {
       // Error already handled + dispatched inside createProductHandler
     }

@@ -8,10 +8,12 @@ export type OptionItem = {
   name: string;
   values: string[];
   _id?: string;
-  imageMap?: {
-    [key: string]: File[];
-  };
 };
+export type optionImages = {
+  images: File[];
+  valueName: string;
+  optionName: string;
+}[];
 
 export type ProductFormValues = {
   // ── Basic Information ──────────────────────────────────

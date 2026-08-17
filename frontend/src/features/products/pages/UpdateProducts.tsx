@@ -17,6 +17,9 @@ const UpdateProducts = () => {
   if (!slug) return null;
   const loading = useAppSelector((state: any) => state.product.loading);
   const slugProduct = useAppSelector((state: any) => state.product.slugProduct);
+  const [optionImages, setOptionImages] = useState(
+    [] as { images: File[]; fieldname: string }[],
+  );
 
   const { UpdateProductsPutHandler, GetProductThroughSlug } = useProduct();
 

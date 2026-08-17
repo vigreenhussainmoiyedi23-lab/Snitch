@@ -1,28 +1,11 @@
 import { useState } from "react";
+import { useAppSelector } from "../../../../app/redux/hook";
 
-type Option = {
-  _id: string;
-  name: string;
-  values: string[];
-  imageMap?: Record<string, string>;
-};
 
 const OptionsShowCase = () => {
-  const options: Option[] = [
-    {
-      name: "color",
-      values: ["Blue", "White", "Red"],
-      imageMap: {},
-      _id: "6a800d9843c505205800c9ed",
-    },
-    {
-      name: "Size",
-      values: ["S", "M", "L", "XL"],
-      imageMap: {},
-      _id: "6a800d9843c505205800c9ee",
-    },
-  ];
-
+  const slugProduct = useAppSelector((state) => state.product.slugProduct);
+  if (!slugProduct) return null;
+  const options = slugProduct.options;
   const [selectedOptions, setSelectedOptions] = useState<
     Record<string, string>
   >({});
@@ -36,8 +19,8 @@ const OptionsShowCase = () => {
 
   return (
     <div className="space-y-6 mb-6">
-      {options.map((option) => (
-        <div key={option._id}>
+      {options.map((option,idx) => (
+        <div key={idx}>
           {/* Header */}
           <div className="flex items-center gap-2 mb-3">
             <h3 className="text-sm font-semibold text-text capitalize">
@@ -54,16 +37,13 @@ const OptionsShowCase = () => {
           {/* Values */}
           <div className="flex flex-wrap gap-3">
             {option.values.map((value) => {
-              const isSelected =
-                selectedOptions[option.name] === value;
+              const isSelected = selectedOptions[option.name] === value;
 
               return (
                 <button
                   key={value}
                   type="button"
-                  onClick={() =>
-                    handleSelect(option.name, value)
-                  }
+                  onClick={() => handleSelect(option.name, value)}
                   className={`
                     min-w-[60px]
                     px-4
