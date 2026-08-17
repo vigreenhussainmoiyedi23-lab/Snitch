@@ -90,9 +90,9 @@ export default function AppRoutes() {
       <Route
         path="/checkout"
         element={
-          <CommonLayout>
+          <ProtectedLayout>
             |<Checkout />
-          </CommonLayout>
+          </ProtectedLayout>
         }
       />
       <Route

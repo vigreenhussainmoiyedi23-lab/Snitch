@@ -20,6 +20,7 @@ import PublishingSection from "../components/CreateProduct/PublishingSection";
 import SummaryCard from "../components/CreateProduct/SummaryCard";
 import type { ProductFormValues } from "../components/CreateProduct/types";
 import { Link } from "react-router-dom";
+import OptionsEditor from "../components/CreateProduct/OptionsEditor";
 
 // ── Submit button ─────────────────────────────────────────────
 
@@ -70,6 +71,7 @@ const CreateProduct = () => {
   const { createProductHandler } = useProduct();
   const [images, setImages] = useState<File[]>([]);
   const error = useAppSelector((state) => state.product.error);
+  const [optionImages, setOptionImages] = useState([] as File[]);
 
   const methods = useForm<ProductFormValues>({
     defaultValues: {
@@ -92,7 +94,7 @@ const CreateProduct = () => {
     const formData = new FormData();
 
     // Separate the attributes array from scalar fields
-    const { attributes,options, ...scalarFields } = data;
+    const { attributes, options, ...scalarFields } = data;
     if (options) {
       formData.append("options", JSON.stringify(options));
     }
@@ -214,12 +216,22 @@ const CreateProduct = () => {
                 >
                   <ClassificationSection />
                 </SectionCard>
+                <SectionCard
+                  number={4}
+                  title="Options"
+                  subtitle="Product options for variants creation."
+                >
+                  <OptionsEditor
+                    optionImages={optionImages}
+                    setOptionImages={setOptionImages}
+                  />
+                </SectionCard>
               </div>
 
               {/* ── Right column (1/3) ── */}
               <div className="lg:col-span-1 space-y-6">
                 <SectionCard
-                  number={4}
+                  number={5}
                   title="Pricing"
                   subtitle="Set MRP, discount percentage and currency."
                 >
@@ -227,7 +239,7 @@ const CreateProduct = () => {
                 </SectionCard>
 
                 <SectionCard
-                  number={5}
+                  number={6}
                   title="Inventory"
                   subtitle="Stock level, barcode and low-stock alert."
                 >
@@ -235,7 +247,7 @@ const CreateProduct = () => {
                 </SectionCard>
 
                 <SectionCard
-                  number={6}
+                  number={7}
                   title="Shipping"
                   subtitle="Physical dimensions used for shipping rates."
                 >
@@ -243,7 +255,7 @@ const CreateProduct = () => {
                 </SectionCard>
 
                 <SectionCard
-                  number={7}
+                  number={8}
                   title="SEO"
                   subtitle="Boost discoverability in search engines."
                 >
@@ -251,7 +263,7 @@ const CreateProduct = () => {
                 </SectionCard>
 
                 <SectionCard
-                  number={8}
+                  number={9}
                   title="Publishing"
                   subtitle="Status, visibility and featured flag."
                 >

@@ -1,9 +1,12 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useFormContext, useFieldArray } from "react-hook-form";
 import { Plus, Trash, X } from "lucide-react";
 import type { ProductFormValues } from "./types";
-
-const OptionsEditor = () => {
+type Props = {
+  setOptionImages: React.Dispatch<React.SetStateAction<File[]>>;
+  optionImages:File[]
+};
+const OptionsEditor = ({ setOptionImages,optionImages }: Props) => {
   const { register, control, setValue, getValues } =
     useFormContext<ProductFormValues>();
 
@@ -17,59 +20,59 @@ const OptionsEditor = () => {
   });
 
   const [valueInputs, setValueInputs] = useState<Record<number, string>>({});
-
   const addValue = (optionIndex: number) => {
     const value = valueInputs[optionIndex]?.trim();
 
     if (!value) return;
 
-    const currentValues =
-      getValues(`options.${optionIndex}.values`) || [];
+    const currentValues = getValues(`options.${optionIndex}.values`) || [];
 
     // Prevent duplicate values
     if (
       currentValues.some(
-        (existing) => existing.toLowerCase() === value.toLowerCase()
+        (existing) => existing.toLowerCase() === value.toLowerCase(),
       )
     ) {
       return;
     }
 
-    setValue(
-      `options.${optionIndex}.values`,
-      [...currentValues, value],
-      {
-        shouldDirty: true,
-        shouldTouch: true,
-      }
-    );
+    setValue(`options.${optionIndex}.values`, [...currentValues, value], {
+      shouldDirty: true,
+      shouldTouch: true,
+    });
+    setValue(`options.${optionIndex}.imageMap.${value}`, optionImages);
 
     setValueInputs((prev) => ({
       ...prev,
       [optionIndex]: "",
     }));
+
+    setOptionImages([]);
   };
 
   const removeValue = (optionIndex: number, valueIndex: number) => {
-    const currentValues =
-      getValues(`options.${optionIndex}.values`) || [];
+    const currentValues = getValues(`options.${optionIndex}.values`) || [];
 
     setValue(
       `options.${optionIndex}.values`,
       currentValues.filter((_, index) => index !== valueIndex),
       {
         shouldDirty: true,
-      }
+      },
     );
   };
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    const files = Array.from(e.target.files);
+
+    setOptionImages(files);
+  };
   return (
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h2 className="text-lg font-semibold text-primary">
-          Product Options
-        </h2>
+        <h2 className="text-lg font-semibold text-primary">Product Options</h2>
 
         <p className="text-sm text-primary-lighter/60 mt-1">
           Add options such as size, color, material, or capacity.
@@ -79,8 +82,7 @@ const OptionsEditor = () => {
       {/* Options */}
       <div className="space-y-4">
         {optionFields.map((option, optionIndex) => {
-          const values =
-            getValues(`options.${optionIndex}.values`) || [];
+          const values = getValues(`options.${optionIndex}.values`) || [];
 
           return (
             <div
@@ -101,8 +103,11 @@ const OptionsEditor = () => {
 
                 <button
                   type="button"
-                  onClick={() => removeOption(optionIndex)}
-                  className="p-2 rounded-lg text-text/40  bg-red-500 text-white hover:text-red-500 hover:bg-red-500/10 transition-colors"
+                  onClick={() => {
+                    removeOption(optionIndex);
+                    setOptionImages([]);
+                  }}
+                  className="p-2 rounded-lg   bg-red-500 text-white hover:text-red-500 hover:bg-red-500/10 transition-colors"
                   title="Remove option"
                 >
                   <Trash size={18} />
@@ -140,9 +145,7 @@ const OptionsEditor = () => {
 
                         <button
                           type="button"
-                          onClick={() =>
-                            removeValue(optionIndex, valueIndex)
-                          }
+                          onClick={() => removeValue(optionIndex, valueIndex)}
                           className="text-text/40 hover:text-red-500 transition-colors"
                         >
                           <X size={14} />
@@ -155,35 +158,59 @@ const OptionsEditor = () => {
                     </p>
                   )}
                 </div>
-
-                {/* Add value */}
-                <div className="flex gap-2">
-                  <input
-                    value={valueInputs[optionIndex] || ""}
-                    onChange={(e) =>
-                      setValueInputs((prev) => ({
-                        ...prev,
-                        [optionIndex]: e.target.value,
-                      }))
-                    }
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        addValue(optionIndex);
+                <div>
+                  <div className="flex gap-2">
+                    {optionImages.map((image, index) => (
+                      <img
+                        key={index}
+                        src={URL.createObjectURL(image)}
+                        alt={image.name}
+                        className="w-20 h-20 bg-center bg-cover"
+                      />
+                    ))}
+                  </div>
+                  {/* Add value */}
+                  <div className="flex gap-2">
+                    <input
+                      value={valueInputs[optionIndex] || ""}
+                      onChange={(e) =>
+                        setValueInputs((prev) => ({
+                          ...prev,
+                          [optionIndex]: e.target.value,
+                        }))
                       }
-                    }}
-                    placeholder="Enter a value..."
-                    className="flex-1 h-10 bg-background border border-border rounded-lg px-3 text-sm text-text outline-none transition focus:ring-2 focus:ring-primary/30 focus:border-primary"
-                  />
-
-                  <button
-                    type="button"
-                    onClick={() => addValue(optionIndex)}
-                    className="flex items-center gap-2 px-4 h-10 rounded-lg bg-primary text-background text-sm font-medium hover:bg-primary-dark transition active:scale-[0.98]"
-                  >
-                    <Plus size={16} />
-                    Add
-                  </button>
+                      onKeyDown={async (e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          addValue(optionIndex);
+                        }
+                      }}
+                      placeholder="Enter a value..."
+                      className="flex-1 h-10 bg-background border border-border rounded-lg px-3 text-sm text-text outline-none transition focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                    />
+                    <label
+                      className="flex w-45 text-center items-center justify-around gap-2 px-4 h-10 rounded-lg bg-background border border-border text-sm font-medium text-text cursor-pointer hover:bg-primary/5 transition-colors"
+                      htmlFor="ImageMap"
+                    >
+                      Upload Images For This Value
+                    </label>
+                    <input
+                      onChange={(e) => handleImageUpload(e)}
+                      type="file"
+                      id="ImageMap"
+                      multiple
+                      max={5}
+                      hidden
+                    />
+                    <button
+                      type="button"
+                      onClick={() => addValue(optionIndex)}
+                      className="flex items-center gap-2 px-4 h-10 rounded-lg bg-primary text-background text-sm font-medium hover:bg-primary-dark transition active:scale-[0.98]"
+                    >
+                      <Plus size={16} />
+                      Add
+                    </button>
+                  </div>
                 </div>
 
                 <p className="text-xs text-text/40 mt-2">

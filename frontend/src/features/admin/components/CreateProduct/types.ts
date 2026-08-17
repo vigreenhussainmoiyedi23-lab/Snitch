@@ -7,6 +7,10 @@ export type AttributeItem = {
 export type OptionItem = {
   name: string;
   values: string[];
+  _id?: string;
+  imageMap?: {
+    [key: string]: File[];
+  };
 };
 
 export type ProductFormValues = {
