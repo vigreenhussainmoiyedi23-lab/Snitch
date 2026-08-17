@@ -249,7 +249,6 @@ export const DeleteProductHandler = asyncHandler(async (req, res) => {
 });
 
 export const UpdateProductsPutHandler = asyncHandler(async (req, res) => {
-  const user = req.user;
   const { id } = req.params;
   let validBrand, validCategory, validSubCategory;
 
@@ -324,9 +323,9 @@ export const UpdateProductsOptionsHandler = asyncHandler(async (req, res) => {
   isAdmin(req.user);
   const { id } = req.params;
   const files = req.files as Express.Multer.File[];
-  const keep = req.body.keep || [];
-
-  if (!keep) throw new AppError("Keep is required", 400);
+  const remove: { name: string; fileId: string; value: string }[] =
+    req.body.remove || [];
+  if (!remove) throw new AppError("remove is required", 400);
   let newFilesResponses;
   if (files) {
     newFilesResponses = await Promise.all(
@@ -342,14 +341,12 @@ export const UpdateProductsOptionsHandler = asyncHandler(async (req, res) => {
 
   const product = await productModel.findById(id);
   if (!product) throw new AppError("Product not found", 404);
-
-  product!.images = product!.images.filter((image) => {
-    console.log(
-      image.fileId!.toString(),
-      keep.includes(image.fileId!.toString()),
+  const newOptions = product!.options.map(({ name, values, imageMap }, idx) => {
+    let toBeRemoved = remove.find(
+      (o) => o.name === name && values.includes(o.value),
     );
-    return keep.includes(image.fileId!.toString());
-  }) as any;
+    console.log(toBeRemoved);
+  });
   if (newFilesResponses) {
     product!.images.push(...newFilesResponses);
   }

@@ -81,7 +81,7 @@ productRouter.patch(
 );
 /**
  * @patch /api/products/:id/options
- * @body {keep:
+ * @body {remove:[{name:"",value:"",fileId:""}]}
  * @files {images}:new images
  */
 productRouter.patch(
