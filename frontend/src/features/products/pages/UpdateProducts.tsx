@@ -17,9 +17,7 @@ const UpdateProducts = () => {
   if (!slug) return null;
   const loading = useAppSelector((state: any) => state.product.loading);
   const slugProduct = useAppSelector((state: any) => state.product.slugProduct);
-  const [optionImages, setOptionImages] = useState(
-    [] as { images: File[]; fieldname: string }[],
-  );
+  
 
   const { UpdateProductsPutHandler, GetProductThroughSlug } = useProduct();
 
@@ -174,7 +172,7 @@ const UpdateProducts = () => {
               {/* mrp | discount | stock */}
               <PriceSection methods={methods} />
             </div>
-            <AttributesOptionsSection />
+            <AttributesOptionsSection options={slugProduct.options}/>
             <div className="pt-4">
               <button
                 type="submit"

@@ -9,8 +9,14 @@ export type OptionItem = {
   values: string[];
   _id?: string;
 };
+export type Image = {
+  url: string;
+  thumbnailUrl: string;
+  fileId: string;
+};
+
 export type optionImages = {
-  images: File[];
+  images: File[] | Image[];
   valueName: string;
   optionName: string;
 }[];

@@ -110,15 +110,11 @@ const CreateProduct = () => {
     });
     if (optionImages.length > 0) {
       optionImages.forEach((image) => {
-        if (image.images.length > 1) {
-          image.images.forEach((img) => {
+        if (image.images.length <= 0) return;
+        image.images.forEach((img) => {
+          if (img instanceof File)
             formData.append(`${image.optionName}:${image.valueName}`, img);
-          });
-        } else
-          formData.append(
-            `${image.optionName}:${image.valueName}`,
-            image.images[0],
-          );
+        });
       });
     }
     // Serialize valid attribute pairs as JSON

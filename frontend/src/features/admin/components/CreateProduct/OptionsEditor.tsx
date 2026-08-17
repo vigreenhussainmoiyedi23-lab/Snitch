@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useFormContext, useFieldArray, useWatch } from "react-hook-form";
-import { Plus, Trash, X } from "lucide-react";
+import { ImagePlus, Plus, Trash, X } from "lucide-react";
 import type { optionImages, ProductFormValues } from "./types";
 type Props = {
   setOptionImages: React.Dispatch<React.SetStateAction<optionImages>>;
@@ -44,6 +44,7 @@ const OptionsEditor = ({ setOptionImages, optionImages }: Props) => {
   const imageUplodref = useRef<HTMLInputElement>(null);
   const previousNamesRef = useRef<Record<number, string>>({});
   const [valueInputs, setValueInputs] = useState<Record<number, string>>({});
+
   const addValue = (optionIndex: number) => {
     const value = valueInputs[optionIndex]?.trim();
     if (!value) return;
@@ -88,7 +89,6 @@ const OptionsEditor = ({ setOptionImages, optionImages }: Props) => {
     }));
     setSelectedImages([]);
   };
-
   const removeValue = (optionIndex: number, valueIndex: number) => {
     const currentValues = getValues(`options.${optionIndex}.values`) || [];
 
@@ -131,6 +131,9 @@ const OptionsEditor = ({ setOptionImages, optionImages }: Props) => {
     });
     previousNamesRef.current[optionIndex] = newName;
   };
+  const removeSelectedImage = (index: number) => {
+    setSelectedImages((prev) => prev.filter((_, i) => i !== index));
+  }
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -211,21 +214,35 @@ const OptionsEditor = ({ setOptionImages, optionImages }: Props) => {
                           i.optionName ===
                             getValues(`options.${optionIndex}.name`),
                       );
+                      let image, src;
+                      if (
+                        optionImage &&
+                        optionImage.images &&
+                        optionImage.images.length > 0
+                      ) {
+                        console.log(optionImage);
+
+                        image = optionImage?.images[0];
+                        src =
+                          image instanceof File
+                            ? URL.createObjectURL(image)
+                            : image.url;
+                      }
+
                       return (
                         <div
                           key={`${value}-${valueIndex}`}
                           className="inline-flex items-center flex-col gap-1.5 rounded border border-border bg-background px-3 py-1.5 text-sm text-text"
                         >
-                          {optionImage?.images.length! > 0 &&
-                          optionImage?.images[0] ? (
-                            <img
-                              src={URL.createObjectURL(optionImage.images[0])}
-                              alt={value}
-                              className="w-20 h-20 rounded object-center object-cover"
-                            />
-                          ) : (
-                            ""
-                          )}
+                          {optionImage &&
+                            optionImage.images &&
+                            optionImage.images.length > 0 && (
+                              <img
+                                src={src}
+                                alt={optionImage.valueName}
+                                className="w-8 h-8 rounded object-center object-cover"
+                              />
+                            )}
                           <div className="flex gap-2">
                             <span>{value}</span>
                             <button
@@ -254,12 +271,19 @@ const OptionsEditor = ({ setOptionImages, optionImages }: Props) => {
                         Selected Images
                       </label>
                       {selectedImages.map((image, index) => (
-                        <div key={index}>
+                        <div key={index} className="relative w-fit">
                           <img
                             src={URL.createObjectURL(image)}
                             alt="Selected"
                             className="w-20 h-20 rounded object-center object-cover"
                           />
+                          <button
+                            type="button"
+                            onClick={() => removeSelectedImage(index)}
+                            className=" text-white rounded-full p-1 absolute top-2 right-2 bg-red-500 transition-colors"
+                          >
+                            <X size={14} />
+                          </button>
                         </div>
                       ))}
                     </div>
@@ -284,10 +308,26 @@ const OptionsEditor = ({ setOptionImages, optionImages }: Props) => {
                       className="flex-1 h-10 bg-background border border-border rounded-lg px-3 text-sm text-text outline-none transition focus:ring-2 focus:ring-primary/30 focus:border-primary"
                     />
                     <label
-                      className="flex w-45 text-center items-center justify-around gap-2 px-4 h-10 rounded-lg bg-background border border-border text-sm font-medium text-text cursor-pointer hover:bg-primary/5 transition-colors"
                       htmlFor="ImageMap"
+                      className="
+    group flex h-10 w-52 cursor-pointer items-center justify-center gap-2
+    rounded-lg border border-dashed border-border
+    bg-background px-4
+    text-sm font-medium text-text/70
+    transition-all duration-200
+    hover:border-primary/60
+    hover:bg-primary/5
+    hover:text-primary
+    active:scale-[0.98]
+  "
                     >
-                      Upload Images For This Value
+                      <ImagePlus
+                        size={17}
+                        strokeWidth={1.8}
+                        className="transition-transform duration-200 group-hover:-translate-y-0.5"
+                      />
+
+                      <span>Upload images</span>
                     </label>
                     <input
                       ref={imageUplodref}
