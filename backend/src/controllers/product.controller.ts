@@ -325,7 +325,6 @@ export const UpdateProductsOptionsHandler = asyncHandler(async (req, res) => {
   const files = req.files as Express.Multer.File[];
   const remove: { name: string; fileId: string; value: string }[] =
     req.body.remove || [];
-  if (!remove) throw new AppError("remove is required", 400);
   let newFilesResponses;
   if (files) {
     newFilesResponses = await Promise.all(
@@ -347,11 +346,7 @@ export const UpdateProductsOptionsHandler = asyncHandler(async (req, res) => {
     );
     console.log(toBeRemoved);
   });
-  if (newFilesResponses) {
-    product!.images.push(...newFilesResponses);
-  }
-  if (product.images.length === 0)
-    throw new AppError("At least one image is required", 400);
+
   await product.save();
   res.status(200).json({
     product,

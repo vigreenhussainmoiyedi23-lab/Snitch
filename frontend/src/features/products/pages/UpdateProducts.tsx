@@ -52,6 +52,7 @@ const UpdateProducts = () => {
   });
 
   const [keep, setKeep] = useState<string[]>([]);
+  
   const [newImages, setNewImages] = useState<File[]>([]);
   const [newImagePreviews, setNewImagePreviews] = useState<string[]>([]);
 
