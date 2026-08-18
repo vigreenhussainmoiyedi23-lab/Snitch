@@ -101,7 +101,7 @@ export const useProduct = () => {
       dispatch(setLoading(false));
     }
   }
-  async function UpdateProductOptionsHandelr(id: string, data: any) {
+  async function UpdateProductOptionsHandler(id: string, data: any) {
     dispatch(setLoading(true));
     try {
       const response = await UpdateOptionApi(id, data);
@@ -140,7 +140,7 @@ export const useProduct = () => {
     GetAllEnumsHandler,
     UpdateProductsPutHandler,
     UpdateProductsPatchHandler,
-    UpdateProductOptionsHandelr,
+    UpdateProductOptionsHandler,
     DeleteProductHandler,
   };
 };
