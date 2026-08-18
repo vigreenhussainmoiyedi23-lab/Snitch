@@ -322,7 +322,9 @@ export const UpdateProductsPatchHandler = asyncHandler(async (req, res) => {
 export const UpdateProductsOptionsHandler = asyncHandler(async (req, res) => {
   isAdmin(req.user);
   const { id } = req.params;
+
   const files = req.files as Express.Multer.File[];
+  return res.send(files)
   const remove: { name: string; fileId: string; value: string }[] =
     req.body.remove || [];
   let newFilesResponses;

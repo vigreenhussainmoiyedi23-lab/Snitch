@@ -14,6 +14,7 @@ import {
   GetAllEnumsApi,
   GetProductsAPI,
   GetSingleProductAPI,
+  UpdateOptionApi,
   UpdateProductPatchApi,
   UpdateProductPutAPI,
 } from "../service/api.service";
@@ -70,7 +71,7 @@ export const useProduct = () => {
     dispatch(setLoading(true));
     try {
       const response = await GetAllEnumsApi();
-      
+
       dispatch(setEnums(response));
     } catch (error) {
       handleError(error, dispatch, setError);
@@ -100,6 +101,17 @@ export const useProduct = () => {
       dispatch(setLoading(false));
     }
   }
+  async function UpdateProductOptionsHandelr(id: string, data: any) {
+    dispatch(setLoading(true));
+    try {
+      const response = await UpdateOptionApi(id, data);
+      return response;
+    } catch (error) {
+      handleError(error, dispatch, setError);
+    } finally {
+      dispatch(setLoading(false));
+    }
+  }
   async function DeleteProductHandler(id: string) {
     dispatch(setLoading(true));
     const toastId = toast.loading("Deleting Product...");
@@ -120,6 +132,7 @@ export const useProduct = () => {
       dispatch(setLoading(false));
     }
   }
+
   return {
     createProductHandler,
     GetAllProducts,
@@ -127,6 +140,7 @@ export const useProduct = () => {
     GetAllEnumsHandler,
     UpdateProductsPutHandler,
     UpdateProductsPatchHandler,
+    UpdateProductOptionsHandelr,
     DeleteProductHandler,
   };
 };

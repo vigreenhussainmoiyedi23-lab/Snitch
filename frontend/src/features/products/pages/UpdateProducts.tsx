@@ -10,21 +10,50 @@ import ClassisficationSection from "../components/UpdateProducts/Classisfication
 import PriceSection from "../components/UpdateProducts/PriceSection";
 import ProductStatusUpdation from "../components/UpdateProducts/ProductStatusUpdation";
 import MainDetails from "../components/UpdateProducts/MainDetails";
-import AttributesOptionsSection from "../components/UpdateProducts/AttributesOptionsSection";
+export type Image = {
+  url: string;
+  thumbnailUrl: string;
+  fileId: string;
+};
+
+import OptionsEditor from "../../admin/components/CreateProduct/OptionsEditor";
+import AttributeEditor from "../../admin/components/CreateProduct/AttributeEditor";
+import type { optionImages } from "../../admin/components/CreateProduct/types";
 
 const UpdateProducts = () => {
   const { slug } = useParams();
   if (!slug) return null;
   const loading = useAppSelector((state: any) => state.product.loading);
   const slugProduct = useAppSelector((state: any) => state.product.slugProduct);
-  
-
+  const [optionImages, setOptionImages] = useState([] as optionImages);
+  const methodsForOptions = useForm({
+    defaultValues: {
+      options: [] as File[] | Image[],
+      remove: [] as { name: string; fileId: string; value: string }[],
+    },
+  });
   const { UpdateProductsPutHandler, GetProductThroughSlug } = useProduct();
 
   useEffect(() => {
     GetProductThroughSlug(slug);
   }, [slug]);
-
+  useEffect(() => {
+    if (!slugProduct?.options) return;
+    const optionImagesInside = slugProduct.options.map(
+      (option: { name: string; values: string[]; imageMap: any }) => {
+        return option.values.map((value) => ({
+          valueName: value,
+          images: option.imageMap[value],
+          optionName: option.name,
+        }));
+      },
+    );
+    setOptionImages(optionImagesInside.flat());
+    methodsForOptions.reset({
+      options: slugProduct.options,
+      remove: [] as { name: string; fileId: string; value: string }[],
+    });
+  }, [slugProduct?.options, methodsForOptions]);
   const methods = useForm({
     defaultValues: {
       title: "",
@@ -43,16 +72,11 @@ const UpdateProducts = () => {
       discount: 0,
       // UI representation
       attributes: [] as { key: string; value: string }[],
-      options: [] as {
-        name: string;
-        values: string[];
-        imageMap?: Record<string, any[]>;
-      }[],
     },
   });
 
   const [keep, setKeep] = useState<string[]>([]);
-  
+
   const [newImages, setNewImages] = useState<File[]>([]);
   const [newImagePreviews, setNewImagePreviews] = useState<string[]>([]);
 
@@ -81,7 +105,6 @@ const UpdateProducts = () => {
         isFeatured: slugProduct.isFeatured ? "true" : "false",
         discount: slugProduct.discount || 0,
         attributes: attributes || {},
-        options: slugProduct.options || [],
       });
 
       if (slugProduct.images) {
@@ -95,6 +118,7 @@ const UpdateProducts = () => {
 
   const onDetailsSubmit = async (data: any) => {
     // Format tags if needed
+
     const attributes = data?.attributes?.reduce((acc: any, val: any) => {
       acc[val.key] = val.value;
       return acc;
@@ -121,7 +145,29 @@ const UpdateProducts = () => {
       toast.error("Failed to update details");
     }
   };
+  const onOptionsSubmit = async (data: any) => {
+    console.log(data,slugProduct.options);
 
+    const formData = new FormData();
+    optionImages.forEach((image) => {
+      if (image.images.length <= 0) return;
+      image.images.forEach((img) => {
+        if (img instanceof File)
+          formData.append(`${image.optionName}:${image.valueName}`, img);
+      });
+    });
+
+    try {
+      await UpdateProductsPutHandler({
+        id: slugProduct._id,
+        data: data,
+      });
+      toast.success("Product options updated successfully!");
+      GetProductThroughSlug(slug);
+    } catch (err) {
+      toast.error("Failed to update options");
+    }
+  };
   return (
     <div className="w-full max-w-6xl mx-auto p-4 md:p-6 pb-20 mate">
       <div>
@@ -172,8 +218,8 @@ const UpdateProducts = () => {
               <ProductStatusUpdation methods={methods} />
               {/* mrp | discount | stock */}
               <PriceSection methods={methods} />
+              <AttributeEditor />
             </div>
-            <AttributesOptionsSection options={slugProduct.options}/>
             <div className="pt-4">
               <button
                 type="submit"
@@ -182,6 +228,24 @@ const UpdateProducts = () => {
                 Save Details
               </button>
             </div>
+          </form>
+        </FormProvider>
+      </section>
+
+      {/* Options Section */}
+      <section className="bg-text p-6 rounded-xl shadow-soft mt-6">
+        <FormProvider {...methodsForOptions}>
+          <form onSubmit={methodsForOptions.handleSubmit(onOptionsSubmit)}>
+            <OptionsEditor
+              optionImages={optionImages}
+              setOptionImages={setOptionImages}
+            />
+            <button
+              type="submit"
+              className="bg-primary font-bold mt-12 text-white px-4 py-2 rounded-full"
+            >
+              Save Options
+            </button>
           </form>
         </FormProvider>
       </section>

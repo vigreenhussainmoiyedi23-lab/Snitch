@@ -131,9 +131,11 @@ const OptionsEditor = ({ setOptionImages, optionImages }: Props) => {
     });
     previousNamesRef.current[optionIndex] = newName;
   };
+
   const removeSelectedImage = (index: number) => {
     setSelectedImages((prev) => prev.filter((_, i) => i !== index));
   }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -220,8 +222,6 @@ const OptionsEditor = ({ setOptionImages, optionImages }: Props) => {
                         optionImage.images &&
                         optionImage.images.length > 0
                       ) {
-                        console.log(optionImage);
-
                         image = optionImage?.images[0];
                         src =
                           image instanceof File

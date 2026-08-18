@@ -28,15 +28,23 @@ export type product = {
     [key: string]: string;
   };
   rating: {
-    average: number
-  },
-  options:[{
-    name:string;
-    values:string[]
-  }]
+    average: number;
+  };
+  options: [
+    {
+      name: string;
+      values: string[];
+      imageMap: {
+        [key: string]: {
+          fileId: string;
+          url: string;
+          thumbnailUrl: string;
+        };
+      };
+    },
+  ];
 };
 export type variant = {
-
   images: { fileId: string; thumbnailUrl: string; url: string }[];
   _id: string;
   stock: number;
@@ -46,5 +54,5 @@ export type variant = {
   attributes: {
     [key: string]: string;
   };
-  productId: string
-}
+  productId: string;
+};

@@ -42,3 +42,7 @@ export const GetAllEnumsApi = async () => {
   return response.data;
 };
 
+export const UpdateOptionApi = async (id: string, data: any) => {
+  const response = await api.put(`/api/products/${id}/options`, data);
+  return response.data;
+};
