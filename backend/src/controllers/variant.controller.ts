@@ -28,7 +28,21 @@ export const createVariantHandler = asyncHandler(async (req, res) => {
       ),
     );
     responses.map((image) => images.push(image));
-  }else{
+  } else {
+    console.log(product.options, "finding an  Image to assign");
+    Object.entries(attributes).map(([key, value]) => {
+      let option = product.options.find((o: any) => o.name === key);
+      if (
+        !option ||
+        typeof value !== "string" ||
+        !option.values.includes(value)
+      )
+        throw new AppError("Invalid Option Name for this variant", 400);
+      if (option.imageMap.get(value)) {
+        images.push(...(option.imageMap.get(value) ?? []));
+      }
+      console.log(key, value, option.imageMap.get(value));
+    });
   }
   const sku =
     product.sku +
@@ -52,7 +66,7 @@ export const createVariantHandler = asyncHandler(async (req, res) => {
     attributes: attributes,
     images: images || [],
     sku,
-    productId:productId!?.toString()
+    productId: productId!?.toString(),
   });
   product.variants.push(variant._id);
   await product.save();
@@ -82,7 +96,7 @@ export const createMultipleVariantHandler = asyncHandler(async (req, res) => {
       ),
     );
     responses.map((image) => images.push(image));
-  }else{
+  } else {
   }
   const sku =
     product.sku +
@@ -106,7 +120,7 @@ export const createMultipleVariantHandler = asyncHandler(async (req, res) => {
     attributes: attributes,
     images: images || [],
     sku,
-    productId:productId!?.toString()
+    productId: productId!?.toString(),
   });
   product.variants.push(variant._id);
   await product.save();

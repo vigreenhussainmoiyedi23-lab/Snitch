@@ -31,12 +31,23 @@ const CreateVariantSection: React.FC<VariantSectionProps> = ({
     useVariant();
   const variants = useAppSelector((s) => s.variant.variants);
   const loading = useAppSelector((s) => s.variant.loading);
+  const slugProduct = useAppSelector((s: any) => s.product.slugProduct);
+
+  const productOptions = (slugProduct?.options ?? []).filter(
+    (o: any) => o.values && o.values.length > 0
+  );
+
+  const defaultAttributesFromOptions = () =>
+    productOptions.length > 0
+      ? productOptions.map((o: any) => ({ key: o.name, value: "" }))
+      : [{ key: "", value: "" }];
+
   const [showCreate, setShowCreate] = useState(false);
   const [createForm, setCreateForm] = useState({
     mrp: "",
     discount: "",
     stock: "",
-    attributes: [{ key: "", value: "" }],
+    attributes: defaultAttributesFromOptions(),
     images: [] as File[],
   });
   const [createPreviews, setCreatePreviews] = useState<string[]>([]);
@@ -48,7 +59,7 @@ const CreateVariantSection: React.FC<VariantSectionProps> = ({
     if (createForm.discount) fd.append("discount", createForm.discount);
     fd.append("stock", createForm.stock);
     const attrObj: Record<string, string> = {};
-    createForm.attributes.forEach(({ key, value }) => {
+    createForm.attributes.forEach(({ key, value }:any) => {
       if (key.trim()) attrObj[key.trim()] = value.trim();
     });
     fd.append("attributes", JSON.stringify(attrObj));
@@ -60,7 +71,7 @@ const CreateVariantSection: React.FC<VariantSectionProps> = ({
       mrp: "",
       discount: "",
       stock: "",
-      attributes: [{ key: "", value: "" }],
+      attributes: defaultAttributesFromOptions(),
       images: [],
     });
     setCreatePreviews([]);
@@ -89,9 +100,9 @@ const CreateVariantSection: React.FC<VariantSectionProps> = ({
       attributes:
         Object.entries(attrs).length > 0
           ? Object.entries(attrs).map(([key, value]) => ({
-              key,
-              value: value as string,
-            }))
+            key,
+            value: value as string,
+          }))
           : [{ key: "", value: "" }],
       newImages: [],
       keepFileIds: (variant.images || [])
@@ -173,6 +184,7 @@ const CreateVariantSection: React.FC<VariantSectionProps> = ({
           previews={createPreviews}
           fileError={createFileError}
           loading={loading}
+          productOptions={productOptions}
           onFormChange={setCreateForm}
           onImagesChange={(files) => {
             setCreateForm((f) => ({ ...f, images: files }));
@@ -213,6 +225,7 @@ const CreateVariantSection: React.FC<VariantSectionProps> = ({
                     previews={editPreviews}
                     fileError={editFileError}
                     loading={loading}
+                    productOptions={productOptions}
                     onFormChange={setEditForm}
                     onImagesChange={(files) => {
                       setEditForm((f) => ({ ...f, newImages: files }));

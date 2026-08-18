@@ -4,6 +4,7 @@ import { Plus, Check, Loader2, X } from "lucide-react";
 import PriceInputs from "./PriceInputs";
 import AttributeInputRow from "./AttributeInputRow";
 import ImageUploadSection from "./ImageUploadSection";
+import OptionSelector, { type ProductOption } from "./OptionSelector";
 
 interface EditVariantFormProps {
   variant: any;
@@ -18,6 +19,7 @@ interface EditVariantFormProps {
   previews: string[];
   fileError: string;
   loading: boolean;
+  productOptions: ProductOption[];
   onFormChange: (form: any) => void;
   onImagesChange: (files: File[]) => void;
   onFileErrorChange: (error: string) => void;
@@ -33,6 +35,7 @@ const EditVariantForm: React.FC<EditVariantFormProps> = ({
   previews,
   fileError,
   loading,
+  productOptions,
   onFormChange,
   onImagesChange,
   onFileErrorChange,
@@ -76,58 +79,67 @@ const EditVariantForm: React.FC<EditVariantFormProps> = ({
             onStockChange={(val) => onFormChange({ ...form, stock: val })}
           />
 
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="mate text-xs text-text-subtle">
-                Attributes
-              </label>
-              <button
-                onClick={() =>
-                  onFormChange({
-                    ...form,
-                    attributes: [...form.attributes, { key: "", value: "" }],
-                  })
-                }
-                className="text-xs text-primary hover:text-primary-dark flex items-center gap-1 transition"
-              >
-                <Plus className="w-3 h-3" /> Add Row
-              </button>
+          {/* Attributes — option selector or free-text fallback */}
+          {productOptions && productOptions.length > 0 ? (
+            <OptionSelector
+              options={productOptions}
+              attributes={form.attributes}
+              onChange={(attrs) => onFormChange({ ...form, attributes: attrs })}
+            />
+          ) : (
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="mate text-xs text-text-subtle">
+                  Attributes
+                </label>
+                <button
+                  onClick={() =>
+                    onFormChange({
+                      ...form,
+                      attributes: [...form.attributes, { key: "", value: "" }],
+                    })
+                  }
+                  className="text-xs text-primary hover:text-primary-dark flex items-center gap-1 transition"
+                >
+                  <Plus className="w-3 h-3" /> Add Row
+                </button>
+              </div>
+              <div className="space-y-2">
+                {form.attributes.map((attr, idx) => (
+                  <AttributeInputRow
+                    key={idx}
+                    keyValue={attr.key}
+                    value={attr.value}
+                    keyPlaceholder="Key"
+                    valuePlaceholder="Value"
+                    onKeyChange={(val) =>
+                      onFormChange({
+                        ...form,
+                        attributes: form.attributes.map((a, i) =>
+                          i === idx ? { ...a, key: val } : a,
+                        ),
+                      })
+                    }
+                    onValueChange={(val) =>
+                      onFormChange({
+                        ...form,
+                        attributes: form.attributes.map((a, i) =>
+                          i === idx ? { ...a, value: val } : a,
+                        ),
+                      })
+                    }
+                    onRemove={() =>
+                      onFormChange({
+                        ...form,
+                        attributes: form.attributes.filter((_, i) => i !== idx),
+                      })
+                    }
+                    showRemove={form.attributes.length > 1}
+                  />
+                ))}
+              </div>
             </div>
-            <div className="space-y-2">
-              {form.attributes.map((attr, idx) => (
-                <AttributeInputRow
-                  key={idx}
-                  keyValue={attr.key}
-                  value={attr.value}
-                  keyPlaceholder="Key"
-                  valuePlaceholder="Value"
-                  onKeyChange={(val) =>
-                    onFormChange({
-                      ...form,
-                      attributes: form.attributes.map((a, i) =>
-                        i === idx ? { ...a, key: val } : a,
-                      ),
-                    })
-                  }
-                  onValueChange={(val) =>
-                    onFormChange({
-                      ...form,
-                      attributes: form.attributes.map((a, i) =>
-                        i === idx ? { ...a, value: val } : a,
-                      ),
-                    })
-                  }
-                  onRemove={() =>
-                    onFormChange({
-                      ...form,
-                      attributes: form.attributes.filter((_, i) => i !== idx),
-                    })
-                  }
-                  showRemove={form.attributes.length > 1}
-                />
-              ))}
-            </div>
-          </div>
+          )}
 
           <div>
             {variant.images?.length > 0 && (

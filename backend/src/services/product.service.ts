@@ -59,7 +59,7 @@ export const deleteImageFromFileId = async (fileId: string) => {
   const res = await imagekit.files.delete(fileId);
   return res;
 };
-export const isValidProductId = async (id: string | null | undefined) => {
+export const isValidProductId  = async (id: string | null | undefined) => {
   if (!id) throw new AppError("Product not found", 404);
   const product = await productModel.findById(id);
   if (!product) throw new AppError("Product not found", 404);
