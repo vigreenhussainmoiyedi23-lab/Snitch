@@ -324,31 +324,44 @@ export const UpdateProductsOptionsHandler = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
   const files = req.files as Express.Multer.File[];
-  return res.send(files)
-  const remove: { name: string; fileId: string; value: string }[] =
-    req.body.remove || [];
+  const remove: { name: string; fileId: string[]; values: string[] }[] =
+    JSON.parse(req.body.remove) || [];
   let newFilesResponses;
   if (files) {
     newFilesResponses = await Promise.all(
-      files.map((file) =>
-        uploadImage({
+      files.map(async (file) => {
+        const responses = await uploadImage({
           buffer: file.buffer,
           fileName: file.originalname,
           folder: "products",
-        }),
-      ),
+        });
+        let [name, value] = file.fieldname.split(":");
+        return {
+          images: responses,
+          name,
+          value,
+        };
+      }),
     );
   }
 
   const product = await productModel.findById(id);
   if (!product) throw new AppError("Product not found", 404);
-  const newOptions = product!.options.map(({ name, values, imageMap }, idx) => {
-    let toBeRemoved = remove.find(
-      (o) => o.name === name && values.includes(o.value),
-    );
-    console.log(toBeRemoved);
+  const newOptions = product!.options.map(({ name, values, imageMap }) => {
+    const IsToBeRemoved = remove?.find((r) => r.name === name);
+    if (IsToBeRemoved) {
+      const removeValues = IsToBeRemoved.values;
+      const newValues = values.filter((v) => !removeValues.includes(v));
+      values = newValues;
+      removeValues.map((v) => {
+        imageMap.delete(v);
+      });
+    }
+
+    return { name, values, imageMap };
   });
 
+  product!.options.splice(0, product!.options.length, ...newOptions);
   await product.save();
   res.status(200).json({
     product,
