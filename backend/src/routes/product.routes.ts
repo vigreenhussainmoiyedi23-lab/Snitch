@@ -81,9 +81,9 @@ productRouter.patch(
 );
 /**
  * @patch /api/products/:id/options
- * @body {remove:[{name:"",value:"",fileId:""}]}
+ * @body {remove:[{name:"",value:"",fileId:""}], add :[{name:"",value:""}]}
  * @files {"name:value"}
- */
+ */ 
 productRouter.patch(
   "/:id/options",
   upload.any(),

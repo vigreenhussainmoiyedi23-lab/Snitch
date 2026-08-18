@@ -11,7 +11,11 @@ import {
 } from "../services/product.service.js";
 import AppError from "../utils/AppError.js";
 import asyncHandler from "../utils/AsyncHandler.js";
-
+export type Image = {
+  fileId: string;
+  url: string;
+  thumbnailUrl: string;
+};
 export const CreateProductHandler = asyncHandler(async (req, res) => {
   const files = req.files as Express.Multer.File[];
   if (!files) throw new AppError("No files uploaded", 400);
@@ -219,35 +223,7 @@ export const GetProductThroughSlugHandler = asyncHandler(async (req, res) => {
     success: true,
   });
 });
-
-export const DeleteProductHandler = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-
-  const product = await productModel.findById(id);
-
-  if (!product) {
-    throw new AppError("Product not found", 404);
-  }
-
-  const imageDeletePromises = [
-    ...product.images.map((image) => deleteImageFromFileId(image.fileId!)),
-
-    ...product.options.flatMap((option) =>
-      Array.from(option.imageMap.values())
-        .flat()
-        .map((image) => deleteImageFromFileId(image.fileId!)),
-    ),
-  ];
-
-  await Promise.all(imageDeletePromises);
-
-  await productModel.findByIdAndDelete(id);
-
-  res.status(200).json({
-    message: "Product deleted successfully",
-  });
-});
-
+// Update Routes
 export const UpdateProductsPutHandler = asyncHandler(async (req, res) => {
   const { id } = req.params;
   let validBrand, validCategory, validSubCategory;
@@ -322,22 +298,34 @@ export const UpdateProductsPatchHandler = asyncHandler(async (req, res) => {
 export const UpdateProductsOptionsHandler = asyncHandler(async (req, res) => {
   isAdmin(req.user);
   const { id } = req.params;
+  const product = await productModel.findById(id);
+  if (!product) throw new AppError("Product not found", 404);
 
   const files = req.files as Express.Multer.File[];
   const remove: { name: string; fileId: string[]; values: string[] }[] =
-    JSON.parse(req.body.remove) || [];
-  let newFilesResponses;
+    JSON.parse(req.body.remove || "[]");
+  const add = JSON.parse(req.body.add || "[]");
+  let newFilesResponses:
+    | null
+    | { images: Image[]; name: string; value: string }[] = null;
+
+  // Uploading File Logic
   if (files) {
     newFilesResponses = await Promise.all(
       files.map(async (file) => {
-        const responses = await uploadImage({
+        const { url, thumbnailUrl, fileId } = await uploadImage({
           buffer: file.buffer,
           fileName: file.originalname,
-          folder: "products",
+          folder: "products/options",
         });
         let [name, value] = file.fieldname.split(":");
+        if (!name || !value || !url || !thumbnailUrl || !fileId)
+          throw new AppError(
+            "Url or fileId or name or value or ThumbnailUrl not found",
+            500,
+          );
         return {
-          images: responses,
+          images: [{ url, thumbnailUrl, fileId }],
           name,
           value,
         };
@@ -345,11 +333,10 @@ export const UpdateProductsOptionsHandler = asyncHandler(async (req, res) => {
     );
   }
 
-  const product = await productModel.findById(id);
-  if (!product) throw new AppError("Product not found", 404);
   const newOptions = product!.options.map(({ name, values, imageMap }) => {
     const IsToBeRemoved = remove?.find((r) => r.name === name);
     if (IsToBeRemoved) {
+      console.log("IsToBeRemoved", IsToBeRemoved);
       const removeValues = IsToBeRemoved.values;
       const newValues = values.filter((v) => !removeValues.includes(v));
       values = newValues;
@@ -357,14 +344,84 @@ export const UpdateProductsOptionsHandler = asyncHandler(async (req, res) => {
         imageMap.delete(v);
       });
     }
-
+    if (values.length === 0) {
+      return null;
+    }
     return { name, values, imageMap };
   });
-
-  product!.options.splice(0, product!.options.length, ...newOptions);
+  if (newFilesResponses) {
+    newFilesResponses.map((f) => {
+      const { name, value, images } = f;
+      const isOption = newOptions.find((o) => o!?.name === name);
+      if (isOption) {
+        isOption.imageMap.set(value, images as any);
+        if (!isOption.values.includes(value))
+          isOption.values.push(value);
+      } else {
+        newOptions.unshift({
+          name,
+          values: [value],
+          imageMap: new Map().set(value, images),
+        });
+      }
+    });
+  }
+  if (add && add.length > 0) {
+    add.map((a: any) => {
+      const { name, values }: { name: string; values: string[] } = a;
+      const isOption = newOptions.find((o: any) => o.name === name);
+      if (isOption) {
+        isOption.values = [
+          ...values.filter((v) => !isOption.values.includes(v)),
+          ...isOption.values,
+        ];
+        return;
+      } else {
+        if (!name || !values) return;
+        newOptions.unshift({
+          name,
+          values: values,
+          imageMap: new Map(),
+        });
+      }
+    });
+  }
+  product!.options.splice(
+    0,
+    product!.options.length,
+    ...(newOptions.filter(Boolean) as any),
+  );
   await product.save();
   res.status(200).json({
     product,
     message: "Product updated successfully",
+  });
+});
+// Delete Routes
+export const DeleteProductHandler = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  const product = await productModel.findById(id);
+
+  if (!product) {
+    throw new AppError("Product not found", 404);
+  }
+
+  const imageDeletePromises = [
+    ...product.images.map((image) => deleteImageFromFileId(image.fileId!)),
+
+    ...product.options.flatMap((option) =>
+      Array.from(option.imageMap.values())
+        .flat()
+        .map((image) => deleteImageFromFileId(image.fileId!)),
+    ),
+  ];
+
+  await Promise.all(imageDeletePromises);
+
+  await productModel.findByIdAndDelete(id);
+
+  res.status(200).json({
+    message: "Product deleted successfully",
   });
 });
