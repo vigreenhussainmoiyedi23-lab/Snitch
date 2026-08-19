@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingBag, Tag } from 'lucide-react';
+import ClearCartButton from './ClearCartButton';
 
 interface CartSummaryProps {
   totalAmount: number;
@@ -62,6 +63,10 @@ const CartSummary: React.FC<CartSummaryProps> = ({ totalAmount, isCheckoutPage =
           <span className="font-medium tracking-wide text-base">Proceed to Checkout</span>
         </Link>
       )}
+
+      <div className="mt-2 pt-2 border-t border-[var(--color-border)]/20">
+        <ClearCartButton />
+      </div>
     </div>
   );
 };
