@@ -6,7 +6,9 @@ interface OptionsShowCaseProps {
   selectedVariant: any;
   setSelectedVariant: (variant: any) => void;
   selectedOptions: Record<string, string>;
-  setSelectedOptions: React.Dispatch<React.SetStateAction<Record<string, string>>>;
+  setSelectedOptions: React.Dispatch<
+    React.SetStateAction<Record<string, string>>
+  >;
 }
 
 const OptionsShowCase = ({
@@ -43,7 +45,7 @@ const OptionsShowCase = ({
 
   // Find matching variant when selectedOptions change
   useEffect(() => {
-    if (options.length === 0) {
+    if (options?.length <= 0) {
       setSelectedVariant(null);
       return;
     }
@@ -51,7 +53,9 @@ const OptionsShowCase = ({
     const allSelected = options.every((opt) => selectedOptions[opt.name]);
     if (allSelected) {
       const matched = variants.find((v) => {
-        return options.every((opt) => v.attributes[opt.name] === selectedOptions[opt.name]);
+        return options.every(
+          (opt) => v.attributes[opt.name] === selectedOptions[opt.name],
+        );
       });
       setSelectedVariant(matched || null);
     } else {
@@ -123,6 +127,8 @@ const OptionsShowCase = ({
             {option.values.map((value) => {
               const isSelected = selectedOptions[option.name] === value;
               const isAvailable = isOptionValueAvailable(option.name, value);
+              const imageMap = (option as any).imageMap;
+              const hasImage = imageMap && imageMap[value];
 
               return (
                 <button
@@ -131,12 +137,14 @@ const OptionsShowCase = ({
                   onClick={() => handleSelect(option.name, value)}
                   className={`
                     min-w-[60px]
-                    px-4
-                    py-2.5
                     rounded-[14px]
                     border
                     text-sm
                     font-medium
+                    flex
+                    items-center
+                    justify-center
+                    gap-2
                     transition-all
                     duration-200
                     active:scale-95
@@ -149,7 +157,7 @@ const OptionsShowCase = ({
                           shadow-md
                         `
                         : isAvailable
-                        ? `
+                          ? `
                           bg-background-light
                           text-text
                           border-border
@@ -157,7 +165,7 @@ const OptionsShowCase = ({
                           hover:bg-background-subtle
                           cursor-pointer
                         `
-                        : `
+                          : `
                           bg-background-light/40
                           text-text-subtle/40
                           border-border/30
@@ -167,9 +175,21 @@ const OptionsShowCase = ({
                           overflow-hidden
                         `
                     }
+                        ${hasImage?"w-32 h-32  object-cover border border-border/20 shrink-0":"py-2.5 px-4"}
                   `}
                 >
-                  {value}
+                  {hasImage ? (
+                    <img
+                      src={
+                        imageMap[value][0].thumbnailUrl ||
+                        imageMap[value][0].url
+                      }
+                      alt={value}
+                      className="w-32 h-32  object-cover border border-border/20 shrink-0"
+                    />
+                  ) : (
+                    <span>{value}</span>
+                  )}
                   {!isAvailable && (
                     <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
                       <span className="w-[120%] h-[1px] bg-text-subtle/30 rotate-12"></span>
