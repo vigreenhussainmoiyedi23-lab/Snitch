@@ -78,7 +78,7 @@ const UpdateProducts = () => {
         visibility: slugProduct.visibility || "",
         isFeatured: slugProduct.isFeatured ? "true" : "false",
         discount: slugProduct.discount || 0,
-        attributes: attributes || {},
+        attributes: attributes || [],
       });
 
       if (slugProduct.images) {

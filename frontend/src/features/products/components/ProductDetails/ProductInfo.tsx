@@ -37,6 +37,11 @@ const ProductInfo = ({
   };
   const ratingValue = getRatingValue();
 
+  const displayMrp = selectedVariant ? selectedVariant.mrp : mrp;
+  const displayFinalPrice = selectedVariant ? selectedVariant.finalPrice : (finalPrice || mrp);
+  const displayDiscount = selectedVariant ? selectedVariant.discount : discount;
+  const displayStock = selectedVariant !== undefined && selectedVariant !== null ? selectedVariant.stock : stock;
+
   return (
     <div className="w-full lg:w-1/2 flex flex-col animate-fade-in" style={{ animationDelay: "0.1s" }}>
       <div className="mb-2">
@@ -67,15 +72,15 @@ const ProductInfo = ({
       {/* Pricing */}
       <div className="flex items-baseline gap-4 mb-6">
         <span className="teko text-5xl text-primary-dark font-medium">
-          ₹{finalPrice || mrp}
+          ₹{displayFinalPrice}
         </span>
-        {mrp && finalPrice && mrp > finalPrice && (
+        {displayMrp && displayFinalPrice && displayMrp > displayFinalPrice && (
           <>
             <span className="teko text-3xl text-text-subtle line-through opacity-70">
-              ₹{mrp}
+              ₹{displayMrp}
             </span>
             <span className="bg-success-light/20 text-success-dark px-2 py-1 rounded-radius-sm teko text-lg">
-              Save {discount}%
+              Save {displayDiscount}%
             </span>
           </>
         )}
@@ -101,10 +106,10 @@ const ProductInfo = ({
 
       {/* Stock Status */}
       <div className="mb-8 mate text-sm">
-        {stock && stock > 0 ? (
+        {displayStock && displayStock > 0 ? (
           <div className="flex items-center gap-2 text-success-dark bg-success-light/20 w-max px-4 py-2 rounded-full font-medium">
             <span className="w-2.5 h-2.5 rounded-full bg-success animate-pulse"></span>
-            In Stock ({stock} available)
+            In Stock ({displayStock} available)
           </div>
         ) : (
           <div className="flex items-center gap-2 text-danger-dark bg-danger-light/20 w-max px-4 py-2 rounded-full font-medium">

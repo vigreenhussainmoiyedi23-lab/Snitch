@@ -1,4 +1,4 @@
-﻿import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useProduct } from "../hook/useProduct";
 import { useEffect, useState } from "react";
 import { useAppSelector } from "../../../app/redux/hook";
@@ -34,10 +34,12 @@ const ProductDetails = () => {
     }
   }, [slug]);
   useEffect(() => {
-    if (slugProduct && slugProduct.images.length > 0) {
+    if (selectedVariant && selectedVariant.images && selectedVariant.images.length > 0) {
+      setImages(selectedVariant.images);
+    } else if (slugProduct && slugProduct.images && slugProduct.images.length > 0) {
       setImages(slugProduct.images);
     }
-  }, [slugProduct]);
+  }, [slugProduct, selectedVariant]);
 
   useEffect(() => {
     if (slugProduct?._id) {
@@ -111,6 +113,7 @@ const ProductDetails = () => {
               stock={stock}
               rating={rating}
               product={slugProduct}
+              selectedVariant={selectedVariant}
             />
             <OptionsShowCase
               selectedVariant={selectedVariant}
