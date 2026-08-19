@@ -15,7 +15,7 @@ import UpdateOptions from "../components/UpdateProducts/UpdateOptions";
 export type Image = {
   url: string;
   thumbnailUrl: string;
-  fileId: string;
+  fileId: string[];
 };
 
 const UpdateProducts = () => {

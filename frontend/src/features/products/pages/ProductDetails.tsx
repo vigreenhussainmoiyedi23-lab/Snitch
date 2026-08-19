@@ -23,11 +23,10 @@ const ProductDetails = () => {
   const { GetProductThroughSlug, DeleteProductHandler } = useProduct();
   const { GetVariantHandler } = useVariant();
   const [images, setImages] = useState([] as { fileId: string; url: string }[]);
-
+  const [selectedVariant, setSelectedVariant] = useState(null);
   const slugProduct = useAppSelector((state) => state.product.slugProduct);
   const loading = useAppSelector((state) => state.product.loading);
   const user = useAppSelector((state) => state.auth.user);
- 
 
   useEffect(() => {
     if (slug) {
@@ -39,7 +38,6 @@ const ProductDetails = () => {
       setImages(slugProduct.images);
     }
   }, [slugProduct]);
-
 
   useEffect(() => {
     if (slugProduct?._id) {
@@ -114,8 +112,11 @@ const ProductDetails = () => {
               rating={rating}
               product={slugProduct}
             />
-            <OptionsShowCase/>
-            <BrowseAndSelectVariant options={slugProduct.options}/>
+            <OptionsShowCase
+              selectedVariant={selectedVariant}
+              setSelectedVariant={setSelectedVariant}
+            />
+            <BrowseAndSelectVariant options={slugProduct.options} />
             <CreateVariantSection
               productId={slugProduct._id}
               isAdmin={user?.role === "admin"}

@@ -397,6 +397,7 @@ export const UpdateProductsOptionsHandler = asyncHandler(async (req, res) => {
     message: "Product updated successfully",
   });
 });
+
 // Delete Routes
 export const DeleteProductHandler = asyncHandler(async (req, res) => {
   const { id } = req.params;
