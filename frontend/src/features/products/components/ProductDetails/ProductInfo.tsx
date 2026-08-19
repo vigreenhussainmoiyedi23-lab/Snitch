@@ -14,6 +14,7 @@ interface ProductInfoProps {
   rating?: number | { average: number };
   product: any;
   selectedVariant?: any;
+  hasSelections?: boolean;
 }
 
 const ProductInfo = ({
@@ -28,6 +29,7 @@ const ProductInfo = ({
   rating,
   product,
   selectedVariant,
+  hasSelections,
 }: ProductInfoProps) => {
   const getRatingValue = () => {
     if (typeof rating === "number") return rating;
@@ -95,7 +97,7 @@ const ProductInfo = ({
       {/* Actions */}
       <div className="flex flex-col sm:flex-row gap-4 mb-8">
         <div className="flex flex-1 gap-4">
-          <CartAction product={product} selectedVariant={selectedVariant} />
+          <CartAction product={product} selectedVariant={selectedVariant} hasSelections={hasSelections} />
 
           <button className="flex-1 bg-primary text-white teko text-2xl px-4 py-3 rounded-radius-sm shadow-medium hover:bg-primary-light transition-all flex items-center justify-center gap-2 group whitespace-nowrap">
             <CreditCard className="w-5 h-5 group-hover:scale-110 transition-transform" />

@@ -24,6 +24,7 @@ const ProductDetails = () => {
   const { GetVariantHandler } = useVariant();
   const [images, setImages] = useState([] as { fileId: string; url: string }[]);
   const [selectedVariant, setSelectedVariant] = useState(null);
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
   const slugProduct = useAppSelector((state) => state.product.slugProduct);
   const loading = useAppSelector((state) => state.product.loading);
   const user = useAppSelector((state) => state.auth.user);
@@ -114,10 +115,13 @@ const ProductDetails = () => {
               rating={rating}
               product={slugProduct}
               selectedVariant={selectedVariant}
+              hasSelections={Object.keys(selectedOptions).length > 0}
             />
             <OptionsShowCase
               selectedVariant={selectedVariant}
               setSelectedVariant={setSelectedVariant}
+              selectedOptions={selectedOptions}
+              setSelectedOptions={setSelectedOptions}
             />
             <BrowseAndSelectVariant options={slugProduct.options} />
             <CreateVariantSection

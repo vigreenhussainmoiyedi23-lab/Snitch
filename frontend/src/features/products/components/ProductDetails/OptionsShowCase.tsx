@@ -5,9 +5,16 @@ import { useVariant } from "../../../variants/hooks/useVariant";
 interface OptionsShowCaseProps {
   selectedVariant: any;
   setSelectedVariant: (variant: any) => void;
+  selectedOptions: Record<string, string>;
+  setSelectedOptions: React.Dispatch<React.SetStateAction<Record<string, string>>>;
 }
 
-const OptionsShowCase = ({ selectedVariant, setSelectedVariant }: OptionsShowCaseProps) => {
+const OptionsShowCase = ({
+  selectedVariant,
+  setSelectedVariant,
+  selectedOptions,
+  setSelectedOptions,
+}: OptionsShowCaseProps) => {
   const slugProduct = useAppSelector((state) => state.product.slugProduct);
   if (!slugProduct) return null;
 
@@ -20,8 +27,6 @@ const OptionsShowCase = ({ selectedVariant, setSelectedVariant }: OptionsShowCas
 
   const options = slugProduct.options || [];
   const variants = useAppSelector((state) => state.variant.variants) || [];
-
-  const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
 
   // Auto-select single values if only one value exists for an option
   useEffect(() => {
