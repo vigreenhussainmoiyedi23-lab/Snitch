@@ -27,6 +27,6 @@ const paymentSchema = new mongoose.Schema(
   },
   { timestamps: true },
 );
-
+paymentSchema.index({ orderId: 1, paymentId: 1 }, { unique: true });
 const Payment = mongoose.model("Payment", paymentSchema);
 export default Payment;

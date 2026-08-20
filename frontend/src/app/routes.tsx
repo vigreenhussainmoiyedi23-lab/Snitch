@@ -15,7 +15,7 @@ import AdminLayout from "../Layouts/AdminLayout";
 import Products from "../features/products/pages/Products";
 import ProductDetails from "../features/products/pages/ProductDetails";
 import UpdateProducts from "../features/products/pages/UpdateProducts";
-import Checkout from "../features/cart/pages/Checkout";
+import Checkout from "../features/payment/pages/Checkout";
 
 export default function AppRoutes() {
   return (
