@@ -48,9 +48,14 @@ export async function GetCartWithTotalPrice(userId: string) {
         userId: new mongoose.Types.ObjectId(userId),
       },
     },
+
     {
-      $unwind: "$cartItems",
+      $unwind: {
+        path: "$cartItems",
+        preserveNullAndEmptyArrays: true,
+      },
     },
+
     {
       $lookup: {
         from: "products",
@@ -59,12 +64,7 @@ export async function GetCartWithTotalPrice(userId: string) {
         as: "cartItems.productDoc",
       },
     },
-    {
-      $unwind: {
-        path: "$cartItems.productDoc",
-        preserveNullAndEmptyArrays: false,
-      },
-    },
+
     {
       $lookup: {
         from: "variants",
@@ -73,36 +73,79 @@ export async function GetCartWithTotalPrice(userId: string) {
         as: "cartItems.variantDoc",
       },
     },
+
     {
       $addFields: {
+        "cartItems.productDoc": {
+          $first: "$cartItems.productDoc",
+        },
         "cartItems.variantDoc": {
           $first: "$cartItems.variantDoc",
         },
       },
     },
+
     {
       $match: {
-        $expr: {
-          $and: [
-            {
-              $ne: ["$cartItems.productDoc", null],
-            },
-            {
-              $or: [
+        $or: [
+          // Empty cart
+          {
+            "cartItems.product": { $exists: false },
+          },
+
+          // Valid cart item
+          {
+            $expr: {
+              $and: [
                 {
-                  $eq: ["$cartItems.isVariant", false],
+                  $ne: ["$cartItems.productDoc", null],
                 },
                 {
-                  $and: [
+                  $or: [
                     {
-                      $ne: ["$cartItems.variantDoc", null],
+                      $eq: ["$cartItems.isVariant", false],
                     },
                     {
-                      $in: [
-                        "$cartItems.variantDoc._id",
-                        "$cartItems.productDoc.variants",
+                      $and: [
+                        {
+                          $ne: ["$cartItems.variantDoc", null],
+                        },
+                        {
+                          $in: [
+                            "$cartItems.variantDoc._id",
+                            "$cartItems.productDoc.variants",
+                          ],
+                        },
                       ],
                     },
+                  ],
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+
+    {
+      $addFields: {
+        "cartItems.product": "$cartItems.productDoc",
+        "cartItems.variant": "$cartItems.variantDoc",
+
+        itemPrice: {
+          $cond: [
+            {
+              $eq: [{ $type: "$cartItems.product" }, "missing"],
+            },
+            0,
+            {
+              $multiply: [
+                "$cartItems.quantity",
+                {
+                  $cond: [
+                    "$cartItems.isVariant",
+                    "$cartItems.variantDoc.finalPrice",
+                    "$cartItems.productDoc.finalPrice",
                   ],
                 },
               ],
@@ -111,47 +154,44 @@ export async function GetCartWithTotalPrice(userId: string) {
         },
       },
     },
-    {
-      $addFields: {
-        "cartItems.product": "$cartItems.productDoc",
-        "cartItems.variant": "$cartItems.variantDoc",
-        itemPrice: {
-          $multiply: [
-            "$cartItems.quantity",
-            {
-              $cond: [
-                "$cartItems.isVariant",
-                "$cartItems.variantDoc.finalPrice",
-                "$cartItems.productDoc.finalPrice",
-              ],
-            },
-          ],
-        },
-      },
-    },
+
     {
       $project: {
         "cartItems.productDoc": 0,
         "cartItems.variantDoc": 0,
       },
     },
+
     {
       $group: {
         _id: "$_id",
+
         userId: {
           $first: "$userId",
         },
+
         __v: {
           $first: "$__v",
         },
+
         totalAmount: {
           $sum: "$itemPrice",
         },
+
         cartItems: {
-          $push: "$cartItems",
+          $push: {
+            $cond: [
+              {
+                $eq: [{ $type: "$cartItems.product" }, "missing"],
+              },
+              "$$REMOVE",
+              "$cartItems",
+            ],
+          },
         },
       },
     },
   ]);
+
   return cart[0];
 }

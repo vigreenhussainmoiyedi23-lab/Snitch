@@ -1,16 +1,19 @@
 import cartModel from "../models/cart.model.js";
-import productModel from "../models/product.model.js";
-import { CalculateTotal, GetCartWithTotalPrice, isItemInCart } from "../services/cart.service.js";
+import {
+  CalculateTotal,
+  GetCartWithTotalPrice,
+  isItemInCart,
+} from "../services/cart.service.js";
 import {
   isValidProductId,
   isValidVariantOfProduct,
 } from "../services/product.service.js";
 import AppError from "../utils/AppError.js";
 import asyncHandler from "../utils/AsyncHandler.js";
-import SendEmail from "../utils/sendOtp.js";
 
 export const GetCartHandler = asyncHandler(async (req, res) => {
   let cart = await GetCartWithTotalPrice(req.user!._id.toString());
+  console.log(cart);
   if (!cart) {
     cart = await cartModel.create({ userId: req.user!._id });
     return res.status(201).json({
@@ -19,8 +22,6 @@ export const GetCartHandler = asyncHandler(async (req, res) => {
       cart,
     });
   }
-
-
 
   return res.status(200).json({
     message: "Cart fetched successfully",
@@ -35,9 +36,19 @@ export const AddToCartHandler = asyncHandler(async (req, res) => {
   await isValidProductId(productId);
 
   if (variantId) await isValidVariantOfProduct(productId, variantId);
-  const cart = await cartModel.findOne({ userId: req.user!._id });
+  const cart: any = await cartModel
+    .findOne({ userId: req.user!._id })
+    .populate([
+      {
+        path: "cartItems.product",
+        select: "finalPrice",
+      },
+      {
+        path: "cartItems.variant",
+        select: "finalPrice",
+      },
+    ]);
   if (!cart) throw new AppError("Cart not found", 404);
-
   const [item] = await isItemInCart(productId, variantId, cart, false);
 
   if (item) {
@@ -51,8 +62,6 @@ export const AddToCartHandler = asyncHandler(async (req, res) => {
       variant: variantId,
     });
   }
-
-  await CalculateTotal(cart);
 
   await cart.save();
   res.status(201).json({
@@ -84,12 +93,6 @@ export const UpdateCartItemHandler = asyncHandler(async (req, res) => {
 
   const [item] = await isItemInCart(productId, variantId, cart);
 
-  const oldQuantity = item?.quantity;
-  const finalPrice =
-    item.isVariant && item.variant.finalPrice
-      ? item.variant.finalPrice
-      : item.product.finalPrice;
-
   item!.quantity += increaseBy - decreaseBy;
 
   if (item!?.quantity <= 0) {
@@ -99,11 +102,7 @@ export const UpdateCartItemHandler = asyncHandler(async (req, res) => {
 
     if (index !== -1) {
       cart.cartItems.splice(index, 1);
-      cart.totalAmount = cart.totalAmount - finalPrice * oldQuantity;
     }
-  } else {
-    cart.totalAmount =
-      cart.totalAmount - finalPrice * decreaseBy + finalPrice * increaseBy;
   }
 
   await cart.save();
@@ -119,7 +118,6 @@ export const DeleteCartHandler = asyncHandler(async (req, res) => {
   const cart = await cartModel.findOne({ userId: req.user!._id });
   if (!cart) throw new AppError("Cart not found", 404);
   cart.cartItems.splice(0);
-  cart.totalAmount = 0;
   await cart.save();
   res.status(200).json({
     message: "Cart deleted successfully",
@@ -159,12 +157,6 @@ export const DeleteCartItemHandler = asyncHandler(async (req, res) => {
     variantId,
     cart,
   );
-
-  const finalPrice =
-    item.isVariant && item.variant.finalPrice
-      ? item.variant.finalPrice
-      : item.product.finalPrice;
-  cart.totalAmount -= item.quantity * finalPrice;
 
   cart.cartItems.splice(index, 1);
 

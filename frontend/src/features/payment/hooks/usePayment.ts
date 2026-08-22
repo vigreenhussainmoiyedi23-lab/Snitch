@@ -1,6 +1,8 @@
+import { useCart } from "../../cart/Hooks/useCart";
 import { CreateOrderApi, verifyPaymentApi } from "../service/api.service";
 
 const usePayment = () => {
+  const {GetCartHandler}=useCart()
   const handlePayment =async () => {
     try {
       console.count("🔥 handlePayment called");
@@ -22,15 +24,11 @@ const usePayment = () => {
               signature: razorpay_signature,
             };
             await verifyPaymentApi(data);
+            await GetCartHandler()
             alert("Payment successful!");
           } catch (err) {
             alert("Payment verification failed!");
           }
-        },
-        prefill: {
-          name: "Test User",
-          email: "test@example.com",
-          contact: "9999999999",
         },
         theme: {
           color: "#3399cc",
